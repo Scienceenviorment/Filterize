@@ -14,8 +14,8 @@ from flask_cors import CORS
 from ai_detection import analyze_ai_content
 from ai_providers import analyze_text_with_provider
 from internet_fact_checker_fixed import InternetFactChecker
-from local_model import analyze_text_local
-from news_provider import real_news_provider
+from local_model import analyze_with_local_model
+from news_provider import get_real_news_context
 
 # Simple in-memory metrics; persisted to cache/metrics.json when updated
 metrics = {
@@ -214,13 +214,13 @@ def analyze():
     # Local model analysis
     if prefer in (None, 'auto', 'local') or not provider:
         try:
-            if hasattr(analyze_text_local, '__call__'):
+            if hasattr(analyze_with_local_model, '__call__'):
                 # Avoid mutating a module-level variable inside the function
                 # (scoping issues).
                 
                 # lazy import to keep runtime light when scikit-learn
                 # isn't installed
-                result = analyze_text_local(text)
+                result = analyze_with_local_model(text)
                 if result:
                     _inc_metric('local_used')
         except (ImportError, AttributeError):
@@ -321,7 +321,7 @@ def analyze():
     
     # Real news context
     try:
-        news_result = real_news_provider.get_real_news(text)
+        news_result = get_real_news_context(text)
         if news_result:
             result['news_context'] = {
                 'articles': news_result.get('articles', [])[:3],
@@ -383,7 +383,7 @@ def news():
         if not query:
             return jsonify({'error': 'Query parameter q is required'}), 400
         
-        news_result = real_news_provider.get_real_news(query)
+        news_result = get_real_news_context(query)
         return jsonify(news_result or {})
     
     except Exception as error:

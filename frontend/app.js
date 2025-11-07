@@ -1036,6 +1036,11 @@ function displayFactCheckResults(result) {
   if (result.real_news_context) {
     displayRealNewsContext(result.real_news_context);
   }
+  
+  // Display related articles if available
+  if (result.related_articles && result.related_articles.length > 0) {
+    displayRelatedArticles(result.related_articles);
+  }
 }
 
 function displayRealNewsContext(newsContext) {
@@ -1099,6 +1104,71 @@ function formatNewsTime(timestamp) {
   } catch (e) {
     return 'Recently';
   }
+}
+
+function displayRelatedArticles(articles) {
+  const relatedArticlesSection = document.getElementById('relatedArticlesSection');
+  const articlesGrid = document.getElementById('articlesGrid');
+  
+  if (!relatedArticlesSection || !articlesGrid) return;
+  
+  // Show the related articles section
+  relatedArticlesSection.classList.remove('hidden');
+  
+  // Clear loading state and display articles
+  articlesGrid.innerHTML = '';
+  
+  if (articles.length === 0) {
+    articlesGrid.innerHTML = `
+      <div class="article-item loading">
+        <div class="article-title">No related articles found</div>
+        <div class="article-summary">Unable to find closely related articles at this time.</div>
+      </div>
+    `;
+    return;
+  }
+  
+  articles.forEach(article => {
+    const articleElement = document.createElement('div');
+    articleElement.className = 'article-item';
+    
+    const keyPointsHtml = article.key_points && article.key_points.length > 0 
+      ? `
+        <div class="article-key-points">
+          <div class="key-points-title">Key Points:</div>
+          <ul class="key-points-list">
+            ${article.key_points.map(point => `<li>${point}</li>`).join('')}
+          </ul>
+        </div>
+      ` : '';
+    
+    articleElement.innerHTML = `
+      <div class="article-category">${article.category || 'News'}</div>
+      <div class="article-title">${article.title}</div>
+      <div class="article-summary">${article.summary}</div>
+      <div class="article-meta">
+        <span class="article-source">${article.source}</span>
+        <span class="article-date">${article.publish_date || 'Recent'}</span>
+      </div>
+      ${keyPointsHtml}
+      <div class="article-relevance">
+        <span class="relevance-label">Relevance:</span>
+        <span class="relevance-score">${article.relevance_score || 0}%</span>
+      </div>
+      <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="article-url">
+        🔗 Read full article
+      </a>
+    `;
+    
+    // Add click handler to open article
+    articleElement.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'A') {
+        window.open(article.url, '_blank', 'noopener,noreferrer');
+      }
+    });
+    
+    articlesGrid.appendChild(articleElement);
+  });
 }
 
 function displayMultiAIResults(result) {
