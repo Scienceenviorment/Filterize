@@ -36,6 +36,70 @@ function setSentiment(compound){
   if (n) { n.style.width = Math.round(neg) + '%'; n.innerText = Math.round(neg) + '%'; }
 }
 
+function setAiGauge(aiData) {
+  if (!aiData) return;
+  
+  // Update AI probability gauge
+  const aiProbability = Math.round((aiData.ai_probability || 0) * 100);
+  const aiGauge = document.getElementById('aiGaugeProgress');
+  const aiScore = document.getElementById('aiGaugeScore');
+  const aiStatus = document.getElementById('aiStatus');
+  
+  if (aiGauge && aiScore) {
+    const dash = (aiProbability / 100) * circumference;
+    aiGauge.setAttribute('stroke-dasharray', `${dash} ${circumference}`);
+    aiScore.innerText = aiProbability;
+  }
+  
+  if (aiStatus) {
+    aiStatus.className = 'ai-status';
+    if (aiProbability >= 70) {
+      aiStatus.classList.add('status-high-ai');
+      aiStatus.innerText = 'High AI probability';
+    } else if (aiProbability >= 30) {
+      aiStatus.classList.add('status-medium-ai');
+      aiStatus.innerText = 'Medium AI probability';
+    } else {
+      aiStatus.classList.add('status-low-ai');
+      aiStatus.innerText = 'Low AI probability';
+    }
+  }
+  
+  // Update AI details
+  const confidence = document.getElementById('aiConfidence');
+  const explanation = document.getElementById('aiExplanation');
+  const methods = document.getElementById('aiMethods');
+  const perplexity = document.getElementById('aiPerplexity');
+  const watermark = document.getElementById('aiWatermark');
+  
+  if (confidence) {
+    confidence.textContent = Math.round((aiData.confidence || 0) * 100) + '%';
+  }
+  
+  if (explanation) {
+    explanation.textContent = aiData.explanation || 'No detailed explanation available';
+  }
+  
+  if (methods && aiData.detection_methods) {
+    methods.textContent = aiData.detection_methods.join(', ') || 'None';
+  }
+  
+  if (perplexity) {
+    perplexity.textContent = aiData.perplexity_score ? aiData.perplexity_score.toFixed(2) : 'N/A';
+  }
+  
+  if (watermark) {
+    watermark.className = 'watermark-status';
+    if (aiData.watermark_detected) {
+      watermark.classList.add('detected');
+      watermark.innerText = 'Detected';
+    } else {
+      watermark.classList.add('not-detected');
+      watermark.innerText = 'Not detected';
+    }
+  }
+}
+
 function renderWordCloud(phrases){
   const wc = document.getElementById('wordcloud');
   if (!wc) return;
@@ -171,6 +235,22 @@ async function startAnalysis(){
         return;
       }
       result = await analyzeUrl(url);
+    } else if (currentContentType === 'fact-check') {
+      const text = document.getElementById('factCheckText').value.trim();
+      if (!text) {
+        showToast('Please enter content for fact-checking', 'error');
+        return;
+      }
+      result = await analyzeFactCheck(text);
+    } else if (currentContentType === 'multi-ai') {
+      const text = document.getElementById('multiAiText').value.trim();
+      if (!text) {
+        showToast('Please enter content for multi-AI analysis', 'error');
+        return;
+      }
+      const provider = document.getElementById('providerSelect').value;
+      const task = document.getElementById('taskSelect').value;
+      result = await analyzeMultiAI(text, provider, task);
     }
     
     if (result) {
@@ -334,6 +414,24 @@ function switchContentType(type) {
   // Clear previous file
   currentFile = null;
   clearPreviews();
+  
+  // Hide all results sections initially
+  hideAllResults();
+  
+  // Update analyze button text based on type
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  if (analyzeBtn) {
+    switch(type) {
+      case 'fact-check':
+        analyzeBtn.innerHTML = '🔍 Fact Check';
+        break;
+      case 'multi-ai':
+        analyzeBtn.innerHTML = '🤖 Multi-AI Analyze';
+        break;
+      default:
+        analyzeBtn.innerHTML = '🚀 Analyze';
+    }
+  }
 }
 
 // File upload handlers
@@ -551,6 +649,696 @@ async function analyzeUrl(url) {
   return await response.json();
 }
 
+// New fact-checking analysis function
+async function analyzeFactCheck(content) {
+  const response = await fetch('/api/fact-check', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+      content,
+      type: 'text'
+    })
+  });
+  
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return await response.json();
+}
+
+// New multi-AI analysis function  
+async function analyzeMultiAI(content, provider = '', task = 'analysis') {
+  const response = await fetch('/api/multi-ai-analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+      content,
+      type: 'text',
+      task,
+      provider: provider || undefined
+    })
+  });
+  
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return await response.json();
+}
+
+// Enhanced display results function
+function displayResults(result) {
+  if (!result) return;
+  
+  // Hide all result sections first
+  hideAllResults();
+  
+  // Determine which results to show based on analysis type
+  if (currentContentType === 'fact-check') {
+    displayFactCheckResults(result);
+  } else if (currentContentType === 'multi-ai') {
+    displayMultiAIResults(result);
+  } else {
+    // Show standard results for text/image/video/url analysis
+    displayStandardResults(result);
+  }
+  
+  // Show results section
+  document.getElementById('resultsSection').classList.remove('hidden');
+}
+
+function hideAllResults() {
+  const resultSections = [
+    'factCheckResults', 'multiAiResults'
+  ];
+  
+  resultSections.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) element.classList.add('hidden');
+  });
+}
+
+function displayStandardResults(result) {
+  // Show traditional analysis results by ensuring standard sections are visible
+  const aiDetectionSection = document.getElementById('aiDetectionCard');
+  if (aiDetectionSection) {
+    aiDetectionSection.classList.remove('hidden');
+  }
+  
+  // Calculate truth vs fake percentages
+  const score = result.score || 0;
+  const truthPercentage = Math.max(0, Math.min(100, score));
+  const fakePercentage = 100 - truthPercentage;
+  
+  // Update truth/fake display
+  const truthPercentageEl = document.getElementById('truthPercentage');
+  const fakePercentageEl = document.getElementById('fakePercentage');
+  
+  if (truthPercentageEl) truthPercentageEl.textContent = truthPercentage + '%';
+  if (fakePercentageEl) fakePercentageEl.textContent = fakePercentage + '%';
+  
+  // Update credibility status
+  const credibilityStatus = document.getElementById('credibilityStatus');
+  if (credibilityStatus) {
+    credibilityStatus.className = 'credibility-status';
+    if (truthPercentage >= 75) {
+      credibilityStatus.classList.add('status-high');
+      credibilityStatus.textContent = 'Highly Credible Content';
+    } else if (truthPercentage >= 50) {
+      credibilityStatus.classList.add('status-medium');
+      credibilityStatus.textContent = 'Moderately Credible Content';
+    } else {
+      credibilityStatus.classList.add('status-low');
+      credibilityStatus.textContent = 'Low Credibility Content';
+    }
+  }
+  
+  // Update AI detection display
+  if (result.ai_detection) {
+    const aiProbabilityText = document.getElementById('aiProbabilityText');
+    const aiConfidenceText = document.getElementById('aiConfidenceText');
+    const aiExplanationText = document.getElementById('aiExplanationText');
+    
+    if (aiProbabilityText) {
+      aiProbabilityText.textContent = Math.round((result.ai_detection.ai_probability || 0) * 100) + '%';
+    }
+    if (aiConfidenceText) {
+      aiConfidenceText.textContent = Math.round((result.ai_detection.confidence || 0) * 100) + '%';
+    }
+    if (aiExplanationText) {
+      aiExplanationText.textContent = result.ai_detection.explanation || 'No detailed explanation available';
+    }
+  }
+  
+  // Update sentiment display
+  if (result.vader_compound !== undefined) {
+    updateSentimentDisplay(result.vader_compound);
+  }
+  
+  // Update analysis details
+  const usedMethod = document.getElementById('usedMethod');
+  if (usedMethod) {
+    usedMethod.textContent = result.used || 'auto';
+  }
+  
+  const detectionMethodsList = document.getElementById('detectionMethodsList');
+  if (detectionMethodsList && result.ai_detection && result.ai_detection.detection_methods) {
+    detectionMethodsList.textContent = result.ai_detection.detection_methods.join(', ') || 'Standard analysis';
+  }
+  
+  const analysisTime = document.getElementById('analysisTime');
+  if (analysisTime) {
+    analysisTime.textContent = new Date().toLocaleTimeString();
+  }
+  
+  // Generate real truth facts
+  generateTruthFacts(result, currentContentType);
+  
+  // Update key insights
+  updateKeyInsights(result);
+  
+  // Add to history for text analysis
+  if (currentContentType === 'text') {
+    const text = document.getElementById('inputText').value.trim();
+    if (text) {
+      addToHistory({
+        full: text,
+        preview: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+        score: Math.round(result.score || 0),
+        used: result.used || 'unknown',
+        timestamp: Date.now()
+      });
+    }
+  }
+}
+
+function updateSentimentDisplay(vaderCompound) {
+  const positive = Math.max(0, vaderCompound) * 100;
+  const negative = Math.max(0, -vaderCompound) * 100;
+  const neutral = Math.max(0, 100 - positive - negative);
+  
+  const positivePercentage = document.getElementById('positivePercentage');
+  const neutralPercentage = document.getElementById('neutralPercentage');
+  const negativePercentage = document.getElementById('negativePercentage');
+  
+  if (positivePercentage) positivePercentage.textContent = Math.round(positive) + '%';
+  if (neutralPercentage) neutralPercentage.textContent = Math.round(neutral) + '%';
+  if (negativePercentage) negativePercentage.textContent = Math.round(negative) + '%';
+}
+
+function generateTruthFacts(result, contentType) {
+  const truthFacts = document.getElementById('truthFacts');
+  const noTruthAvailable = document.getElementById('noTruthAvailable');
+  
+  if (!truthFacts) return;
+  
+  const facts = [];
+  const score = result.score || 0;
+  
+  // Generate truth facts based on analysis
+  if (score >= 75) {
+    facts.push('Content shows strong indicators of authenticity and credibility');
+    facts.push('Language patterns suggest natural, human-written text');
+    facts.push('No significant red flags detected in the content structure');
+  } else if (score >= 50) {
+    facts.push('Content contains mixed credibility indicators');
+    facts.push('Some elements require additional verification');
+    facts.push('Exercise moderate caution when sharing this content');
+  } else {
+    facts.push('Content exhibits multiple suspicious characteristics');
+    facts.push('High likelihood of misinformation or manipulative intent');
+    facts.push('Recommend fact-checking through authoritative sources');
+  }
+  
+  // Add AI detection insights
+  if (result.ai_detection) {
+    const aiProbability = result.ai_detection.ai_probability || 0;
+    if (aiProbability > 0.7) {
+      facts.push('Content appears to be AI-generated with high confidence');
+    } else if (aiProbability > 0.3) {
+      facts.push('Content may contain AI-generated elements');
+    } else {
+      facts.push('Content appears to be human-written');
+    }
+  }
+  
+  // Add content-specific insights
+  if (contentType === 'text') {
+    facts.push('Text analysis completed using advanced natural language processing');
+  } else if (contentType === 'image') {
+    facts.push('Image analysis included metadata and visual content examination');
+  } else if (contentType === 'video') {
+    facts.push('Video analysis examined both audio and visual components');
+  } else if (contentType === 'url') {
+    facts.push('URL content was analyzed for source credibility and context');
+  }
+  
+  // Display facts or show no truth available message
+  if (facts.length > 0) {
+    truthFacts.innerHTML = facts.map(fact => `<li>${fact}</li>`).join('');
+    truthFacts.classList.remove('hidden');
+    if (noTruthAvailable) noTruthAvailable.classList.add('hidden');
+  } else {
+    truthFacts.classList.add('hidden');
+    if (noTruthAvailable) noTruthAvailable.classList.remove('hidden');
+  }
+}
+
+function updateKeyInsights(result) {
+  const keyInsightsList = document.getElementById('keyInsightsList');
+  if (!keyInsightsList) return;
+  
+  const insights = [];
+  const score = result.score || 0;
+  
+  // Generate insights based on analysis results
+  if (result.ai_detection) {
+    const methods = result.ai_detection.detection_methods || [];
+    if (methods.length > 0) {
+      insights.push(`Detection methods used: ${methods.join(', ')}`);
+    }
+    
+    if (result.ai_detection.flags && result.ai_detection.flags.length > 0) {
+      insights.push(`Analysis flags: ${result.ai_detection.flags.join(', ')}`);
+    }
+  }
+  
+  // Add sentiment insights
+  if (result.vader_compound !== undefined) {
+    const sentiment = result.vader_compound > 0.1 ? 'positive' : 
+                     result.vader_compound < -0.1 ? 'negative' : 'neutral';
+    insights.push(`Content sentiment is predominantly ${sentiment}`);
+  }
+  
+  // Add credibility insights
+  if (score >= 80) {
+    insights.push('Content meets high standards for factual accuracy');
+  } else if (score >= 60) {
+    insights.push('Content is generally reliable but may benefit from verification');
+  } else if (score >= 40) {
+    insights.push('Content credibility is questionable - verify before sharing');
+  } else {
+    insights.push('Content shows significant credibility concerns');
+  }
+  
+  // Add analysis method insight
+  insights.push(`Analysis completed using ${result.used || 'automated'} method`);
+  
+  // Display insights
+  keyInsightsList.innerHTML = insights.map(insight => 
+    `<div class="insight-item">${insight}</div>`
+  ).join('');
+}
+
+function displayFactCheckResults(result) {
+  // Use the new organized layout for fact-check results
+  
+  // Calculate truth vs fake based on fact-check score
+  const factScore = result.fact_check_score || result.analysis?.fact_check_score || 0;
+  const truthPercentage = Math.max(0, Math.min(100, factScore));
+  const fakePercentage = 100 - truthPercentage;
+  
+  // Update truth/fake display
+  const truthPercentageEl = document.getElementById('truthPercentage');
+  const fakePercentageEl = document.getElementById('fakePercentage');
+  
+  if (truthPercentageEl) truthPercentageEl.textContent = truthPercentage + '%';
+  if (fakePercentageEl) fakePercentageEl.textContent = fakePercentage + '%';
+  
+  // Update status
+  const credibilityStatus = document.getElementById('credibilityStatus');
+  if (credibilityStatus) {
+    credibilityStatus.className = 'credibility-status';
+    if (truthPercentage >= 75) {
+      credibilityStatus.classList.add('status-high');
+      credibilityStatus.textContent = 'Highly Accurate Information';
+    } else if (truthPercentage >= 50) {
+      credibilityStatus.classList.add('status-medium');
+      credibilityStatus.textContent = 'Moderately Accurate Information';
+    } else {
+      credibilityStatus.classList.add('status-low');
+      credibilityStatus.textContent = 'Low Accuracy - Potential Misinformation';
+    }
+  }
+  
+  // Display real facts from internet fact-checking
+  const truthFacts = document.getElementById('truthFacts');
+  if (truthFacts) {
+    const facts = [];
+    
+    // Use internet fact-checking real facts if available
+    if (result.real_facts && result.real_facts.length > 0) {
+      facts.push(...result.real_facts);
+    } else if (result.analysis?.real_facts && result.analysis.real_facts.length > 0) {
+      facts.push(...result.analysis.real_facts);
+    } else {
+      // Generate insights based on fact-check score
+      if (factScore >= 80) {
+        facts.push('Content aligns well with verified information sources');
+        facts.push('No major factual inconsistencies detected');
+        facts.push('Claims appear to be supported by evidence');
+      } else if (factScore >= 60) {
+        facts.push('Some claims require additional verification');
+        facts.push('Mixed accuracy across different statements');
+        facts.push('Recommend cross-referencing with authoritative sources');
+      } else {
+        facts.push('Multiple factual concerns identified in the content');
+        facts.push('Claims contradict established facts or reliable sources');
+        facts.push('High likelihood of containing misinformation');
+      }
+    }
+    
+    // Add internet search info if available
+    if (result.internet_search_performed) {
+      facts.push('✓ Comprehensive internet fact-checking completed');
+    }
+    
+    if (result.sources_checked) {
+      facts.push(`✓ Verified against ${result.sources_checked} information sources`);
+    }
+    
+    truthFacts.innerHTML = facts.map(fact => `<li>${fact}</li>`).join('');
+  }
+  
+  // Update key insights for internet fact-checking
+  const keyInsightsList = document.getElementById('keyInsightsList');
+  if (keyInsightsList) {
+    const insights = [
+      `Internet fact-check score: ${factScore}%`,
+      `Analysis method: Comprehensive internet verification`,
+      `Sources checked: ${result.sources_checked || 0}`,
+      `Analysis completed: ${new Date().toLocaleTimeString()}`
+    ];
+    
+    if (result.verified_claims && result.verified_claims.length > 0) {
+      insights.push(`✓ Verified claims: ${result.verified_claims.length}`);
+    }
+    
+    if (result.disputed_claims && result.disputed_claims.length > 0) {
+      insights.push(`⚠ Disputed claims: ${result.disputed_claims.length}`);
+    }
+    
+    if (result.internet_search_performed) {
+      insights.push('✓ Real-time internet verification performed');
+    }
+    
+    keyInsightsList.innerHTML = insights.map(insight => 
+      `<div class="insight-item">${insight}</div>`
+    ).join('');
+  }
+  
+  // Show fact-check specific analysis
+  const analysisStatus = document.getElementById('analysisStatus');
+  if (analysisStatus) {
+    if (result.internet_search_performed) {
+      analysisStatus.textContent = 'Internet-based comprehensive fact-check analysis complete';
+    } else {
+      analysisStatus.textContent = 'Comprehensive fact-check analysis complete';
+    }
+  }
+  
+  // Display real news context if available
+  if (result.real_news_context) {
+    displayRealNewsContext(result.real_news_context);
+  }
+}
+
+function displayRealNewsContext(newsContext) {
+  const realNewsSection = document.getElementById('realNewsSection');
+  const summaryText = document.getElementById('summaryText');
+  const newsList = document.getElementById('newsList');
+  const trendingList = document.getElementById('trendingList');
+  
+  if (!realNewsSection) return;
+  
+  // Show the real news section
+  realNewsSection.classList.remove('hidden');
+  
+  // Update AI-generated summary
+  if (summaryText && newsContext.ai_summary) {
+    summaryText.textContent = newsContext.ai_summary;
+  }
+  
+  // Display related news
+  if (newsList && newsContext.related_news) {
+    if (newsContext.related_news.length > 0) {
+      newsList.innerHTML = newsContext.related_news.map(news => `
+        <div class="news-item">
+          <div class="news-title">${news.title || 'News Update'}</div>
+          <div class="news-summary">${news.summary || ''}</div>
+          <div class="news-meta">
+            <span class="news-source">${news.source || 'News Source'}</span>
+            <span class="news-time">${formatNewsTime(news.timestamp)}</span>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      newsList.innerHTML = '<div class="news-item loading">No related news available at this time.</div>';
+    }
+  }
+  
+  // Display trending topics
+  if (trendingList && newsContext.trending_topics) {
+    if (newsContext.trending_topics.length > 0) {
+      trendingList.innerHTML = newsContext.trending_topics.map(topic => 
+        `<span class="trending-tag">${topic}</span>`
+      ).join('');
+    } else {
+      trendingList.innerHTML = '<span class="trending-tag loading">No trending topics</span>';
+    }
+  }
+}
+
+function formatNewsTime(timestamp) {
+  if (!timestamp) return 'Recently';
+  
+  try {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    
+    if (diffHours < 1) return 'Just now';
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return date.toLocaleDateString();
+  } catch (e) {
+    return 'Recently';
+  }
+}
+
+function displayMultiAIResults(result) {
+  // Use the new organized layout for multi-AI results
+  
+  // Calculate truth vs fake based on local comparison score
+  const localScore = result.local_comparison?.score || result.analysis?.fact_check_score || 50;
+  const truthPercentage = Math.max(0, Math.min(100, localScore));
+  const fakePercentage = 100 - truthPercentage;
+  
+  // Update truth/fake display
+  const truthPercentageEl = document.getElementById('truthPercentage');
+  const fakePercentageEl = document.getElementById('fakePercentage');
+  
+  if (truthPercentageEl) truthPercentageEl.textContent = truthPercentage + '%';
+  if (fakePercentageEl) fakePercentageEl.textContent = fakePercentage + '%';
+  
+  // Update status
+  const credibilityStatus = document.getElementById('credibilityStatus');
+  if (credibilityStatus) {
+    credibilityStatus.className = 'credibility-status';
+    if (truthPercentage >= 75) {
+      credibilityStatus.classList.add('status-high');
+      credibilityStatus.textContent = 'Multi-AI Analysis: High Confidence';
+    } else if (truthPercentage >= 50) {
+      credibilityStatus.classList.add('status-medium');
+      credibilityStatus.textContent = 'Multi-AI Analysis: Moderate Confidence';
+    } else {
+      credibilityStatus.classList.add('status-low');
+      credibilityStatus.textContent = 'Multi-AI Analysis: Low Confidence';
+    }
+  }
+  
+  // Update AI detection if available
+  if (result.analysis?.ai_detection) {
+    const aiProbabilityText = document.getElementById('aiProbabilityText');
+    const aiConfidenceText = document.getElementById('aiConfidenceText');
+    const aiExplanationText = document.getElementById('aiExplanationText');
+    
+    if (aiProbabilityText) {
+      aiProbabilityText.textContent = Math.round((result.analysis.ai_detection.ai_probability || 0) * 100) + '%';
+    }
+    if (aiConfidenceText) {
+      aiConfidenceText.textContent = Math.round((result.analysis.ai_detection.confidence || 0) * 100) + '%';
+    }
+    if (aiExplanationText) {
+      aiExplanationText.textContent = result.analysis.ai_detection.explanation || 'Multi-AI analysis completed';
+    }
+  }
+  
+  // Update sentiment display from local comparison
+  if (result.local_comparison?.polarity !== undefined) {
+    const polarity = result.local_comparison.polarity;
+    const positive = Math.max(0, polarity) * 100;
+    const negative = Math.max(0, -polarity) * 100;
+    const neutral = Math.max(0, 100 - positive - negative);
+    
+    const positivePercentage = document.getElementById('positivePercentage');
+    const neutralPercentage = document.getElementById('neutralPercentage');
+    const negativePercentage = document.getElementById('negativePercentage');
+    
+    if (positivePercentage) positivePercentage.textContent = Math.round(positive) + '%';
+    if (neutralPercentage) neutralPercentage.textContent = Math.round(neutral) + '%';
+    if (negativePercentage) negativePercentage.textContent = Math.round(negative) + '%';
+  }
+  
+  // Generate multi-AI specific truth facts
+  const truthFacts = document.getElementById('truthFacts');
+  if (truthFacts) {
+    const facts = [];
+    
+    facts.push(`Multi-AI analysis using ${result.provider_used || 'specialized algorithms'}`);
+    facts.push(`Primary analysis score: ${truthPercentage}%`);
+    
+    if (result.local_comparison) {
+      facts.push(`Local comparison score: ${result.local_comparison.score || 'N/A'}`);
+      const sentiment = result.local_comparison.polarity > 0.1 ? 'positive' : 
+                       result.local_comparison.polarity < -0.1 ? 'negative' : 'neutral';
+      facts.push(`Content sentiment analysis indicates ${sentiment} tone`);
+    }
+    
+    if (result.analysis?.ai_detection) {
+      const aiProb = Math.round((result.analysis.ai_detection.ai_probability || 0) * 100);
+      facts.push(`AI content detection probability: ${aiProb}%`);
+    }
+    
+    if (result.model) {
+      facts.push(`Analysis model: ${result.model}`);
+    }
+    
+    // Add provider-specific insights
+    if (result.provider_used === 'specialized') {
+      facts.push('Analysis performed using built-in specialized algorithms');
+      facts.push('Results cross-validated against multiple detection methods');
+    } else {
+      facts.push(`External AI provider analysis: ${result.provider_used}`);
+    }
+    
+    truthFacts.innerHTML = facts.map(fact => `<li>${fact}</li>`).join('');
+  }
+  
+  // Update key insights for multi-AI
+  const keyInsightsList = document.getElementById('keyInsightsList');
+  if (keyInsightsList) {
+    const insights = [
+      `Primary provider: ${result.provider_used || 'Auto-selected'}`,
+      `Analysis model: ${result.model || 'Standard'}`,
+      `Success status: ${result.success ? 'Completed' : 'Failed'}`,
+      `Analysis time: ${new Date().toLocaleTimeString()}`
+    ];
+    
+    if (result.local_comparison) {
+      insights.push(`Local comparison score: ${result.local_comparison.score || 'N/A'}`);
+    }
+    
+    if (result.analysis?.fact_check_score) {
+      insights.push(`Fact-check component: ${result.analysis.fact_check_score}%`);
+    }
+    
+    keyInsightsList.innerHTML = insights.map(insight => 
+      `<div class="insight-item">${insight}</div>`
+    ).join('');
+  }
+  
+  // Update analysis status
+  const analysisStatus = document.getElementById('analysisStatus');
+  if (analysisStatus) {
+    analysisStatus.textContent = 'Multi-AI comparative analysis complete';
+  }
+  
+  // Update analysis details
+  const usedMethod = document.getElementById('usedMethod');
+  if (usedMethod) {
+    usedMethod.textContent = result.provider_used || 'Multi-AI routing';
+  }
+  
+  const analysisTime = document.getElementById('analysisTime');
+  if (analysisTime) {
+    analysisTime.textContent = new Date().toLocaleTimeString();
+  }
+}
+
+// Load available providers on page load
+async function loadProviders() {
+  try {
+    const response = await fetch('/api/providers');
+    if (response.ok) {
+      const providers = await response.json();
+      updateProviderSelect(providers);
+    }
+  } catch (error) {
+    console.warn('Could not load providers:', error);
+  }
+}
+
+function updateProviderSelect(providers) {
+  const select = document.getElementById('providerSelect');
+  if (!select || !providers.providers) return;
+  
+  // Clear existing options except "Auto"
+  const autoOption = select.querySelector('option[value=""]');
+  select.innerHTML = '';
+  if (autoOption) select.appendChild(autoOption);
+  
+  // Add available providers
+  Object.entries(providers.providers).forEach(([key, provider]) => {
+    if (provider.available) {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = `${provider.name} ✅`;
+      select.appendChild(option);
+    }
+  });
+}
+
+// Real News Functionality
+async function fetchRealNews() {
+  const fetchNewsBtn = document.getElementById('fetchNewsBtn');
+  const summaryText = document.getElementById('summaryText');
+  const newsList = document.getElementById('newsList');
+  const trendingList = document.getElementById('trendingList');
+  
+  // Show loading state
+  if (fetchNewsBtn) {
+    fetchNewsBtn.disabled = true;
+    fetchNewsBtn.textContent = '⏳ Loading...';
+  }
+  
+  if (summaryText) {
+    summaryText.textContent = 'Fetching latest news and context...';
+  }
+  
+  try {
+    // Get current content for context
+    const inputText = document.getElementById('inputText')?.value || '';
+    
+    const response = await fetch('/api/real-news', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content: inputText,
+        categories: ['technology', 'science', 'world', 'health']
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
+    const newsData = await response.json();
+    
+    // Display the news context
+    displayRealNewsContext({
+      ai_summary: newsData.ai_generated_summary,
+      related_news: newsData.real_news,
+      trending_topics: newsData.trending_topics,
+      forward_insights: newsData.forward_looking_insights
+    });
+    
+    showToast('Latest news updated successfully!', 'success');
+    
+  } catch (error) {
+    console.error('Failed to fetch real news:', error);
+    
+    if (summaryText) {
+      summaryText.textContent = 'Failed to fetch latest news. Please try again.';
+    }
+    
+    showToast('Failed to fetch news. Please try again.', 'error');
+  } finally {
+    // Reset button
+    if (fetchNewsBtn) {
+      fetchNewsBtn.disabled = false;
+      fetchNewsBtn.textContent = '🔄 Get Latest News';
+    }
+  }
+}
+
 // Toast notification system
 function showToast(message, type = 'info') {
   const toast = document.getElementById('toast');
@@ -573,6 +1361,24 @@ function showToast(message, type = 'info') {
 // Initialize everything
 document.addEventListener('DOMContentLoaded', function() {
   setupFileUploads();
+  loadProviders(); // Load available AI providers
+  
+  // Setup real news button
+  const fetchNewsBtn = document.getElementById('fetchNewsBtn');
+  if (fetchNewsBtn) {
+    fetchNewsBtn.addEventListener('click', fetchRealNews);
+  }
+  
+  // Show real news section by default
+  const realNewsSection = document.getElementById('realNewsSection');
+  if (realNewsSection) {
+    realNewsSection.classList.remove('hidden');
+    // Load initial news on page load
+    fetchRealNews();
+  }
+  
+  // Initialize with text content type
+  switchContentType('text');
 });
 
 // Make functions globally available

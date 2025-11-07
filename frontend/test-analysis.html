@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Analysis</title>
+</head>
+<body>
+    <h1>Analysis Test</h1>
+    <script>
+        // Test the analysis functionality by making a direct API call
+        async function testAnalysis() {
+            try {
+                const response = await fetch('http://localhost:5000/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        content: 'This is a test message to verify the analysis is working.',
+                        prefer: 'auto'
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    document.body.innerHTML += `
+                        <h2>✅ Analysis Working!</h2>
+                        <p><strong>Score:</strong> ${result.score}</p>
+                        <p><strong>Used:</strong> ${result.used}</p>
+                        <p><strong>AI Probability:</strong> ${Math.round((result.ai_detection?.ai_probability || 0) * 100)}%</p>
+                        <p><strong>Explanation:</strong> ${result.ai_detection?.explanation || 'N/A'}</p>
+                    `;
+                } else {
+                    document.body.innerHTML += `<h2>❌ API Error: ${response.status}</h2>`;
+                }
+            } catch (error) {
+                document.body.innerHTML += `<h2>❌ Network Error: ${error.message}</h2>`;
+            }
+        }
+        
+        // Run test when page loads
+        testAnalysis();
+    </script>
+</body>
+</html>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Credibility Analyzer - AI-Powered Truth Detection</title>
-  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <title>Filterize - AI-Powered Content Analysis & Fact Verification</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,12 +13,10 @@
     <header>
       <div class="branding">
         <div class="logo-container">
-          <div class="icon-group" aria-hidden="true" role="img" aria-label="Filterize logo, chat bubbles forming a shield">
-            <img src="logo.svg" alt="Filterize" class="logo-svg"/>
-          </div>
-          <div style="text-align:left; margin-left:14px; display:inline-block; vertical-align:middle;">
+          <div class="logo-icon" aria-hidden="true" role="img" aria-label="Filterize logo"></div>
+          <div class="logo-text-container">
             <div class="logo-text">Filterize</div>
-            <div class="header-sub">Credibility Analyzer — AI-Powered Truth Detection</div>
+            <div class="header-sub">AI-Powered Content Analysis &amp; Fact Verification</div>
             <div class="credits">Created by Suryansh Jain &amp; Deepesh Kumar</div>
           </div>
         </div>
@@ -42,6 +40,8 @@
             <button id="imageTab" class="tab-btn" onclick="switchContentType('image')">🖼️ Image</button>
             <button id="videoTab" class="tab-btn" onclick="switchContentType('video')">🎥 Video</button>
             <button id="urlTab" class="tab-btn" onclick="switchContentType('url')">🔗 Link</button>
+            <button id="fact-checkTab" class="tab-btn" onclick="switchContentType('fact-check')">🔍 Fact Check</button>
+            <button id="multi-aiTab" class="tab-btn" onclick="switchContentType('multi-ai')">🤖 Multi-AI</button>
           </div>
           
           <!-- Text Analysis Panel -->
@@ -81,6 +81,49 @@
             <input type="url" id="urlInput" placeholder="Enter URL to analyze (e.g., https://example.com/article)" class="url-input">
             <div class="url-hint">We'll analyze the content from this webpage for AI generation indicators</div>
           </div>
+          
+          <!-- Fact-Check Panel -->
+          <div id="fact-checkPanel" class="content-panel hidden">
+            <textarea id="factCheckText" placeholder="Enter content for comprehensive fact-checking analysis..." class="fact-check-textarea"></textarea>
+            <div class="fact-check-options">
+              <label>
+                <input type="checkbox" id="deepFactCheck" checked> Deep fact verification
+              </label>
+              <label>
+                <input type="checkbox" id="sourceValidation" checked> Source validation  
+              </label>
+              <label>
+                <input type="checkbox" id="claimExtraction" checked> Extract verifiable claims
+              </label>
+            </div>
+            <div class="fact-check-hint">Advanced AI-powered fact-checking with multiple verification sources</div>
+          </div>
+          
+          <!-- Multi-AI Analysis Panel -->
+          <div id="multi-aiPanel" class="content-panel hidden">
+            <textarea id="multiAiText" placeholder="Enter content for multi-AI analysis..." class="multi-ai-textarea"></textarea>
+            <div class="multi-ai-controls">
+              <div class="provider-selection">
+                <label for="providerSelect">AI Provider:</label>
+                <select id="providerSelect">
+                  <option value="">Auto (Smart Routing)</option>
+                  <option value="openai">OpenAI (GPT-4)</option>
+                  <option value="anthropic">Anthropic (Claude)</option>
+                  <option value="gemini">Google (Gemini)</option>
+                  <option value="specialized">Built-in Algorithms</option>
+                </select>
+              </div>
+              <div class="task-selection">
+                <label for="taskSelect">Analysis Task:</label>
+                <select id="taskSelect">
+                  <option value="analysis">General Analysis</option>
+                  <option value="fact_check">Fact Checking</option>
+                  <option value="summarize">Summarization</option>
+                </select>
+              </div>
+            </div>
+            <div class="multi-ai-hint">Compare results from multiple AI providers with intelligent routing</div>
+          </div>
           <div class="hero-controls">
             <div class="examples" aria-hidden="true">Examples:
               <button class="analyze-btn small" onclick="fillExample('Breaking: Scientists confirm chocolate cures aging — doctors shocked!')">Clickbait</button>
@@ -105,54 +148,160 @@
     </section>
 
   <div id="resultsSection" class="hidden" role="region" aria-live="polite" tabindex="-1">
-      <!-- Credibility Gauge -->
-      <div class="gauge-container">
-        <h2 style="margin-bottom: 30px; color: #333;">Overall Credibility Score</h2>
-        <div class="gauge-wrapper">
-          <svg class="gauge-circle" viewBox="0 0 200 200">
-            <defs>
-              <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-                <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
-              </linearGradient>
-            </defs>
-            <circle class="gauge-bg" cx="100" cy="100" r="85"/>
-            <circle id="gaugeProgress" class="gauge-progress" cx="100" cy="100" r="85" stroke-dasharray="0 534" />
-          </svg>
-          <div class="gauge-center">
-            <div id="gaugeScore" class="gauge-score">0</div>
-            <div class="gauge-label">Credibility</div>
-          </div>
-        </div>
-        <div id="credibilityStatus" class="credibility-status status-medium">Analyzing...</div>
-        <div id="usedIndicator" class="used-indicator">Analysis used: auto</div>
+    <div class="results-container">
+      <!-- Results Header -->
+      <div class="results-header">
+        <h2 class="results-title">Analysis Results</h2>
+        <div class="analysis-status" id="analysisStatus">Content analysis complete</div>
       </div>
 
-      <!-- AI Content Detection -->
-      <div id="aiDetectionSection" class="ai-detection-container hidden">
-        <h2 style="margin-bottom: 30px; color: #333;">🤖 AI Content Detection</h2>
-        <div class="ai-gauge-wrapper">
-          <svg class="gauge-circle" viewBox="0 0 200 200">
-            <defs>
-              <linearGradient id="aiGaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
-                <stop offset="50%" style="stop-color:#ff8e53;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#ffb86b;stop-opacity:1" />
-              </linearGradient>
-            </defs>
-            <circle class="gauge-bg" cx="100" cy="100" r="85"/>
-            <circle id="aiGaugeProgress" class="gauge-progress" cx="100" cy="100" r="85" stroke="url(#aiGaugeGradient)" stroke-dasharray="0 534" />
-          </svg>
-          <div class="gauge-center">
-            <div id="aiGaugeScore" class="gauge-score">0</div>
-            <div class="gauge-label">AI Probability</div>
+      <!-- Truth vs Fake Section -->
+      <div class="truth-fake-section">
+        <div class="truth-fake-header">
+          <h3 class="truth-fake-title">📊 Authenticity Assessment</h3>
+        </div>
+        
+        <div class="truth-fake-grid">
+          <div class="truth-card">
+            <div class="truth-percentage" id="truthPercentage">0%</div>
+            <div class="truth-label">Authentic</div>
+          </div>
+          <div class="fake-card">
+            <div class="fake-percentage" id="fakePercentage">0%</div>
+            <div class="fake-label">Suspicious</div>
           </div>
         </div>
-        <div id="aiStatus" class="ai-status status-low-ai">Analyzing...</div>
         
-        <div class="ai-details-grid">
-          <div class="ai-detail-card">
+        <div class="overall-verdict" id="overallVerdict">
+          <div id="credibilityStatus" class="credibility-status status-medium">Analyzing...</div>
+        </div>
+      </div>
+
+      <!-- Full Truth Section -->
+      <div class="full-truth-section">
+        <div class="full-truth-header">
+          <span class="full-truth-icon">💡</span>
+          <h3 class="full-truth-title">The Real Truth</h3>
+        </div>
+        
+        <div class="truth-content">
+          <ul class="truth-facts" id="truthFacts">
+            <li>Analysis in progress...</li>
+          </ul>
+          <div class="no-truth-available hidden" id="noTruthAvailable">
+            No additional truth information available for this content.
+          </div>
+        </div>
+      </div>
+
+      <!-- Real News Section -->
+      <div class="real-news-section" id="realNewsSection">
+        <div class="real-news-header">
+          <span class="real-news-icon">📰</span>
+          <h3 class="real-news-title">Current Real News & Context</h3>
+          <button id="fetchNewsBtn" class="analyze-btn small">🔄 Get Latest News</button>
+        </div>
+        
+        <div class="real-news-content">
+          <div class="news-summary" id="newsSummary">
+            <div class="summary-text" id="summaryText">Gathering latest news context...</div>
+          </div>
+          
+          <div class="related-news" id="relatedNews">
+            <h4 class="related-news-title">📈 Related Current News</h4>
+            <div class="news-list" id="newsList">
+              <div class="news-item loading">Loading related news...</div>
+            </div>
+          </div>
+          
+          <div class="trending-topics" id="trendingTopics">
+            <h4 class="trending-title">🔥 Trending Topics</h4>
+            <div class="trending-list" id="trendingList">
+              <span class="trending-tag loading">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis Details Grid -->
+      <div class="analysis-details-grid">
+        <!-- AI Detection Card -->
+        <div class="detail-card" id="aiDetectionCard">
+          <div class="detail-card-header">
+            <span class="detail-card-icon">🤖</span>
+            <h4 class="detail-card-title">AI Detection</h4>
+          </div>
+          <div class="detail-card-content">
+            <div class="ai-probability">
+              <strong>AI Probability:</strong> <span id="aiProbabilityText">0%</span>
+            </div>
+            <div class="ai-confidence">
+              <strong>Confidence:</strong> <span id="aiConfidenceText">0%</span>
+            </div>
+            <div class="ai-explanation" id="aiExplanationText">
+              Analyzing content for AI generation indicators...
+            </div>
+          </div>
+        </div>
+
+        <!-- Sentiment Analysis Card -->
+        <div class="detail-card" id="sentimentCard">
+          <div class="detail-card-header">
+            <span class="detail-card-icon">😊</span>
+            <h4 class="detail-card-title">Sentiment Analysis</h4>
+          </div>
+          <div class="detail-card-content">
+            <div class="sentiment-breakdown">
+              <div class="sentiment-item">
+                <span>Positive:</span> <span id="positivePercentage">0%</span>
+              </div>
+              <div class="sentiment-item">
+                <span>Neutral:</span> <span id="neutralPercentage">0%</span>
+              </div>
+              <div class="sentiment-item">
+                <span>Negative:</span> <span id="negativePercentage">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Source Analysis Card -->
+        <div class="detail-card" id="sourceCard">
+          <div class="detail-card-header">
+            <span class="detail-card-icon">🔍</span>
+            <h4 class="detail-card-title">Analysis Details</h4>
+          </div>
+          <div class="detail-card-content">
+            <div class="analysis-method">
+              <strong>Method Used:</strong> <span id="usedMethod">auto</span>
+            </div>
+            <div class="detection-methods">
+              <strong>Detection Methods:</strong> <span id="detectionMethodsList">Standard analysis</span>
+            </div>
+            <div class="analysis-time">
+              <strong>Analysis Time:</strong> <span id="analysisTime">Just now</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Insights Card -->
+        <div class="detail-card" id="insightsCard">
+          <div class="detail-card-header">
+            <span class="detail-card-icon">💭</span>
+            <h4 class="detail-card-title">Key Insights</h4>
+          </div>
+          <div class="detail-card-content">
+            <div class="insights-list" id="keyInsightsList">
+              <div class="insight-item">Analysis in progress...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legacy sections for backward compatibility -->
+    <div class="hidden">
+      <!-- Keep original elements for JS compatibility -->
             <div class="ai-detail-title">Detection Methods</div>
             <div id="detectionMethods" class="detection-methods"></div>
           </div>
@@ -230,6 +379,78 @@
           <div class="sentiment-bar">
             <div class="sentiment-label">Negative</div>
             <div class="bar-wrapper"><div class="bar-fill bar-negative" id="negativeBar" style="width:0%">0%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fact-Check Results -->
+      <div id="factCheckResults" class="fact-check-results hidden">
+        <h2>🔍 Comprehensive Fact-Check Analysis</h2>
+        
+        <div class="fact-check-grid">
+          <div class="fact-card">
+            <h3>🎯 Overall Assessment</h3>
+            <div id="factCheckOverall" class="fact-result">
+              <div class="fact-score">
+                <span id="factCheckScore">-</span>
+                <div class="fact-score-label">Accuracy Score</div>
+              </div>
+              <div id="factCheckStatus" class="fact-status">Analyzing...</div>
+            </div>
+          </div>
+          
+          <div class="fact-card">
+            <h3>✅ Verified Claims</h3>
+            <div id="verifiedClaims" class="claims-list">
+              <div class="claim-item">No verified claims yet</div>
+            </div>
+          </div>
+          
+          <div class="fact-card">
+            <h3>❌ Disputed Claims</h3>
+            <div id="disputedClaims" class="claims-list">
+              <div class="claim-item">No disputed claims yet</div>
+            </div>
+          </div>
+          
+          <div class="fact-card">
+            <h3>📚 Real Facts</h3>
+            <div id="realFacts" class="facts-list">
+              <div class="fact-item">No fact corrections available</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="provider-info">
+          <span>Analysis provided by: <span id="factCheckProvider">-</span></span>
+        </div>
+      </div>
+
+      <!-- Multi-AI Results -->
+      <div id="multiAiResults" class="multi-ai-results hidden">
+        <h2>🤖 Multi-AI Analysis Results</h2>
+        
+        <div class="ai-comparison-grid">
+          <div class="ai-result-card primary">
+            <h3>🎯 Primary Analysis</h3>
+            <div id="primaryAiResult">
+              <div class="ai-provider">Provider: <span id="primaryProvider">-</span></div>
+              <div id="primaryAnalysis" class="ai-analysis">Analyzing...</div>
+            </div>
+          </div>
+          
+          <div class="ai-result-card comparison">
+            <h3>📊 Local Comparison</h3>
+            <div id="localComparison">
+              <div id="localResult" class="ai-analysis">Analyzing...</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="ai-insights">
+          <h3>💡 Key Insights</h3>
+          <div id="aiInsights" class="insights-list">
+            <div class="insight-item">Analysis in progress...</div>
           </div>
         </div>
       </div>

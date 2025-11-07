@@ -4,6 +4,8 @@ import re
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from ai_providers import analyze_text_with_provider
+from internet_fact_checker import InternetFactChecker
+from news_provider import real_news_provider
 # local_model is optional and lazily imported
 local_model = None
 import os
@@ -44,7 +46,7 @@ def _inc_metric(key, n=1):
     except Exception:
         pass
 
-app = Flask(__name__, static_folder='frontend', static_url_path='')
+app = Flask(__name__, static_folder='frontend', static_url_path='/static')
 CORS(app)
 
 # Configure upload folder
@@ -247,6 +249,172 @@ def analyze():
         return jsonify({'error': 'analysis failed', 'detail': str(e)}), 500
 
 
+@app.route('/api/fact-check', methods=['POST'])
+def fact_check():
+    """Enhanced fact-checking endpoint using internet-based analysis."""
+    try:
+        data = request.get_json(force=True) or {}
+        content = data.get('content', '')
+        content_type = data.get('type', 'text')
+        
+        if not content:
+            return jsonify({'error': 'content is required'}), 400
+            
+        # Use internet fact-checker for comprehensive analysis
+        fact_checker = InternetFactChecker()
+        result = fact_checker.fact_check_content(content)
+        
+        # Add AI providers analysis for enhanced verification
+        try:
+            from ai_providers import get_fact_check_analysis
+            ai_result = get_fact_check_analysis(content, content_type)
+            result['ai_provider_analysis'] = ai_result
+        except Exception as e:
+            app.logger.warning(f'AI provider analysis failed: {e}')
+            result['ai_provider_analysis'] = {'error': 'unavailable'}
+        
+        # Add traditional AI detection for comparison
+        try:
+            from ai_detection import analyze_ai_content
+            ai_detection_result = analyze_ai_content(content)
+            result['traditional_ai_detection'] = ai_detection_result
+        except Exception as e:
+            app.logger.warning(f'Traditional AI detection failed: {e}')
+            result['traditional_ai_detection'] = {'error': 'unavailable'}
+        
+        # Add real news context for comprehensive information
+        try:
+            news_result = real_news_provider.get_real_news(content)
+            result['real_news_context'] = {
+                'related_news': news_result.get('real_news', [])[:3],
+                'trending_topics': news_result.get('trending_topics', []),
+                'forward_insights': news_result.get('forward_looking_insights', [])[:2],
+                'ai_summary': news_result.get('ai_generated_summary', '')
+            }
+        except Exception as e:
+            app.logger.warning(f'Real news context failed: {e}')
+            result['real_news_context'] = {'error': 'unavailable'}
+            
+        return jsonify(result)
+        
+    except Exception as e:
+        app.logger.exception('Internet fact-checking failed')
+        return jsonify({
+            'error': 'Internet fact-checking failed',
+            'detail': str(e)
+        }), 500
+
+
+@app.route('/api/multi-ai-analyze', methods=['POST'])
+def multi_ai_analyze():
+    """Multi-AI agent analysis with intelligent routing."""
+    try:
+        data = request.get_json(force=True) or {}
+        content = data.get('content', '')
+        content_type = data.get('type', 'text')
+        task = data.get('task', 'analysis')  # analysis, fact_check, summarize
+        provider = data.get('provider', None)  # optional specific provider
+        
+        if not content:
+            return jsonify({'error': 'content is required'}), 400
+            
+        from ai_providers import multi_ai_agent
+        
+        if provider:
+            # Use specific provider
+            if provider in multi_ai_agent.providers:
+                provider_obj = multi_ai_agent.providers[provider]
+                result = provider_obj.analyze(content, content_type, task)
+                result['provider_used'] = provider
+            else:
+                return jsonify({
+                    'error': f'Unknown provider: {provider}'
+                }), 400
+        else:
+            # Use intelligent routing
+            result = multi_ai_agent.analyze_content(
+                content, content_type, task
+            )
+            
+        # Add comparison with local analysis
+        try:
+            local_result = simple_analyze(content)
+            result['local_comparison'] = local_result
+        except Exception:
+            result['local_comparison'] = {'error': 'local analysis failed'}
+            
+        return jsonify(result)
+        
+    except Exception as e:
+        app.logger.exception('multi-AI analysis failed')
+        return jsonify({
+            'error': 'multi-AI analysis failed',
+            'detail': str(e)
+        }), 500
+
+
+@app.route('/api/summarize', methods=['POST'])
+def summarize_content():
+    """Content summarization with misinformation detection."""
+    try:
+        data = request.get_json(force=True) or {}
+        content = data.get('content', '')
+        content_type = data.get('type', 'text')
+        
+        if not content:
+            return jsonify({'error': 'content is required'}), 400
+            
+        from ai_providers import get_content_summary
+        
+        result = get_content_summary(content, content_type)
+        
+        # Add credibility assessment
+        try:
+            credibility_result = simple_analyze(content)
+            result['credibility_assessment'] = credibility_result
+        except Exception:
+            result['credibility_assessment'] = {
+                'error': 'credibility check failed'
+            }
+            
+        return jsonify(result)
+        
+    except Exception as e:
+        app.logger.exception('summarization failed')
+        return jsonify({
+            'error': 'summarization failed',
+            'detail': str(e)
+        }), 500
+
+
+@app.route('/api/providers', methods=['GET'])
+def get_available_providers():
+    """Get list of available AI providers and their status."""
+    try:
+        from ai_providers import multi_ai_agent
+        
+        providers_status = {}
+        for name, provider in multi_ai_agent.providers.items():
+            providers_status[name] = {
+                'available': provider.is_available(),
+                'name': provider.name if hasattr(provider, 'name') else name
+            }
+            
+        return jsonify({
+            'providers': providers_status,
+            'default_routing': True,
+            'supported_tasks': ['analysis', 'fact_check', 'summarize'],
+            'supported_content': ['text', 'image', 'video', 'url']
+        })
+        
+    except Exception as e:
+        app.logger.exception('failed to get providers status')
+        return jsonify({
+            'error': 'failed to get providers',
+            'detail': str(e)
+        }), 500
+
+
 # Provide JSON error responses for uncaught exceptions in API routes
 @app.errorhandler(500)
 def handle_500(e):
@@ -280,7 +448,10 @@ def analyze_image():
         
     except Exception as e:
         app.logger.exception('image analysis failed')
-        return jsonify({'error': 'image analysis failed', 'detail': str(e)}), 500
+        return jsonify({
+            'error': 'image analysis failed',
+            'detail': str(e)
+        }), 500
 
 
 @app.route('/api/analyze-video', methods=['POST'])
@@ -295,7 +466,7 @@ def analyze_video():
             return jsonify({'error': 'No video file selected'}), 400
         
         # Save video temporarily for analysis
-        filename = secure_filename(file.filename) if file.filename else 'temp_video'
+        filename = secure_filename(file.filename) if file.filename else 'temp'
         temp_path = tempfile.mktemp(suffix=f"_{filename}")
         file.save(temp_path)
         
@@ -311,7 +482,10 @@ def analyze_video():
         
     except Exception as e:
         app.logger.exception('video analysis failed')
-        return jsonify({'error': 'video analysis failed', 'detail': str(e)}), 500
+        return jsonify({
+            'error': 'video analysis failed',
+            'detail': str(e)
+        }), 500
 
 
 @app.route('/api/analyze-url', methods=['POST'])
@@ -339,6 +513,29 @@ def analyze_url():
         return jsonify({'error': 'URL analysis failed', 'detail': str(e)}), 500
 
 
+@app.route('/api/real-news', methods=['POST'])
+def get_real_news():
+    """Get real, current news using integrated AI"""
+    try:
+        data = request.get_json(force=True) or {}
+        content = data.get('content', '')
+        categories = data.get('categories', [])
+        
+        # Get real news based on content context
+        news_result = real_news_provider.get_real_news(content, categories)
+        
+        return jsonify(news_result)
+        
+    except Exception as e:
+        app.logger.exception('Real news retrieval failed')
+        return jsonify({
+            'error': 'Real news retrieval failed',
+            'detail': str(e),
+            'real_news': [],
+            'ai_generated_summary': 'Unable to retrieve news at this time.'
+        }), 500
+
+
 @app.route('/api/metrics', methods=['GET'])
 def get_metrics():
     try:
@@ -352,7 +549,10 @@ def get_metrics():
         app.logger.exception('failed to read metrics')
         return jsonify({'metrics': metrics}), 500
 
+
 # Serve frontend static files with SPA fallback
+
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def static_proxy(path):
@@ -360,16 +560,21 @@ def static_proxy(path):
     Serve static files and fall back to index.html for SPA routes.
     This creates a unified backend + frontend application.
     """
+    # Define the frontend directory
+    frontend_dir = os.path.join(os.path.dirname(__file__), 'frontend')
+    
     # Try to serve static file first
-    if path != '' and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
+    if path != '':
+        file_path = os.path.join(frontend_dir, path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return send_from_directory(frontend_dir, path)
     
     # For API routes, return 404 if not handled by other routes
     if path.startswith('api/'):
         return jsonify({'error': 'API endpoint not found'}), 404
     
-    # For all other routes, serve the main SPA
-    return send_from_directory(app.static_folder, 'index.html')
+    # For all other routes (including root), serve the main SPA
+    return send_from_directory(frontend_dir, 'index.html')
 
 
 @app.route('/health')

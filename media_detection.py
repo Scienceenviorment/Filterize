@@ -39,8 +39,34 @@ class MediaAIDetector:
             from PIL import Image, ExifTags
             import io
             
-            # Load image
-            image = Image.open(io.BytesIO(image_data))
+            # Check if it's a valid image format
+            if not image_data or len(image_data) < 100:
+                return {
+                    'error': 'Invalid image data or file too small',
+                    'ai_probability': 0.0,
+                    'confidence': 0.0
+                }
+            
+            # Try to load image with better error handling
+            try:
+                image = Image.open(io.BytesIO(image_data))
+                # Convert to RGB if needed (handles RGBA, P, etc.)
+                if image.mode not in ('RGB', 'L'):
+                    image = image.convert('RGB')
+            except Exception as e:
+                # If PIL fails, try to detect file type and provide better error
+                file_header = image_data[:20].hex()
+                if filename and filename.lower().endswith('.svg'):
+                    return {
+                        'error': 'SVG files are not supported for AI detection. Please use JPG, PNG, or GIF.',
+                        'ai_probability': 0.0,
+                        'confidence': 0.0
+                    }
+                return {
+                    'error': f'Cannot process image file. Supported formats: JPG, PNG, GIF, WebP. Error: {str(e)}',
+                    'ai_probability': 0.0,
+                    'confidence': 0.0
+                }
             
             result = {
                 'ai_probability': 0.0,
@@ -49,7 +75,13 @@ class MediaAIDetector:
                 'flags': [],
                 'explanation': '',
                 'metadata_analysis': {},
-                'visual_analysis': {}
+                'visual_analysis': {},
+                'image_info': {
+                    'format': image.format,
+                    'mode': image.mode,
+                    'size': image.size,
+                    'filename': filename
+                }
             }
             
             # Method 1: EXIF/Metadata Analysis
@@ -90,7 +122,7 @@ class MediaAIDetector:
             
         except ImportError:
             return {
-                'error': 'PIL/Pillow required for image analysis',
+                'error': 'PIL/Pillow required for image analysis. Please install with: pip install pillow',
                 'ai_probability': 0.0,
                 'confidence': 0.0
             }
