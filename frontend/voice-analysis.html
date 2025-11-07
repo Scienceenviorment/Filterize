@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Analysis - Filterize AI</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --bg: #0f1724;
+            --card: #1a2332;
+            --text: #ffffff;
+            --text-muted: #9aa4b2;
+            --accent: #60a5fa;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1a2332 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(26, 35, 50, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        .analysis-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .option-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .option-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .option-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .option-desc {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .option-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .option-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .analysis-form {
+            display: none;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+        }
+
+        .recording-controls {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .record-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .record-btn.recording {
+            background: var(--warning);
+            animation: pulse 1s infinite;
+        }
+
+        .record-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .recording-status {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        .audio-visualizer {
+            width: 100%;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        .results-section {
+            display: none;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ai-detection-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .ai-detection-badge.human {
+            background: var(--success);
+            color: white;
+        }
+
+        .ai-detection-badge.ai {
+            background: var(--danger);
+            color: white;
+        }
+
+        .audio-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .transcription-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            margin-top: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            z-index: 3000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warning); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🎤</div>
+                Voice Analysis
+            </a>
+            <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🎤 Voice Analysis</h1>
+            <p class="page-subtitle">Advanced AI voice detection, deepfake identification, and speech authenticity verification</p>
+        </div>
+
+        <div class="analysis-options" id="analysisOptions">
+            <div class="option-card" onclick="showFileUpload()">
+                <div class="option-icon">📁</div>
+                <h3 class="option-title">Upload Audio File</h3>
+                <p class="option-desc">Analyze existing audio files for AI detection and authenticity verification.</p>
+                <button class="option-btn">Choose File</button>
+            </div>
+
+            <div class="option-card" onclick="showLiveRecording()">
+                <div class="option-icon">🎙️</div>
+                <h3 class="option-title">Live Recording</h3>
+                <p class="option-desc">Record audio directly from your microphone for real-time analysis.</p>
+                <button class="option-btn">Start Recording</button>
+            </div>
+        </div>
+
+        <!-- File Upload Form -->
+        <form class="analysis-form" id="fileUploadForm">
+            <h3>📁 Audio File Analysis</h3>
+            <div class="form-group">
+                <label for="audioFile">Select audio file:</label>
+                <input type="file" id="audioFile" accept="audio/*" required>
+            </div>
+            <button type="submit" class="option-btn">🔍 Analyze Audio File</button>
+            <button type="button" class="back-btn" onclick="showOptions()">← Back to Options</button>
+        </form>
+
+        <!-- Live Recording Form -->
+        <div class="analysis-form" id="liveRecordingForm">
+            <h3>🎙️ Live Voice Recording</h3>
+            <div class="form-group">
+                <label for="recordingDuration">Recording duration (seconds):</label>
+                <input type="number" id="recordingDuration" value="5" min="1" max="60">
+            </div>
+            
+            <div class="recording-controls">
+                <button type="button" class="record-btn" id="recordBtn" onclick="toggleRecording()">
+                    🎤 Start Recording
+                </button>
+                <div class="recording-status" id="recordingStatus"></div>
+            </div>
+
+            <div class="audio-visualizer" id="audioVisualizer">
+                Audio visualization will appear here during recording
+            </div>
+
+            <button type="button" class="back-btn" onclick="showOptions()">← Back to Options</button>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>Voice Analysis Results</h2>
+                <button type="button" class="back-btn" onclick="clearResults()">Clear Results</button>
+            </div>
+
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>Analyzing voice with AI detection...</p>
+            </div>
+
+            <div class="results-grid" id="resultsGrid" style="display: none;">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let mediaRecorder = null;
+        let audioStream = null;
+        let recordingTimer = null;
+        let isRecording = false;
+        let currentAnalysis = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            console.log('🎤 Voice Analysis page loaded');
+        });
+
+        function setupEventListeners() {
+            // File upload form
+            document.getElementById('fileUploadForm').addEventListener('submit', handleFileUpload);
+        }
+
+        function showOptions() {
+            document.getElementById('analysisOptions').style.display = 'grid';
+            document.getElementById('fileUploadForm').style.display = 'none';
+            document.getElementById('liveRecordingForm').style.display = 'none';
+            clearResults();
+        }
+
+        function showFileUpload() {
+            document.getElementById('analysisOptions').style.display = 'none';
+            document.getElementById('fileUploadForm').style.display = 'block';
+            document.getElementById('liveRecordingForm').style.display = 'none';
+        }
+
+        function showLiveRecording() {
+            document.getElementById('analysisOptions').style.display = 'none';
+            document.getElementById('fileUploadForm').style.display = 'none';
+            document.getElementById('liveRecordingForm').style.display = 'block';
+            initializeRecording();
+        }
+
+        async function initializeRecording() {
+            try {
+                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                showToast('Microphone access granted', 'success');
+            } catch (error) {
+                showToast('Microphone access denied: ' + error.message, 'error');
+                console.error('Microphone error:', error);
+            }
+        }
+
+        async function handleFileUpload(event) {
+            event.preventDefault();
+            
+            const fileInput = document.getElementById('audioFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showToast('Please select an audio file', 'warning');
+                return;
+            }
+
+            showToast('Uploading and analyzing audio file...', 'info');
+            
+            // For demo purposes, we'll simulate file upload analysis
+            // In a real implementation, you'd upload the file and get a path
+            const fileName = file.name;
+            
+            await analyzeVoice(fileName, 'file');
+        }
+
+        async function toggleRecording() {
+            if (!isRecording) {
+                await startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        async function startRecording() {
+            if (!audioStream) {
+                await initializeRecording();
+                if (!audioStream) return;
+            }
+
+            const duration = parseInt(document.getElementById('recordingDuration').value) || 5;
+            
+            try {
+                mediaRecorder = new MediaRecorder(audioStream);
+                const audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    await analyzeVoice(duration.toString(), 'live');
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+
+                updateRecordingUI(duration);
+                showToast(`Recording started for ${duration} seconds`, 'info');
+
+                // Stop recording after specified duration
+                setTimeout(() => {
+                    if (isRecording) {
+                        stopRecording();
+                    }
+                }, duration * 1000);
+
+            } catch (error) {
+                showToast('Recording failed: ' + error.message, 'error');
+                console.error('Recording error:', error);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                clearTimeout(recordingTimer);
+                updateRecordingUI(0);
+                showToast('Recording completed', 'success');
+            }
+        }
+
+        function updateRecordingUI(duration) {
+            const recordBtn = document.getElementById('recordBtn');
+            const recordingStatus = document.getElementById('recordingStatus');
+            const audioVisualizer = document.getElementById('audioVisualizer');
+
+            if (isRecording) {
+                recordBtn.textContent = '⏹️ Stop Recording';
+                recordBtn.classList.add('recording');
+                recordingStatus.textContent = `Recording... (${duration}s remaining)`;
+                audioVisualizer.textContent = '🎵 Recording audio...';
+                
+                let remainingTime = duration;
+                recordingTimer = setInterval(() => {
+                    remainingTime--;
+                    recordingStatus.textContent = `Recording... (${remainingTime}s remaining)`;
+                    if (remainingTime <= 0) {
+                        clearInterval(recordingTimer);
+                    }
+                }, 1000);
+            } else {
+                recordBtn.textContent = '🎤 Start Recording';
+                recordBtn.classList.remove('recording');
+                recordingStatus.textContent = '';
+                audioVisualizer.textContent = 'Audio visualization will appear here during recording';
+            }
+        }
+
+        async function analyzeVoice(content, contentType) {
+            showResults();
+            showLoading();
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: content,
+                        type: 'voice',
+                        options: { 
+                            content_type: contentType,
+                            include_search: true 
+                        }
+                    })
+                });
+
+                const result = await response.json();
+                currentAnalysis = result;
+                
+                hideLoading();
+                displayResults(result);
+                showToast('Voice analysis completed!', 'success');
+
+            } catch (error) {
+                hideLoading();
+                showToast('Voice analysis failed: ' + error.message, 'error');
+                console.error('Analysis error:', error);
+            }
+        }
+
+        function showResults() {
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showLoading() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('resultsGrid').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('resultsGrid').style.display = 'grid';
+        }
+
+        function displayResults(result) {
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = '';
+
+            // AI Detection Card
+            const detectionCard = createAIDetectionCard(result);
+            resultsGrid.appendChild(detectionCard);
+
+            // Transcription Card
+            if (result.transcription) {
+                const transcriptionCard = createTranscriptionCard(result.transcription);
+                resultsGrid.appendChild(transcriptionCard);
+            }
+
+            // Audio Features Card
+            if (result.voice_analysis && result.voice_analysis.audio_features) {
+                const featuresCard = createAudioFeaturesCard(result.voice_analysis.audio_features);
+                resultsGrid.appendChild(featuresCard);
+            }
+
+            // Analysis Details Card
+            const detailsCard = createAnalysisDetailsCard(result);
+            resultsGrid.appendChild(detailsCard);
+        }
+
+        function createAIDetectionCard(result) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            const voiceAnalysis = result.voice_analysis || {};
+            const deepfakeDetection = voiceAnalysis.deepfake_detection || {};
+            const isAI = deepfakeDetection.is_ai_generated || false;
+            const confidence = deepfakeDetection.confidence_score || 50;
+            const credibilityScore = result.fact_check_score || 70;
+
+            card.innerHTML = `
+                <h4>🤖 AI Voice Detection</h4>
+                <div class="ai-detection-badge ${isAI ? 'ai' : 'human'}">
+                    ${isAI ? '⚠️ AI Generated Voice' : '✅ Human Voice Detected'}
+                </div>
+                <p><strong>Confidence:</strong> ${confidence}%</p>
+                <p><strong>Overall Credibility:</strong> ${credibilityScore}%</p>
+                <p><strong>Detection Method:</strong> ${deepfakeDetection.detection_method || 'Audio Feature Analysis'}</p>
+                ${deepfakeDetection.ai_indicators && deepfakeDetection.ai_indicators.length > 0 ? 
+                    `<p><strong>AI Indicators:</strong> ${deepfakeDetection.ai_indicators.join(', ')}</p>` : ''}
+            `;
+            
+            return card;
+        }
+
+        function createTranscriptionCard(transcription) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            card.innerHTML = `
+                <h4>📝 Speech Transcription</h4>
+                <div class="transcription-box">
+                    "${transcription}"
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function createAudioFeaturesCard(features) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            card.innerHTML = `
+                <h4>🎵 Audio Features</h4>
+                <div class="audio-features">
+                    ${features.duration ? `<div class="feature-item"><strong>Duration:</strong> ${features.duration.toFixed(2)}s</div>` : ''}
+                    ${features.sample_rate ? `<div class="feature-item"><strong>Sample Rate:</strong> ${features.sample_rate} Hz</div>` : ''}
+                    ${features.zero_crossing_rate ? `<div class="feature-item"><strong>Zero Crossing Rate:</strong> ${features.zero_crossing_rate.toFixed(4)}</div>` : ''}
+                    ${features.spectral_centroid ? `<div class="feature-item"><strong>Spectral Centroid:</strong> ${features.spectral_centroid.toFixed(0)} Hz</div>` : ''}
+                    ${features.tempo ? `<div class="feature-item"><strong>Tempo:</strong> ${features.tempo.toFixed(0)} BPM</div>` : ''}
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function createAnalysisDetailsCard(result) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            card.innerHTML = `
+                <h4>📊 Analysis Details</h4>
+                <p><strong>Analysis Method:</strong> ${result.analysis_method || 'AI Voice Analysis'}</p>
+                <p><strong>Processing Time:</strong> ${result.metadata?.processing_time || 'Unknown'}</p>
+                ${result.verified_claims ? `<p><strong>Key Findings:</strong></p><ul style="margin-left: 1rem;">${result.verified_claims.map(claim => `<li>${claim}</li>`).join('')}</ul>` : ''}
+                ${result.real_facts ? `<p><strong>Technical Facts:</strong></p><ul style="margin-left: 1rem;">${result.real_facts.map(fact => `<li>${fact}</li>`).join('')}</ul>` : ''}
+            `;
+            
+            return card;
+        }
+
+        function clearResults() {
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('resultsGrid').innerHTML = '';
+            currentAnalysis = null;
+        }
+
+        function showToast(message, type = 'info') {
+            // Remove existing toasts
+            document.querySelectorAll('.toast').forEach(toast => toast.remove());
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>

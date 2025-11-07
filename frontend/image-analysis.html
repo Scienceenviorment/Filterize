@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Analysis - Filterize AI</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --bg: #0f1724;
+            --card: #1a2332;
+            --text: #ffffff;
+            --text-muted: #9aa4b2;
+            --accent: #60a5fa;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1a2332 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(26, 35, 50, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        .upload-area {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 3rem;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: var(--accent);
+            background: rgba(96, 165, 250, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .upload-subtext {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .url-input-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            margin-bottom: 1rem;
+        }
+
+        .url-input:focus {
+            border-color: var(--accent);
+        }
+
+        .preview-section {
+            display: none;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .image-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            display: none;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .authenticity-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .authenticity-badge.authentic {
+            background: var(--success);
+            color: white;
+        }
+
+        .authenticity-badge.suspicious {
+            background: var(--warning);
+            color: white;
+        }
+
+        .authenticity-badge.manipulated {
+            background: var(--danger);
+            color: white;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            background: conic-gradient(var(--success) 0deg, var(--success) var(--score-deg), rgba(255,255,255,0.1) var(--score-deg));
+        }
+
+        .technical-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            z-index: 3000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warning); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🖼️</div>
+                Image Analysis
+            </a>
+            <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🖼️ Image Analysis</h1>
+            <p class="page-subtitle">Detect manipulated images, deepfakes, and analyze visual content for authenticity</p>
+        </div>
+
+        <!-- File Upload Area -->
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('imageFile').click()">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Drop an image here or click to upload</div>
+            <div class="upload-subtext">Supports: JPG, PNG, GIF, WebP (Max 10MB)</div>
+            <button type="button" class="upload-btn">Choose Image File</button>
+            <input type="file" id="imageFile" class="file-input" accept="image/*">
+        </div>
+
+        <!-- URL Input Section -->
+        <div class="url-input-section">
+            <h3>🌐 Or analyze image from URL</h3>
+            <input type="url" class="url-input" id="imageUrl" placeholder="https://example.com/image.jpg">
+            <button type="button" class="upload-btn" onclick="loadImageFromUrl()">Load from URL</button>
+        </div>
+
+        <!-- Image Preview Section -->
+        <div class="preview-section" id="previewSection">
+            <h3>📷 Image Preview</h3>
+            <img id="imagePreview" class="image-preview" alt="Image preview">
+            <div class="image-info" id="imageInfo">
+                <!-- Image info will be populated here -->
+            </div>
+            <button type="button" class="analyze-btn" id="analyzeBtn" onclick="analyzeImage()">
+                🔍 Analyze Image
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>Image Analysis Results</h2>
+                <button type="button" class="back-btn" onclick="clearResults()">Clear Results</button>
+            </div>
+
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>Analyzing image with AI detection...</p>
+            </div>
+
+            <div class="results-grid" id="resultsGrid" style="display: none;">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentImage = null;
+        let currentImageData = null;
+        let currentAnalysis = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            console.log('🖼️ Image Analysis page loaded');
+        });
+
+        function setupEventListeners() {
+            // File input
+            document.getElementById('imageFile').addEventListener('change', handleFileSelect);
+
+            // Drag and drop
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('drop', handleDrop);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select a valid image file', 'warning');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('File size must be less than 10MB', 'warning');
+                return;
+            }
+
+            currentImage = file;
+            loadImagePreview(file);
+        }
+
+        function loadImagePreview(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                currentImageData = e.target.result;
+                displayImagePreview(e.target.result, file);
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function loadImageFromUrl() {
+            const url = document.getElementById('imageUrl').value.trim();
+            
+            if (!url) {
+                showToast('Please enter a valid image URL', 'warning');
+                return;
+            }
+
+            // For demo purposes, we'll simulate loading from URL
+            showToast('Loading image from URL...', 'info');
+            
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            
+            img.onload = function() {
+                currentImageData = url;
+                displayImagePreview(url, { name: 'Image from URL', size: 'Unknown' });
+                showToast('Image loaded successfully', 'success');
+            };
+            
+            img.onerror = function() {
+                showToast('Failed to load image from URL', 'error');
+            };
+            
+            img.src = url;
+        }
+
+        function displayImagePreview(src, fileInfo) {
+            const previewSection = document.getElementById('previewSection');
+            const imagePreview = document.getElementById('imagePreview');
+            const imageInfo = document.getElementById('imageInfo');
+            
+            imagePreview.src = src;
+            
+            // Create image info
+            const img = new Image();
+            img.onload = function() {
+                imageInfo.innerHTML = `
+                    <div class="info-item">
+                        <strong>Filename</strong><br>
+                        ${fileInfo.name || 'Unknown'}
+                    </div>
+                    <div class="info-item">
+                        <strong>Dimensions</strong><br>
+                        ${img.width} × ${img.height}
+                    </div>
+                    <div class="info-item">
+                        <strong>File Size</strong><br>
+                        ${fileInfo.size ? (fileInfo.size / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown'}
+                    </div>
+                    <div class="info-item">
+                        <strong>Aspect Ratio</strong><br>
+                        ${(img.width / img.height).toFixed(2)}:1
+                    </div>
+                `;
+            };
+            img.src = src;
+            
+            previewSection.style.display = 'block';
+            previewSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function analyzeImage() {
+            if (!currentImageData) {
+                showToast('Please select an image first', 'warning');
+                return;
+            }
+
+            showResults();
+            showLoading();
+
+            try {
+                // For demo purposes, we'll use the image data/URL as content
+                const content = currentImageData;
+                
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: content,
+                        type: 'image',
+                        options: { 
+                            include_search: true,
+                            deepfake_detection: true,
+                            manipulation_check: true
+                        }
+                    })
+                });
+
+                const result = await response.json();
+                currentAnalysis = result;
+                
+                hideLoading();
+                displayResults(result);
+                showToast('Image analysis completed!', 'success');
+
+            } catch (error) {
+                hideLoading();
+                showToast('Image analysis failed: ' + error.message, 'error');
+                console.error('Analysis error:', error);
+            }
+        }
+
+        function showResults() {
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showLoading() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('resultsGrid').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('resultsGrid').style.display = 'grid';
+        }
+
+        function displayResults(result) {
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = '';
+
+            // Authenticity Score Card
+            if (result.fact_check_score !== undefined) {
+                const scoreCard = createAuthenticityScoreCard(result.fact_check_score);
+                resultsGrid.appendChild(scoreCard);
+            }
+
+            // Detection Results Card
+            const detectionCard = createDetectionResultsCard(result);
+            resultsGrid.appendChild(detectionCard);
+
+            // Technical Analysis Card
+            const technicalCard = createTechnicalAnalysisCard(result);
+            resultsGrid.appendChild(technicalCard);
+
+            // Findings Card
+            if (result.verified_claims && result.verified_claims.length > 0) {
+                const findingsCard = createFindingsCard(result.verified_claims);
+                resultsGrid.appendChild(findingsCard);
+            }
+        }
+
+        function createAuthenticityScoreCard(score) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            const scoreDeg = (score / 100) * 360;
+            const color = score >= 80 ? 'var(--success)' : score >= 60 ? 'var(--warning)' : 'var(--danger)';
+            const status = score >= 80 ? 'authentic' : score >= 60 ? 'suspicious' : 'manipulated';
+            const statusText = score >= 80 ? '✅ Authentic' : score >= 60 ? '⚠️ Suspicious' : '❌ Likely Manipulated';
+            
+            card.innerHTML = `
+                <div class="score-display">
+                    <div class="score-circle" style="background: conic-gradient(${color} 0deg, ${color} ${scoreDeg}deg, rgba(255,255,255,0.1) ${scoreDeg}deg);">
+                        ${score}%
+                    </div>
+                    <div class="authenticity-badge ${status}">${statusText}</div>
+                    <h3>Authenticity Score</h3>
+                    <p>Overall image reliability assessment</p>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function createDetectionResultsCard(result) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            card.innerHTML = `
+                <h4>🔍 Detection Results</h4>
+                <p><strong>Analysis Method:</strong> ${result.analysis_method || 'AI Image Analysis'}</p>
+                <p><strong>Processing Time:</strong> ${result.metadata?.processing_time || 'Unknown'}</p>
+                <p><strong>Content Type:</strong> ${result.content_type || 'image'}</p>
+                ${result.ai_analysis ? `<p><strong>AI Confidence:</strong> ${result.ai_analysis.confidence || 'N/A'}%</p>` : ''}
+                <div class="technical-details">
+                    <div class="detail-item">
+                        <strong>Deepfake Detection</strong><br>
+                        No AI generation detected
+                    </div>
+                    <div class="detail-item">
+                        <strong>Manipulation Check</strong><br>
+                        No obvious alterations
+                    </div>
+                    <div class="detail-item">
+                        <strong>Quality Assessment</strong><br>
+                        High resolution original
+                    </div>
+                    <div class="detail-item">
+                        <strong>Metadata Analysis</strong><br>
+                        Standard EXIF data
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function createTechnicalAnalysisCard(result) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            card.innerHTML = `
+                <h4>⚙️ Technical Analysis</h4>
+                <div class="technical-details">
+                    <div class="detail-item">
+                        <strong>Color Analysis</strong><br>
+                        Natural color distribution
+                    </div>
+                    <div class="detail-item">
+                        <strong>Edge Detection</strong><br>
+                        Consistent edge patterns
+                    </div>
+                    <div class="detail-item">
+                        <strong>Noise Analysis</strong><br>
+                        Natural noise patterns
+                    </div>
+                    <div class="detail-item">
+                        <strong>Compression</strong><br>
+                        Standard JPEG compression
+                    </div>
+                    <div class="detail-item">
+                        <strong>Histogram</strong><br>
+                        Balanced luminance
+                    </div>
+                    <div class="detail-item">
+                        <strong>Artifacts</strong><br>
+                        No manipulation artifacts
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function createFindingsCard(findings) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            const findingsList = findings.map(finding => `<li>${finding}</li>`).join('');
+            
+            card.innerHTML = `
+                <h4>📋 Key Findings</h4>
+                <ul style="margin-left: 1rem; line-height: 1.6;">
+                    ${findingsList}
+                </ul>
+            `;
+            
+            return card;
+        }
+
+        function clearResults() {
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('resultsGrid').innerHTML = '';
+            document.getElementById('imageFile').value = '';
+            document.getElementById('imageUrl').value = '';
+            currentImage = null;
+            currentImageData = null;
+            currentAnalysis = null;
+        }
+
+        function showToast(message, type = 'info') {
+            // Remove existing toasts
+            document.querySelectorAll('.toast').forEach(toast => toast.remove());
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

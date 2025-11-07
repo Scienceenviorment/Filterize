@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Analysis - Filterize AI</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --bg: #0f1724;
+            --card: #1a2332;
+            --text: #ffffff;
+            --text-muted: #9aa4b2;
+            --accent: #60a5fa;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1a2332 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(26, 35, 50, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        .analysis-form {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-group textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+        }
+
+        .form-group textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .form-group input[type="url"] {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .form-group input[type="url"]:focus {
+            border-color: var(--accent);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-card:hover {
+            border-color: var(--accent);
+            background: rgba(96, 165, 250, 0.1);
+        }
+
+        .option-card.active {
+            border-color: var(--accent);
+            background: rgba(96, 165, 250, 0.2);
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            display: none;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            background: conic-gradient(var(--success) 0deg, var(--success) var(--score-deg), rgba(255,255,255,0.1) var(--score-deg));
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            z-index: 3000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warning); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📝</div>
+                Text Analysis
+            </a>
+            <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">📝 Text Analysis</h1>
+            <p class="page-subtitle">Advanced AI-powered text analysis with fact-checking, sentiment analysis, and credibility assessment</p>
+        </div>
+
+        <form class="analysis-form" id="textAnalysisForm">
+            <div class="form-group">
+                <label for="textInput">Enter text to analyze:</label>
+                <textarea 
+                    id="textInput" 
+                    placeholder="Paste your text here for comprehensive analysis including fact-checking, sentiment analysis, and credibility assessment..."
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="urlInput">Or enter a URL to analyze web content:</label>
+                <input 
+                    type="url" 
+                    id="urlInput" 
+                    placeholder="https://example.com/article"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Analysis Options:</label>
+                <div class="options-grid">
+                    <div class="option-card active" data-option="fact_check">
+                        <strong>🔍 Fact Checking</strong>
+                        <p>Verify claims and statements</p>
+                    </div>
+                    <div class="option-card active" data-option="sentiment">
+                        <strong>😊 Sentiment Analysis</strong>
+                        <p>Analyze emotional tone</p>
+                    </div>
+                    <div class="option-card active" data-option="credibility">
+                        <strong>⭐ Credibility Score</strong>
+                        <p>Rate content reliability</p>
+                    </div>
+                    <div class="option-card active" data-option="internet_search">
+                        <strong>🌐 Internet Research</strong>
+                        <p>Cross-reference with online sources</p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="analyze-btn" id="analyzeBtn">
+                🔍 Analyze Text
+            </button>
+        </form>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>Analysis Results</h2>
+                <button type="button" class="back-btn" onclick="clearResults()">Clear Results</button>
+            </div>
+
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>Analyzing text with AI...</p>
+            </div>
+
+            <div class="results-grid" id="resultsGrid" style="display: none;">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentAnalysis = null;
+        let selectedOptions = new Set(['fact_check', 'sentiment', 'credibility', 'internet_search']);
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            console.log('📝 Text Analysis page loaded');
+        });
+
+        function setupEventListeners() {
+            // Form submission
+            document.getElementById('textAnalysisForm').addEventListener('submit', handleAnalysis);
+
+            // Option cards
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.addEventListener('click', toggleOption);
+            });
+
+            // Input handling
+            document.getElementById('textInput').addEventListener('input', validateForm);
+            document.getElementById('urlInput').addEventListener('input', validateForm);
+        }
+
+        function toggleOption(event) {
+            const card = event.currentTarget;
+            const option = card.dataset.option;
+
+            if (selectedOptions.has(option)) {
+                selectedOptions.delete(option);
+                card.classList.remove('active');
+            } else {
+                selectedOptions.add(option);
+                card.classList.add('active');
+            }
+        }
+
+        function validateForm() {
+            const textInput = document.getElementById('textInput').value.trim();
+            const urlInput = document.getElementById('urlInput').value.trim();
+            const analyzeBtn = document.getElementById('analyzeBtn');
+
+            analyzeBtn.disabled = !textInput && !urlInput;
+        }
+
+        async function handleAnalysis(event) {
+            event.preventDefault();
+
+            const textInput = document.getElementById('textInput').value.trim();
+            const urlInput = document.getElementById('urlInput').value.trim();
+
+            if (!textInput && !urlInput) {
+                showToast('Please enter text or URL to analyze', 'warning');
+                return;
+            }
+
+            const content = textInput || urlInput;
+            const contentType = urlInput ? 'website' : 'text';
+
+            showResults();
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: content,
+                        type: contentType,
+                        options: {
+                            include_search: selectedOptions.has('internet_search'),
+                            sentiment_analysis: selectedOptions.has('sentiment'),
+                            fact_checking: selectedOptions.has('fact_check'),
+                            credibility_check: selectedOptions.has('credibility')
+                        }
+                    })
+                });
+
+                const result = await response.json();
+                currentAnalysis = result;
+                
+                hideLoading();
+                displayResults(result);
+                showToast('Analysis completed successfully!', 'success');
+
+            } catch (error) {
+                hideLoading();
+                showToast('Analysis failed: ' + error.message, 'error');
+                console.error('Analysis error:', error);
+            }
+        }
+
+        function showResults() {
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showLoading() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('resultsGrid').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('resultsGrid').style.display = 'grid';
+        }
+
+        function displayResults(result) {
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = '';
+
+            // Credibility Score Display
+            if (result.fact_check_score !== undefined) {
+                const scoreCard = createScoreCard(result.fact_check_score);
+                resultsGrid.appendChild(scoreCard);
+            }
+
+            // Analysis Details
+            const detailsCard = createDetailsCard(result);
+            resultsGrid.appendChild(detailsCard);
+
+            // Verified Claims
+            if (result.verified_claims && result.verified_claims.length > 0) {
+                const claimsCard = createClaimsCard(result.verified_claims);
+                resultsGrid.appendChild(claimsCard);
+            }
+
+            // Real Facts
+            if (result.real_facts && result.real_facts.length > 0) {
+                const factsCard = createFactsCard(result.real_facts);
+                resultsGrid.appendChild(factsCard);
+            }
+
+            // Sentiment Analysis (if available)
+            if (result.sentiment_analysis) {
+                const sentimentCard = createSentimentCard(result.sentiment_analysis);
+                resultsGrid.appendChild(sentimentCard);
+            }
+        }
+
+        function createScoreCard(score) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            const scoreDeg = (score / 100) * 360;
+            const color = score >= 80 ? 'var(--success)' : score >= 60 ? 'var(--warning)' : 'var(--danger)';
+            
+            card.innerHTML = `
+                <div class="score-display">
+                    <div class="score-circle" style="background: conic-gradient(${color} 0deg, ${color} ${scoreDeg}deg, rgba(255,255,255,0.1) ${scoreDeg}deg);">
+                        ${score}%
+                    </div>
+                    <h3>Credibility Score</h3>
+                    <p>Overall reliability assessment</p>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function createDetailsCard(result) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            card.innerHTML = `
+                <h4>📊 Analysis Details</h4>
+                <p><strong>Content Type:</strong> ${result.content_type || 'text'}</p>
+                <p><strong>Analysis Method:</strong> ${result.analysis_method || 'AI Analysis'}</p>
+                <p><strong>Processing Time:</strong> ${result.metadata?.processing_time || 'Unknown'}</p>
+                ${result.summary ? `<p><strong>Summary:</strong> ${result.summary}</p>` : ''}
+                ${result.ai_analysis ? `<p><strong>AI Insights:</strong> ${JSON.stringify(result.ai_analysis, null, 2)}</p>` : ''}
+            `;
+            
+            return card;
+        }
+
+        function createClaimsCard(claims) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            const claimsList = claims.map(claim => `<li>${claim}</li>`).join('');
+            
+            card.innerHTML = `
+                <h4>✅ Verified Claims</h4>
+                <ul style="margin-left: 1rem; line-height: 1.6;">
+                    ${claimsList}
+                </ul>
+            `;
+            
+            return card;
+        }
+
+        function createFactsCard(facts) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            const factsList = facts.map(fact => `<li>${fact}</li>`).join('');
+            
+            card.innerHTML = `
+                <h4>🔍 Key Facts</h4>
+                <ul style="margin-left: 1rem; line-height: 1.6;">
+                    ${factsList}
+                </ul>
+            `;
+            
+            return card;
+        }
+
+        function createSentimentCard(sentiment) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            card.innerHTML = `
+                <h4>😊 Sentiment Analysis</h4>
+                <p><strong>Overall Sentiment:</strong> ${sentiment.overall || 'Neutral'}</p>
+                <p><strong>Confidence:</strong> ${sentiment.confidence || 'N/A'}%</p>
+                <p><strong>Emotional Tone:</strong> ${sentiment.tone || 'Balanced'}</p>
+            `;
+            
+            return card;
+        }
+
+        function clearResults() {
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('resultsGrid').innerHTML = '';
+            currentAnalysis = null;
+        }
+
+        function showToast(message, type = 'info') {
+            // Remove existing toasts
+            document.querySelectorAll('.toast').forEach(toast => toast.remove());
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

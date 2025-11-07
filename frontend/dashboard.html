@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filterize AI - Comprehensive Analysis Platform</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --bg: #0f1724;
+            --card: #1a2332;
+            --text: #ffffff;
+            --text-muted: #9aa4b2;
+            --accent: #60a5fa;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1a2332 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(26, 35, 50, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+            background: rgba(96, 165, 250, 0.1);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 20px;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(26, 35, 50, 0.7);
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--accent);
+            border: none;
+            padding: 0.7rem;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* Feature Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .feature-desc {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Status Panel */
+        .status-panel {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .status-indicator.warning {
+            background: var(--warning);
+        }
+
+        /* Login Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">
+                <div class="logo-icon">🔍</div>
+                Filterize AI
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link" onclick="showSection('dashboard')">Dashboard</a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('search')">Search</a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('analyze')">Analyze</a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('reports')">Reports</a></li>
+            </ul>
+            <div class="user-menu">
+                <button class="login-btn" onclick="showLogin()">Login</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>AI-Powered Analysis Platform</h1>
+            <p>Comprehensive fact-checking, content analysis, and research with advanced AI integration</p>
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Search for reports, analyze content, or fact-check information..." id="globalSearch">
+                <button class="search-btn" onclick="performGlobalSearch()">🔍</button>
+            </div>
+        </section>
+
+        <!-- Status Panel -->
+        <section class="status-panel">
+            <h3>System Status</h3>
+            <div class="status-grid" id="statusGrid">
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>AI Systems Online</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>Internet Connectivity</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>Fact-Check Engine</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator warning"></div>
+                    <span>ChatGPT Integration</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section class="features-grid">
+            <div class="feature-card" onclick="window.location.href='/text-analysis'">
+                <div class="feature-icon">📝</div>
+                <h3 class="feature-title">Text Analysis</h3>
+                <p class="feature-desc">Advanced AI-powered text analysis with fact-checking, sentiment analysis, and credibility assessment.</p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/image-analysis'">
+                <div class="feature-icon">🖼️</div>
+                <h3 class="feature-title">Image Detection</h3>
+                <p class="feature-desc">Detect manipulated images, deepfakes, and analyze visual content for authenticity.</p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/voice-analysis'">
+                <div class="feature-icon">🎤</div>
+                <h3 class="feature-title">Voice Analysis</h3>
+                <p class="feature-desc">Advanced AI voice detection, deepfake identification, and speech authenticity verification.</p>
+            </div>
+
+            <div class="feature-card" onclick="openAnalyzer('video')">
+                <div class="feature-icon">🎥</div>
+                <h3 class="feature-title">Video Analysis</h3>
+                <p class="feature-desc">Advanced video analysis including deepfake detection and content verification.</p>
+            </div>
+
+            <div class="feature-card" onclick="openAnalyzer('website')">
+                <div class="feature-icon">🌐</div>
+                <h3 class="feature-title">Website Scanner</h3>
+                <p class="feature-desc">Analyze websites for security, credibility, and content quality assessment.</p>
+            </div>
+
+            <div class="feature-card" onclick="openAnalyzer('pdf')">
+                <div class="feature-icon">📄</div>
+                <h3 class="feature-title">PDF Analyzer</h3>
+                <p class="feature-desc">Comprehensive PDF document analysis and summarization with AI-powered insights.</p>
+            </div>
+
+            <div class="feature-card" onclick="openAnalyzer('docx')">
+                <div class="feature-icon">📝</div>
+                <h3 class="feature-title">Word Documents</h3>
+                <p class="feature-desc">Analyze and summarize Word documents with advanced content understanding.</p>
+            </div>
+
+            <div class="feature-card" onclick="openSearchTool()">
+                <div class="feature-icon">🔍</div>
+                <h3 class="feature-title">Online Search</h3>
+                <p class="feature-desc">Search for reports and information using Perplexity and ChatGPT integration.</p>
+            </div>
+
+            <div class="feature-card" onclick="openReportGenerator()">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Report Generator</h3>
+                <p class="feature-desc">Generate comprehensive analysis reports with AI-powered insights and recommendations.</p>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>Analysis Results</h2>
+                <button class="btn btn-secondary" onclick="clearResults()">Clear Results</button>
+            </div>
+            <div class="results-grid" id="resultsGrid">
+                <!-- Results will be populated here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Login to Filterize AI</h2>
+                <p>Access advanced features and personalized analysis</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="hideLogin()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let analysisHistory = [];
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Filterize AI Dashboard loaded');
+            loadSystemStatus();
+            checkUserSession();
+        });
+
+        // System status
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/health');
+                const status = await response.json();
+                
+                console.log('System status:', status);
+                updateStatusIndicators(status);
+            } catch (error) {
+                console.error('Failed to load system status:', error);
+            }
+        }
+
+        function updateStatusIndicators(status) {
+            const indicators = document.querySelectorAll('.status-indicator');
+            const components = status.components || {};
+            
+            // Update based on actual component status
+            indicators.forEach((indicator, index) => {
+                const componentNames = ['ai_systems', 'internet', 'fact_checker', 'chatgpt'];
+                const componentStatus = components[componentNames[index]] !== false;
+                
+                if (componentStatus) {
+                    indicator.className = 'status-indicator';
+                } else {
+                    indicator.className = 'status-indicator warning';
+                }
+            });
+        }
+
+        // Authentication
+        function showLogin() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+
+        function hideLogin() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentUser = result.user;
+                    hideLogin();
+                    showToast('Login successful!', 'success');
+                    updateUserInterface();
+                } else {
+                    showToast('Login failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showToast('Login error: ' + error.message, 'error');
+            }
+        });
+
+        function checkUserSession() {
+            // Check if user is already logged in
+            const savedUser = localStorage.getItem('filterize_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateUserInterface();
+            }
+        }
+
+        function updateUserInterface() {
+            const loginBtn = document.querySelector('.login-btn');
+            if (currentUser) {
+                loginBtn.textContent = `Welcome, ${currentUser.username}`;
+                loginBtn.onclick = logout;
+                localStorage.setItem('filterize_user', JSON.stringify(currentUser));
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('filterize_user');
+            location.reload();
+        }
+
+        // Global search
+        async function performGlobalSearch() {
+            const query = document.getElementById('globalSearch').value.trim();
+            if (!query) {
+                showToast('Please enter a search query', 'warning');
+                return;
+            }
+
+            showToast('🔍 Searching online...', 'info');
+
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        query: query,
+                        type: 'general',
+                        use_ai: true
+                    })
+                });
+
+                const results = await response.json();
+                displaySearchResults(results);
+                showToast('Search completed!', 'success');
+            } catch (error) {
+                showToast('Search failed: ' + error.message, 'error');
+            }
+        }
+
+        // Analyzer functions
+        async function openAnalyzer(type) {
+            if (type === 'voice') {
+                openVoiceAnalyzer();
+                return;
+            }
+            
+            const content = prompt(`Enter content for ${type} analysis:`);
+            if (!content) return;
+
+            showToast(`🔍 Analyzing ${type} content...`, 'info');
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: content,
+                        type: type,
+                        options: { include_search: true }
+                    })
+                });
+
+                const result = await response.json();
+                displayAnalysisResults(result);
+                showToast('Analysis completed!', 'success');
+            } catch (error) {
+                showToast('Analysis failed: ' + error.message, 'error');
+            }
+        }
+
+        async function openVoiceAnalyzer() {
+            const choice = prompt('Voice Analysis Options:\n1. Upload audio file (enter file path)\n2. Live microphone recording (enter duration in seconds)\n3. Cancel\n\nEnter your choice (1, 2, or 3):');
+            
+            if (choice === '3' || choice === null) return;
+            
+            let content, contentType;
+            
+            if (choice === '1') {
+                content = prompt('Enter the path to your audio file:');
+                contentType = 'file';
+            } else if (choice === '2') {
+                content = prompt('Enter recording duration (seconds, default 5):') || '5';
+                contentType = 'live';
+                showToast('🎙️ Starting microphone recording...', 'info');
+            } else {
+                showToast('Invalid choice. Please select 1, 2, or 3.', 'warning');
+                return;
+            }
+
+            if (!content) return;
+
+            showToast(`🎤 Analyzing voice content...`, 'info');
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: content,
+                        type: 'voice',
+                        options: { 
+                            content_type: contentType,
+                            include_search: true 
+                        }
+                    })
+                });
+
+                const result = await response.json();
+                displayVoiceResults(result);
+                showToast('Voice analysis completed!', 'success');
+            } catch (error) {
+                showToast('Voice analysis failed: ' + error.message, 'error');
+            }
+        }
+
+        function openSearchTool() {
+            const query = prompt('Enter your search query:');
+            if (query) {
+                document.getElementById('globalSearch').value = query;
+                performGlobalSearch();
+            }
+        }
+
+        function openReportGenerator() {
+            showToast('Report generator coming soon!', 'info');
+        }
+
+        // Results display
+        function displaySearchResults(results) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsGrid = document.getElementById('resultsGrid');
+            
+            resultsGrid.innerHTML = '';
+            
+            if (results.results && results.results.length > 0) {
+                results.results.forEach(result => {
+                    const card = createResultCard('search', result);
+                    resultsGrid.appendChild(card);
+                });
+            }
+            
+            if (results.ai_summary) {
+                const summaryCard = createSummaryCard(results.ai_summary);
+                resultsGrid.appendChild(summaryCard);
+            }
+            
+            resultsSection.style.display = 'block';
+        }
+
+        function displayAnalysisResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsGrid = document.getElementById('resultsGrid');
+            
+            const card = createResultCard('analysis', result);
+            resultsGrid.appendChild(card);
+            
+            resultsSection.style.display = 'block';
+        }
+
+        function displayVoiceResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsGrid = document.getElementById('resultsGrid');
+            
+            const card = createVoiceResultCard(result);
+            resultsGrid.appendChild(card);
+            
+            resultsSection.style.display = 'block';
+        }
+
+        function createVoiceResultCard(data) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            const voiceAnalysis = data.voice_analysis || {};
+            const deepfakeDetection = voiceAnalysis.deepfake_detection || {};
+            const audioFeatures = voiceAnalysis.audio_features || {};
+            
+            card.innerHTML = `
+                <h4>🎤 Voice Analysis Results</h4>
+                <p><strong>Credibility Score:</strong> <span class="result-score">${data.fact_check_score || 'N/A'}%</span></p>
+                <p><strong>AI Detection:</strong> ${deepfakeDetection.is_ai_generated ? '⚠️ AI Generated' : '✅ Human Voice'}</p>
+                <p><strong>Confidence:</strong> ${deepfakeDetection.confidence_score || 'N/A'}%</p>
+                <p><strong>Analysis Method:</strong> ${data.analysis_method || 'Voice Analysis'}</p>
+                <p><strong>Processing Time:</strong> ${data.metadata?.processing_time || 'Unknown'}</p>
+                ${data.transcription ? `<p><strong>Transcription:</strong> "${data.transcription}"</p>` : ''}
+                ${audioFeatures.duration ? `<p><strong>Duration:</strong> ${audioFeatures.duration.toFixed(2)} seconds</p>` : ''}
+                ${audioFeatures.sample_rate ? `<p><strong>Sample Rate:</strong> ${audioFeatures.sample_rate} Hz</p>` : ''}
+                ${deepfakeDetection.ai_indicators ? `<p><strong>AI Indicators:</strong> ${deepfakeDetection.ai_indicators.join(', ')}</p>` : ''}
+                ${data.verified_claims ? `<p><strong>Key Findings:</strong> ${data.verified_claims.join(', ')}</p>` : ''}
+            `;
+            
+            return card;
+        }
+
+        function createResultCard(type, data) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            if (type === 'search') {
+                card.innerHTML = `
+                    <h4>${data.title}</h4>
+                    <p><strong>Source:</strong> ${data.source}</p>
+                    <p>${data.summary}</p>
+                    <p><strong>Credibility:</strong> <span class="result-score">${data.credibility || 'N/A'}%</span></p>
+                    <a href="${data.url}" target="_blank" style="color: var(--accent);">View Source</a>
+                `;
+            } else if (type === 'analysis') {
+                card.innerHTML = `
+                    <h4>${data.content_type || 'Analysis'} Results</h4>
+                    <p><strong>Credibility Score:</strong> <span class="result-score">${data.fact_check_score || 'N/A'}%</span></p>
+                    <p><strong>Analysis Method:</strong> ${data.analysis_method || 'AI Analysis'}</p>
+                    <p><strong>Processing Time:</strong> ${data.metadata?.processing_time || 'Unknown'}</p>
+                    ${data.verified_claims ? `<p><strong>Key Findings:</strong> ${data.verified_claims.join(', ')}</p>` : ''}
+                `;
+            }
+            
+            return card;
+        }
+
+        function createSummaryCard(summary) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            card.innerHTML = `
+                <h4>🤖 AI Summary</h4>
+                <div style="white-space: pre-line; line-height: 1.6;">${summary}</div>
+            `;
+            return card;
+        }
+
+        function clearResults() {
+            document.getElementById('resultsGrid').innerHTML = '';
+            document.getElementById('resultsSection').style.display = 'none';
+        }
+
+        // Utility functions
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : type === 'warning' ? 'var(--warning)' : 'var(--accent)'};
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                z-index: 3000;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.style.transform = 'translateX(0)', 100);
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        function showSection(section) {
+            showToast(`${section} section coming soon!`, 'info');
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === '/') {
+                e.preventDefault();
+                document.getElementById('globalSearch').focus();
+            }
+        });
+    </script>
+</body>
+</html>

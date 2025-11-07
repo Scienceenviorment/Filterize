@@ -3,12 +3,12 @@ Internet-based fact-checking and content verification module
 Provides comprehensive fact-checking using multiple online sources
 """
 
-import re
-import time
 import requests
-from datetime import datetime, timedelta
-from typing import Dict, List, Any
-
+import json
+import re
+from urllib.parse import quote, urlencode
+from typing import Dict, List, Any, Optional
+import time
 
 class InternetFactChecker:
     """Enhanced fact-checker using internet sources"""
@@ -16,20 +16,11 @@ class InternetFactChecker:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                          'AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/91.0.4472.124 Safari/537.36')
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
         
-    def fact_check_content(self, content: str, 
-                          content_type: str = 'text') -> Dict[str, Any]:
-        """
-        Comprehensive fact-checking using multiple internet sources
-        
-        Args:
-            content: Content to fact-check
-            content_type: Type of content - reserved for future use
-        """
+    def fact_check_content(self, content: str, content_type: str = 'text') -> Dict[str, Any]:
+        """Comprehensive fact-checking using multiple internet sources"""
         
         try:
             # Extract key claims from content

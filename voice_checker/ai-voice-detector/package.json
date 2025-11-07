@@ -1,0 +1,27 @@
+{
+  "name": "ai-voice-detector",
+  "version": "1.0.0",
+  "description": "A module for detecting AI-generated voices and processing live audio inputs.",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "typescript": "^4.5.0",
+    "ts-node": "^10.0.0",
+    "jest": "^27.0.0",
+    "some-audio-library": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.0",
+    "@types/node": "^16.0.0"
+  },
+  "keywords": [
+    "AI",
+    "voice detection",
+    "audio processing"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

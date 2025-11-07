@@ -1,21 +1,19 @@
-#!/usr/bin/env python3
-"""
-Flask server for AI content detection and fact-checking service.
-Provides endpoints for analyzing text, checking facts, and related features.
-"""
-
-import json as _json
-import logging
-from pathlib import Path
-
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-
-from ai_detection import analyze_ai_content
+import re
+from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from ai_providers import analyze_text_with_provider
-from internet_fact_checker_fixed import InternetFactChecker
-from local_model import analyze_text_local
+from internet_fact_checker import InternetFactChecker
 from news_provider import real_news_provider
+# local_model is optional and lazily imported
+local_model = None
+import os
+import json as _json
+from pathlib import Path
+from werkzeug.utils import secure_filename
+import tempfile
+import time
 
 # Simple in-memory metrics; persisted to cache/metrics.json when updated
 metrics = {
@@ -27,498 +25,589 @@ metrics = {
     'heuristic_used': 0,
 }
 
-
 def _metrics_cache_path():
-    cache_path = Path('cache')
-    cache_path.mkdir(parents=True, exist_ok=True)
-    return cache_path / 'metrics.json'
-
+    p = Path('cache')
+    p.mkdir(parents=True, exist_ok=True)
+    return p / 'metrics.json'
 
 def _save_metrics():
     try:
-        metrics_path = _metrics_cache_path()
-        with metrics_path.open('w', encoding='utf-8') as file_handle:
-            _json.dump(metrics, file_handle)
-    except (OSError, IOError) as error:
-        logging.getLogger(__name__).exception(
-            'Failed to persist metrics: %s', error)
+        p = _metrics_cache_path()
+        with p.open('w', encoding='utf-8') as fh:
+            _json.dump(metrics, fh)
+    except Exception:
+        app.logger.exception('failed to persist metrics')
 
-
-def _inc_metric(key, increment=1):
-    metrics[key] = metrics.get(key, 0) + increment
+def _inc_metric(key, n=1):
+    metrics[key] = metrics.get(key, 0) + n
     # persist asynchronously would be nicer but keep simple
     try:
         _save_metrics()
-    except (OSError, IOError):
+    except Exception:
         pass
-
 
 app = Flask(__name__, static_folder='frontend', static_url_path='/static')
 CORS(app)
 
-# Load cached metrics on startup
-try:
-    cached_metrics_path = _metrics_cache_path()
-    if cached_metrics_path.exists():
-        with cached_metrics_path.open('r', encoding='utf-8') as file_handle:
-            cached_data = _json.load(file_handle)
-            metrics.update(cached_data)
-except (OSError, IOError, _json.JSONDecodeError):
-    pass
+# Configure upload folder
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
 
-CLICKBAIT_PATTERNS = [
-    r"you won't believe", r"this is what happens",
-    r"shocking", r"unbelievable", r"will blow your mind"
-]
-EMOTIONAL_WORDS = set([
-    "love", "hate", "amazing", "terrible", "disgrace", "outrage"
-])
+# Ensure upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+analyzer = SentimentIntensityAnalyzer()
+CLICKBAIT_PATTERNS = [r"you won't believe", r"this is what happens", r"shocking", r"unbelievable", r"will blow your mind"]
+EMOTIONAL_WORDS = set(["love", "hate", "amazing", "terrible", "disgrace", "outrage"])
 
 
-def _get_heuristic_score(text):
-    """Calculate a simple heuristic score for AI detection."""
+def simple_analyze(text: str):
+    tb = TextBlob(text)
+    polarity = tb.sentiment.polarity
+    words = re.findall(r"\w+", text.lower())
+    emotional_count = sum(1 for w in words if w in EMOTIONAL_WORDS)
+    clickbait_count = 0
+    for p in CLICKBAIT_PATTERNS:
+        if re.search(p, text, re.IGNORECASE):
+            clickbait_count += 1
+    vader = analyzer.polarity_scores(text)
+
+    score = 75
+    flags = []
+    if clickbait_count:
+        score -= 10 * clickbait_count
+        flags.append('clickbait')
+    if emotional_count > 2:
+        score -= 15
+        flags.append('emotional_language')
+    if vader['compound'] > 0.7 or vader['compound'] < -0.7:
+        flags.append('strong_sentiment')
+    if re.search(r'https?://', text):
+        score += 5
+    score = max(0, min(100, score + int(polarity * 10)))
+    # Safely attempt to extract noun phrases; TextBlob may require NLTK corpora
     try:
-        import textblob as tb
-        blob = tb.TextBlob(text)
-        
-        # Basic heuristics
-        sentiment = blob.sentiment
-        avg_sentence_length = len(text.split()) / max(len(text.split('.')), 1)
-        
-        # Check for patterns
-        clickbait_count = sum(
-            1 for pattern in CLICKBAIT_PATTERNS
-            if pattern.lower() in text.lower()
-        )
-        emotional_count = sum(
-            1 for word in EMOTIONAL_WORDS
-            if word.lower() in text.lower()
-        )
-        
-        # Simple scoring (0-1 range)
-        score = 0.5  # baseline
-        if sentiment.polarity < -0.3 or sentiment.polarity > 0.7:
-            score += 0.2
-        if avg_sentence_length > 25:
-            score += 0.1
-        if clickbait_count > 0:
-            score += 0.2
-        if emotional_count > 2:
-            score += 0.1
-            
-        return min(score, 1.0)
-    except ImportError:
-        # Fallback if textblob not available
+        summary = tb.noun_phrases[:6]
+    except Exception:
         summary = []
-        try:
-            blob = tb.TextBlob(text)
-            summary = blob.noun_phrases[:6]
-        except (ImportError, AttributeError):
-            summary = text.split()[:10]
-        
-        return 0.6 if len(summary) > 3 else 0.3
+
+    return {
+        'score': score,
+        'polarity': polarity,
+        'vader_compound': vader['compound'],
+        'flags': flags,
+        'summary': summary
+    }
 
 
-@app.route('/')
-def index():
-    """Serve the main frontend page."""
-    return send_from_directory('frontend', 'index.html')
-
-
-@app.route('/analyze', methods=['POST'])
+@app.route('/api/analyze', methods=['POST'])
 def analyze():
-    """Main analysis endpoint for AI content detection."""
     try:
         data = request.get_json(force=True) or {}
-    except (ValueError, TypeError):
-        return jsonify({'error': 'Invalid JSON data'}), 400
-    
-    text = data.get('text', '').strip()
+    except Exception:
+        return jsonify({'error': 'invalid JSON payload'}), 400
+    text = data.get('content', '')
+    prefer = data.get('prefer')  # optional: 'local'|'provider'|'heuristic'|'auto'
     if not text:
-        return jsonify({
-            'error': 'Text field is required and cannot be empty'
-        }), 400
-    
-    provider = data.get('provider')
-    # optional: 'local'|'provider'|'heuristic'|'auto'
-    prefer = data.get('prefer')
-    
-    result = None
-    
-    # Handle caching
-    cache_key = None
-    if text and provider:
-        try:
-            import hashlib
-            import time
-            from pathlib import Path as CachePath
-            
-            cache_key = hashlib.md5(
-                f"{text}-{provider}".encode('utf-8')).hexdigest()
-            cache_dir = CachePath('cache')
-            cache_dir.mkdir(parents=True, exist_ok=True)
-            cache_file = cache_dir / f"{cache_key}.json"
-            
-            # Check cache (5 minute TTL)
-            if cache_file.exists():
-                try:
-                    cache_stat = cache_file.stat()
-                    if time.time() - cache_stat.st_mtime < 300:  # 5 min
-                        file_handle = cache_file.open('r', encoding='utf-8')
-                        with file_handle:
-                            cached_result = _json.load(file_handle)
-                        _inc_metric('provider_cache_hits')
-                        return jsonify(cached_result)
-                except (OSError, IOError, _json.JSONDecodeError):
-                    pass
-            
-            _inc_metric('provider_cache_misses')
-            
-            # Save to cache helper
-            def save_to_cache(data_to_cache):
-                try:
-                    with cache_file.open('w', encoding='utf-8') as file_handle:
-                        _json.dump(data_to_cache, file_handle)
-                except (OSError, IOError):
-                    pass
-        except ImportError:
-            cache_key = None
-            
-            def save_to_cache(data_to_cache):
-                """Dummy cache save function when caching unavailable."""
-                pass
-    
-    # Provider analysis with retry logic
-    if provider:
-        def _call_provider_with_retry(provider_name, txt, max_retries=2,
-                                      backoff=0.6):
-            import time
+        return jsonify({'error': 'content is required'}), 400
+    try:
+        # provider caching + retry helper
+        import hashlib
+        import json as _json
+        import time
+        from pathlib import Path
+
+        def _provider_cache_dir():
+            d = Path('cache') / 'provider'
+            d.mkdir(parents=True, exist_ok=True)
+            return d
+
+        def _cache_key(provider_name, txt):
+            h = hashlib.sha256()
+            h.update(provider_name.encode('utf-8'))
+            h.update(b'|')
+            h.update(txt.encode('utf-8'))
+            return h.hexdigest()
+
+        def _load_cached(provider_name, txt, ttl=86400):
+            key = _cache_key(provider_name, txt)
+            p = _provider_cache_dir() / f"{key}.json"
+            if not p.exists():
+                return None
+            try:
+                mtime = p.stat().st_mtime
+                if time.time() - mtime > ttl:
+                    return None
+                with p.open('r', encoding='utf-8') as fh:
+                    _inc_metric('provider_cache_hits')
+                    return _json.load(fh)
+            except Exception:
+                return None
+
+        def _save_cached(provider_name, txt, data):
+            key = _cache_key(provider_name, txt)
+            p = _provider_cache_dir() / f"{key}.json"
+            try:
+                with p.open('w', encoding='utf-8') as fh:
+                    _json.dump(data, fh)
+            except Exception:
+                app.logger.exception('failed to write provider cache')
+            finally:
+                _inc_metric('provider_cache_misses')
+
+        def _call_provider_with_retry(provider_name, txt, max_retries=2, backoff=0.6):
+            # Check cache first
+            cached = _load_cached(provider_name, txt)
+            if cached is not None:
+                return cached
+
             last_exc = None
-            for attempt in range(1, max_retries + 1):
+            for attempt in range(1, max_retries + 2):
                 try:
-                    resp = analyze_text_with_provider(
-                        txt, provider=provider_name)
-                    if resp:
-                        return resp
-                except Exception as error:
-                    last_exc = error
-                    app.logger.warning(
-                        'provider %s attempt %s failed: %s',
-                        provider_name, attempt, error)
-                    if attempt < max_retries:
-                        time.sleep(backoff)
-            if last_exc:
-                raise last_exc
-            return None
-    
-    # Local model analysis
-    if prefer in (None, 'auto', 'local') or not provider:
+                    _inc_metric('provider_calls')
+                    resp = analyze_text_with_provider(txt, provider=provider_name)
+                    if isinstance(resp, dict):
+                        _save_cached(provider_name, txt, resp)
+                    return resp
+                except Exception as e:
+                    _inc_metric('provider_failures')
+                    last_exc = e
+                    app.logger.warning(f'provider {provider_name} attempt {attempt} failed: {e}')
+                    if attempt <= max_retries:
+                        time.sleep(backoff * (2 ** (attempt - 1)))
+                    else:
+                        break
+            raise last_exc
+
+        # Prefer an external provider if configured. The provider can be
+        # selected via the AI_PROVIDER env var (e.g. 'openai'). If no provider
+        # is set but OPENAI_API_KEY exists, prefer OpenAI. If the provider
+        # call fails or returns None, fall back to the local simple_analyze.
+        provider = os.environ.get('AI_PROVIDER')
+        if not provider and os.environ.get('OPENAI_API_KEY'):
+            provider = 'openai'
+
+        result = None
+
+        used = 'heuristic'
+        # 1) Try local model (fast, optional)
         try:
-            if hasattr(analyze_text_local, '__call__'):
-                # Avoid mutating a module-level variable inside the function
-                # (scoping issues).
-                
-                # lazy import to keep runtime light when scikit-learn
-                # isn't installed
-                result = analyze_text_local(text)
-                if result:
+            # Avoid mutating a module-level variable inside the function (scoping issues).
+            # Do a lazy import and track availability with a local flag.
+            local_model_available = False
+            try:
+                # lazy import to keep runtime light when scikit-learn isn't installed
+                from local_model import analyze_text_local
+                local_model_available = True
+            except Exception:
+                local_model_available = False
+
+            if local_model_available and (prefer in (None, 'auto', 'local')):
+                try:
+                    result = analyze_text_local(text)
+                    used = 'local'
                     _inc_metric('local_used')
-        except (ImportError, AttributeError):
-            pass
-        except Exception:
-            app.logger.exception('Local model analysis failed')
-    
-    # Heuristic fallback
-    if not result and prefer in (None, 'auto', 'heuristic'):
-        try:
-            heuristic_score = _get_heuristic_score(text)
-            result = {
-                'ai_probability': heuristic_score,
-                'confidence': 0.6,
-                'analysis_method': 'heuristic'
-            }
-            _inc_metric('heuristic_used')
-        except Exception:
-            app.logger.exception('Heuristic analysis failed')
-    
-    # Provider analysis
-    should_try_provider = (
-        (result is None and provider and
-         prefer in (None, 'auto', 'provider')) or
-        (result is None and prefer == 'provider')
-    )
-    if should_try_provider:
-        try:
-            result = _call_provider_with_retry(provider, text)
-            if result:
-                _inc_metric('provider_calls')
-                if cache_key:
-                    save_to_cache(result)
-        except Exception:
-            _inc_metric('provider_failures')
-            if prefer == 'provider':
-                app.logger.exception(
-                    'external provider analysis failed, falling back')
-    
-    # Final fallback if everything failed
-    if not result:
-        try:
-            heuristic_score = _get_heuristic_score(text)
-            result = {
-                'ai_probability': heuristic_score,
-                'confidence': 0.3,
-                'analysis_method': 'fallback_heuristic'
-            }
-            _inc_metric('heuristic_used')
-        except Exception:
-            result = {
-                'ai_probability': 0.5,
-                'confidence': 0.1,
-                'analysis_method': 'default'
-            }
-    
-    # Enhanced AI detection (optional)
-    try:
-        ai_result = analyze_ai_content(text)
-        if ai_result:
-            result['ai_detection'] = ai_result
-    except Exception as error:
-        app.logger.warning('AI detection failed: %s', error)
-    
-    # Multi-provider analysis for comparison
-    if provider and result:
-        try:
-            other_providers = ['openai', 'claude', 'gemini']
-            if provider in other_providers:
-                other_providers.remove(provider)
-            
-            comparison_results = []
-            for other_provider in other_providers[:2]:  # Limit to 2
-                try:
-                    other_result = analyze_text_with_provider(
-                        text, provider=other_provider)
-                    if other_result:
-                        comparison_results.append({
-                            'provider': other_provider,
-                            'result': other_result
-                        })
                 except Exception:
-                    continue
-            
-            if comparison_results:
-                result['provider_comparison'] = comparison_results
-        except Exception as error:
-            app.logger.warning('AI provider analysis failed: %s', error)
-    
-    # Traditional AI detection
-    try:
-        from ai_detection import detect_ai_patterns
-        traditional_result = detect_ai_patterns(text)
-        if traditional_result:
-            result['traditional_detection'] = traditional_result
-    except (ImportError, AttributeError) as error:
-        app.logger.warning('Traditional AI detection failed: %s', error)
-    
-    # Real news context
-    try:
-        news_result = real_news_provider.get_real_news(text)
-        if news_result:
-            result['news_context'] = {
-                'articles': news_result.get('articles', [])[:3],
-                'summary': news_result.get('summary', ''),
-                'credibility_score': news_result.get('credibility_score', 0),
-                'forward_insights': news_result.get(
-                    'forward_looking_insights', [])[:2],
-            }
-    except Exception as error:
-        app.logger.warning('Real news context failed: %s', error)
-    
-    return jsonify(result)
+                    app.logger.exception('local model analysis failed')
+
+        except Exception:
+            app.logger.exception('unexpected error while invoking local model')
+
+        # 2) Try external provider if local model didn't return a result
+        if (result is None and provider and prefer in (None, 'auto', 'provider')) or (result is None and prefer == 'provider'):
+            try:
+                result = _call_provider_with_retry(provider, text)
+                used = 'provider'
+                # provider calls metric incremented in the call helper
+            except Exception:
+                app.logger.exception('external provider analysis failed, falling back')
+
+        # 3) Fall back to simple heuristic analyzer
+        if result is None:
+            result = simple_analyze(text)
+            used = 'heuristic'
+            _inc_metric('heuristic_used')
+
+        # Attach which method was used so the frontend can show it
+        if isinstance(result, dict):
+            result['used'] = used
+
+        # Add AI content detection
+        try:
+            from ai_detection import analyze_ai_content
+            ai_result = analyze_ai_content(text)
+            result['ai_detection'] = ai_result
+        except Exception as e:
+            app.logger.warning(f'AI detection failed: {e}')
+            result['ai_detection'] = {'error': 'AI detection unavailable'}
+
+        return jsonify(result)
+    except Exception as e:
+        # Log the error server-side and return a safe message
+        app.logger.exception('analysis failed')
+        return jsonify({'error': 'analysis failed', 'detail': str(e)}), 500
 
 
-@app.route('/fact-check', methods=['POST'])
+@app.route('/api/fact-check', methods=['POST'])
 def fact_check():
-    """Endpoint for comprehensive fact-checking with related articles."""
+    """Enhanced fact-checking endpoint using internet-based analysis."""
     try:
         data = request.get_json(force=True) or {}
-        text = data.get('text', '').strip()
+        content = data.get('content', '')
+        content_type = data.get('type', 'text')
         
-        if not text:
-            return jsonify({
-                'error': 'Text field is required and cannot be empty'
-            }), 400
-        
-        # Initialize fact checker
+        if not content:
+            return jsonify({'error': 'content is required'}), 400
+            
+        # Use internet fact-checker for comprehensive analysis
         fact_checker = InternetFactChecker()
+        result = fact_checker.fact_check_content(content)
         
-        # Perform fact checking
-        fact_result = fact_checker.check_facts(text)
+        # Add AI providers analysis for enhanced verification
+        try:
+            from ai_providers import get_fact_check_analysis
+            ai_result = get_fact_check_analysis(content, content_type)
+            result['ai_provider_analysis'] = ai_result
+        except Exception as e:
+            app.logger.warning(f'AI provider analysis failed: {e}')
+            result['ai_provider_analysis'] = {'error': 'unavailable'}
         
-        # Find related articles
-        related_articles = fact_checker.find_related_articles(text)
+        # Add traditional AI detection for comparison
+        try:
+            from ai_detection import analyze_ai_content
+            ai_detection_result = analyze_ai_content(content)
+            result['traditional_ai_detection'] = ai_detection_result
+        except Exception as e:
+            app.logger.warning(f'Traditional AI detection failed: {e}')
+            result['traditional_ai_detection'] = {'error': 'unavailable'}
         
-        # Combine results
-        result = {
-            'fact_check': fact_result,
-            'related_articles': related_articles,
-            'timestamp': fact_result.get('timestamp'),
-            'analysis_complete': True
-        }
+        # Add real news context for comprehensive information
+        try:
+            news_result = real_news_provider.get_real_news(content)
+            result['real_news_context'] = {
+                'related_news': news_result.get('real_news', [])[:3],
+                'trending_topics': news_result.get('trending_topics', []),
+                'forward_insights': news_result.get('forward_looking_insights', [])[:2],
+                'ai_summary': news_result.get('ai_generated_summary', '')
+            }
+        except Exception as e:
+            app.logger.warning(f'Real news context failed: {e}')
+            result['real_news_context'] = {'error': 'unavailable'}
+            
+        return jsonify(result)
+        
+    except Exception as e:
+        app.logger.exception('Internet fact-checking failed')
+        return jsonify({
+            'error': 'Internet fact-checking failed',
+            'detail': str(e)
+        }), 500
+
+
+@app.route('/api/multi-ai-analyze', methods=['POST'])
+def multi_ai_analyze():
+    """Multi-AI agent analysis with intelligent routing."""
+    try:
+        data = request.get_json(force=True) or {}
+        content = data.get('content', '')
+        content_type = data.get('type', 'text')
+        task = data.get('task', 'analysis')  # analysis, fact_check, summarize
+        provider = data.get('provider', None)  # optional specific provider
+        
+        if not content:
+            return jsonify({'error': 'content is required'}), 400
+            
+        from ai_providers import multi_ai_agent
+        
+        if provider:
+            # Use specific provider
+            if provider in multi_ai_agent.providers:
+                provider_obj = multi_ai_agent.providers[provider]
+                result = provider_obj.analyze(content, content_type, task)
+                result['provider_used'] = provider
+            else:
+                return jsonify({
+                    'error': f'Unknown provider: {provider}'
+                }), 400
+        else:
+            # Use intelligent routing
+            result = multi_ai_agent.analyze_content(
+                content, content_type, task
+            )
+            
+        # Add comparison with local analysis
+        try:
+            local_result = simple_analyze(content)
+            result['local_comparison'] = local_result
+        except Exception:
+            result['local_comparison'] = {'error': 'local analysis failed'}
+            
+        return jsonify(result)
+        
+    except Exception as e:
+        app.logger.exception('multi-AI analysis failed')
+        return jsonify({
+            'error': 'multi-AI analysis failed',
+            'detail': str(e)
+        }), 500
+
+
+@app.route('/api/summarize', methods=['POST'])
+def summarize_content():
+    """Content summarization with misinformation detection."""
+    try:
+        data = request.get_json(force=True) or {}
+        content = data.get('content', '')
+        content_type = data.get('type', 'text')
+        
+        if not content:
+            return jsonify({'error': 'content is required'}), 400
+            
+        from ai_providers import get_content_summary
+        
+        result = get_content_summary(content, content_type)
+        
+        # Add credibility assessment
+        try:
+            credibility_result = simple_analyze(content)
+            result['credibility_assessment'] = credibility_result
+        except Exception:
+            result['credibility_assessment'] = {
+                'error': 'credibility check failed'
+            }
+            
+        return jsonify(result)
+        
+    except Exception as e:
+        app.logger.exception('summarization failed')
+        return jsonify({
+            'error': 'summarization failed',
+            'detail': str(e)
+        }), 500
+
+
+@app.route('/api/providers', methods=['GET'])
+def get_available_providers():
+    """Get list of available AI providers and their status."""
+    try:
+        from ai_providers import multi_ai_agent
+        
+        providers_status = {}
+        for name, provider in multi_ai_agent.providers.items():
+            providers_status[name] = {
+                'available': provider.is_available(),
+                'name': provider.name if hasattr(provider, 'name') else name
+            }
+            
+        return jsonify({
+            'providers': providers_status,
+            'default_routing': True,
+            'supported_tasks': ['analysis', 'fact_check', 'summarize'],
+            'supported_content': ['text', 'image', 'video', 'url']
+        })
+        
+    except Exception as e:
+        app.logger.exception('failed to get providers status')
+        return jsonify({
+            'error': 'failed to get providers',
+            'detail': str(e)
+        }), 500
+
+
+# Provide JSON error responses for uncaught exceptions in API routes
+@app.errorhandler(500)
+def handle_500(e):
+    # If the request is for the API, return JSON
+    if request.path.startswith('/api/'):
+        return jsonify({'error': 'internal server error'}), 500
+    # otherwise use default HTML response
+    return "Internal Server Error", 500
+
+
+@app.route('/api/analyze-image', methods=['POST'])
+def analyze_image():
+    """Analyze uploaded image for AI generation."""
+    try:
+        if 'image' not in request.files:
+            return jsonify({'error': 'No image file provided'}), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'error': 'No image file selected'}), 400
+        
+        # Read image data
+        image_data = file.read()
+        filename = secure_filename(file.filename) if file.filename else None
+        
+        # Import and use media detector
+        from media_detection import analyze_media_content
+        result = analyze_media_content('image', image_data, filename=filename)
         
         return jsonify(result)
-    
-    except Exception as error:
-        app.logger.exception('Fact-check endpoint failed: %s', error)
+        
+    except Exception as e:
+        app.logger.exception('image analysis failed')
         return jsonify({
-            'error': 'Fact-checking service temporarily unavailable',
-            'details': str(error)
+            'error': 'image analysis failed',
+            'detail': str(e)
         }), 500
 
 
-@app.route('/news', methods=['GET'])
-def news():
-    """Get real news context and articles."""
+@app.route('/api/analyze-video', methods=['POST'])
+def analyze_video():
+    """Analyze uploaded video for AI generation."""
     try:
-        query = request.args.get('q', '').strip()
-        if not query:
-            return jsonify({'error': 'Query parameter q is required'}), 400
+        if 'video' not in request.files:
+            return jsonify({'error': 'No video file provided'}), 400
         
-        news_result = real_news_provider.get_real_news(query)
-        return jsonify(news_result or {})
-    
-    except Exception as error:
-        app.logger.exception('News endpoint failed: %s', error)
+        file = request.files['video']
+        if file.filename == '':
+            return jsonify({'error': 'No video file selected'}), 400
+        
+        # Save video temporarily for analysis
+        filename = secure_filename(file.filename) if file.filename else 'temp'
+        temp_path = tempfile.mktemp(suffix=f"_{filename}")
+        file.save(temp_path)
+        
+        try:
+            # Import and use media detector
+            from media_detection import analyze_media_content
+            result = analyze_media_content('video', temp_path)
+            return jsonify(result)
+        finally:
+            # Clean up temp file
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+        
+    except Exception as e:
+        app.logger.exception('video analysis failed')
         return jsonify({
-            'error': 'News service temporarily unavailable'
+            'error': 'video analysis failed',
+            'detail': str(e)
         }), 500
 
 
-@app.route('/providers', methods=['GET'])
-def providers():
-    """Get available AI analysis providers."""
-    try:
-        return jsonify({
-            'providers': ['openai', 'claude', 'gemini', 'local'],
-            'default': 'openai'
-        })
-    except Exception as error:
-        app.logger.exception('Providers endpoint failed: %s', error)
-        return jsonify({'error': 'Service unavailable'}), 500
-
-
-@app.route('/health', methods=['GET'])
-def health():
-    """Health check endpoint."""
-    try:
-        return jsonify({
-            'status': 'healthy',
-            'metrics': metrics.copy()
-        })
-    except Exception as error:
-        app.logger.exception('Health check failed: %s', error)
-        return jsonify({'status': 'unhealthy'}), 500
-
-
-@app.errorhandler(404)
-def handle_404(error):
-    """Handle 404 errors."""
-    return jsonify({'error': 'Endpoint not found'}), 404
-
-
-@app.errorhandler(500)
-def handle_500(error):
-    """Handle 500 errors."""
-    return jsonify({'error': 'Internal server error'}), 500
-
-
-@app.route('/metrics', methods=['GET'])
-def get_metrics():
-    """Get service metrics."""
-    try:
-        return jsonify(metrics.copy())
-    except Exception as error:
-        app.logger.exception('Metrics endpoint failed: %s', error)
-        return jsonify({'error': 'Metrics unavailable'}), 500
-
-
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    """Handle file uploads for analysis."""
-    try:
-        if 'file' not in request.files:
-            return jsonify({'error': 'No file provided'}), 400
-        
-        uploaded_file = request.files['file']
-        if uploaded_file.filename == '':
-            return jsonify({'error': 'No file selected'}), 400
-        
-        # Read file content
-        content = uploaded_file.read().decode('utf-8', errors='ignore')
-        
-        # Analyze the content
-        analysis_result = analyze_ai_content(content)
-        
-        return jsonify({
-            'filename': uploaded_file.filename,
-            'analysis': analysis_result,
-            'content_preview': content[:200] + ('...' if len(content) > 200 else '')
-        })
-    
-    except Exception as error:
-        app.logger.exception('File upload failed: %s', error)
-        return jsonify({'error': 'File processing failed'}), 500
-
-
-@app.route('/batch-analyze', methods=['POST'])
-def batch_analyze():
-    """Analyze multiple texts in batch."""
+@app.route('/api/analyze-url', methods=['POST'])
+def analyze_url():
+    """Analyze content from URL for AI generation."""
     try:
         data = request.get_json(force=True) or {}
-        texts = data.get('texts', [])
+        url = data.get('url', '').strip()
         
-        if not isinstance(texts, list) or not texts:
-            return jsonify({'error': 'texts must be a non-empty array'}), 400
+        if not url:
+            return jsonify({'error': 'URL is required'}), 400
         
-        results = []
-        for i, text in enumerate(texts[:10]):  # Limit to 10 texts
-            try:
-                if isinstance(text, str) and text.strip():
-                    result = analyze_ai_content(text.strip())
-                    results.append({
-                        'index': i,
-                        'text_preview': text[:100],
-                        'analysis': result
-                    })
-                else:
-                    results.append({
-                        'index': i,
-                        'error': 'Invalid text format'
-                    })
-            except Exception as error:
-                results.append({
-                    'index': i,
-                    'error': f'Analysis failed: {error}'
-                })
+        # Basic URL validation
+        if not (url.startswith('http://') or url.startswith('https://')):
+            url = 'https://' + url
         
-        return jsonify({'results': results})
+        # Import and use media detector
+        from media_detection import analyze_media_content
+        result = analyze_media_content('url', url)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        app.logger.exception('URL analysis failed')
+        return jsonify({'error': 'URL analysis failed', 'detail': str(e)}), 500
+
+
+@app.route('/api/real-news', methods=['POST'])
+def get_real_news():
+    """Get real, current news using integrated AI"""
+    try:
+        data = request.get_json(force=True) or {}
+        content = data.get('content', '')
+        categories = data.get('categories', [])
+        
+        # Get real news based on content context
+        news_result = real_news_provider.get_real_news(content, categories)
+        
+        return jsonify(news_result)
+        
+    except Exception as e:
+        app.logger.exception('Real news retrieval failed')
+        return jsonify({
+            'error': 'Real news retrieval failed',
+            'detail': str(e),
+            'real_news': [],
+            'ai_generated_summary': 'Unable to retrieve news at this time.'
+        }), 500
+
+
+@app.route('/api/metrics', methods=['GET'])
+def get_metrics():
+    try:
+        p = _metrics_cache_path()
+        if p.exists():
+            with p.open('r', encoding='utf-8') as fh:
+                data = _json.load(fh)
+                return jsonify({'metrics': data})
+        return jsonify({'metrics': metrics})
+    except Exception:
+        app.logger.exception('failed to read metrics')
+        return jsonify({'metrics': metrics}), 500
+
+
+# Serve frontend static files with SPA fallback
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def static_proxy(path):
+    """
+    Serve static files and fall back to index.html for SPA routes.
+    This creates a unified backend + frontend application.
+    """
+    # Define the frontend directory
+    frontend_dir = os.path.join(os.path.dirname(__file__), 'frontend')
     
-    except Exception as error:
-        app.logger.exception('Batch analysis failed: %s', error)
-        return jsonify({'error': 'Batch processing failed'}), 500
+    # Try to serve static file first
+    if path != '':
+        file_path = os.path.join(frontend_dir, path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return send_from_directory(frontend_dir, path)
+    
+    # For API routes, return 404 if not handled by other routes
+    if path.startswith('api/'):
+        return jsonify({'error': 'API endpoint not found'}), 404
+    
+    # For all other routes (including root), serve the main SPA
+    return send_from_directory(frontend_dir, 'index.html')
+
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for monitoring."""
+    return jsonify({
+        'status': 'healthy',
+        'version': '1.0.0',
+        'features': {
+            'text_analysis': True,
+            'image_analysis': True,
+            'video_analysis': True,
+            'url_analysis': True,
+            'ai_detection': True,
+            'caching': True
+        },
+        'endpoints': [
+            '/api/analyze',
+            '/api/analyze-image', 
+            '/api/analyze-video',
+            '/api/analyze-url',
+            '/api/metrics'
+        ]
+    })
 
 
 if __name__ == '__main__':
-    try:
-        # Setup logging
-        logging.basicConfig(level=logging.INFO)
-        app.logger.setLevel(logging.INFO)
-        
-        # Create cache directory
-        Path('cache').mkdir(exist_ok=True)
-        
-        print("Server starting on http://localhost:5000")
-        app.run(host='0.0.0.0', port=5000, debug=True)
-    except KeyboardInterrupt:
-        print("\nServer stopped by user")
-    except Exception as startup_error:
-        print(f"Failed to start server: {startup_error}")
+    print("🚀 Starting Filterize - AI Content Detection System")
+    print("=" * 50)
+    print("📱 Frontend: http://localhost:5000")
+    print("🔧 API: http://localhost:5000/api/*")
+    print("💊 Health: http://localhost:5000/health")
+    print("=" * 50)
+    
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)

@@ -524,6 +524,21 @@ class MediaAIDetector:
 media_detector = MediaAIDetector()
 
 
+def analyze_image(image_data: bytes, filename: str = None) -> Dict:
+    """Standalone function to analyze image for AI generation."""
+    return media_detector.analyze_image(image_data, filename)
+
+
+def analyze_video(video_path: str) -> Dict:
+    """Standalone function to analyze video for AI generation."""
+    return media_detector.analyze_video(video_path)
+
+
+def analyze_url(url: str) -> Dict:
+    """Standalone function to analyze URL content for AI generation."""
+    return media_detector.analyze_url(url)
+
+
 def analyze_media_content(content_type: str, data, **kwargs) -> Dict:
     """Main function to analyze different types of media for AI generation."""
     if content_type == 'image':

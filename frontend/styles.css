@@ -6,6 +6,15 @@
   --danger:#ff6b6b;
   --success:#22c55e;
   --glass: rgba(255,255,255,0.03);
+  --speed-fast: 0.1s;
+  --speed-normal: 0.15s;
+  --speed-slow: 0.2s;
+}
+
+/* Speed Optimization */
+.fast-mode * {
+  transition-duration: var(--speed-fast) !important;
+  animation-duration: var(--speed-fast) !important;
 }
 
 /* Enhanced Logo Styles */
@@ -25,7 +34,7 @@
   justify-content: center;
   position: relative;
   filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.3));
-  transition: all 0.3s ease;
+  transition: all var(--speed-normal) ease;
 }
 
 .logo-icon:hover {
@@ -44,7 +53,7 @@
 }
 
 .logo-icon::after {
-  content: '🔍';
+  content: '⚡';
   font-size: 2rem;
   position: relative;
   z-index: 1;

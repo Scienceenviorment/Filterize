@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filterize AI - Advanced Content Analysis Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --success-color: #10d876;
+            --warning-color: #ffa726;
+            --danger-color: #f44336;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --bg-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --card-shadow-hover: 0 15px 40px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--card-shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .logo i {
+            margin-right: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-item a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-item a:hover {
+            color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--bg-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 4rem 0;
+            color: white;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Service Cards */
+        .services-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 3rem;
+            margin: 3rem 0;
+            box-shadow: var(--card-shadow);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--bg-gradient);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px) rotateY(5deg);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+        }
+
+        .service-card-inner {
+            transition: var(--transition);
+            transform-style: preserve-3d;
+        }
+
+        .service-card:hover .service-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .service-card-front,
+        .service-card-back {
+            backface-visibility: hidden;
+            position: relative;
+        }
+
+        .service-card-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transform: rotateY(180deg);
+            background: var(--bg-gradient);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--bg-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+            transition: var(--transition);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .service-card:hover .service-icon {
+            transform: scale(1.2) rotate(360deg);
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .service-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--dark-color);
+            transition: var(--transition);
+        }
+
+        .service-card:hover .service-title {
+            color: var(--primary-color);
+            transform: translateX(10px);
+        }
+
+        .service-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        .service-card:hover .service-description {
+            transform: translateX(5px);
+        }
+
+        .service-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-features li {
+            padding: 0.25rem 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            transform: translateX(-20px);
+            opacity: 0;
+            animation: slideInLeft 0.6s ease-out forwards;
+        }
+
+        .service-features li:nth-child(1) { animation-delay: 0.1s; }
+        .service-features li:nth-child(2) { animation-delay: 0.2s; }
+        .service-features li:nth-child(3) { animation-delay: 0.3s; }
+        .service-features li:nth-child(4) { animation-delay: 0.4s; }
+        .service-features li:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideInLeft {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .service-features li::before {
+            content: '✓';
+            color: var(--success-color);
+            font-weight: bold;
+            margin-right: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .service-card:hover .service-features li::before {
+            transform: scale(1.3) rotate(360deg);
+        }
+
+        .service-action {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-action::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .service-action:hover::before {
+            left: 100%;
+        }
+
+        /* Animation Classes */
+        .back-card-emoji {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .back-card-details {
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Additional hover effects for icons */
+        .fas {
+            transition: var(--transition);
+        }
+
+        .service-card:hover .fas {
+            transform: rotate(10deg) scale(1.1);
+            color: #ffffff;
+        }
+
+        /* Glow effect for service cards */
+        .service-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: var(--border-radius);
+            background: var(--bg-gradient);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: -1;
+        }
+
+        .service-card:hover::after {
+            opacity: 0.1;
+        }
+
+        /* Advanced hover state for buttons */
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Logo styling */
+        .logo-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transition: var(--transition);
+            animation: logoFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-5px) rotate(5deg); }
+            50% { transform: translateY(0px) rotate(0deg); }
+            75% { transform: translateY(-3px) rotate(-3deg); }
+        }
+
+        .logo-container:hover .logo-icon {
+            transform: scale(1.2) rotate(360deg);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        /* AI vs Human Section */
+        .ai-human-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: var(--border-radius);
+            padding: 3rem;
+            margin: 3rem 0;
+            box-shadow: var(--card-shadow);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .comparison-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            position: relative;
+        }
+
+        .comparison-card.ai-card {
+            border-top: 4px solid var(--danger-color);
+        }
+
+        .comparison-card.human-card {
+            border-top: 4px solid var(--success-color);
+        }
+
+        .comparison-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .ai-card .comparison-icon {
+            background: var(--danger-color);
+        }
+
+        .human-card .comparison-icon {
+            background: var(--success-color);
+        }
+
+        .comparison-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .indicators-list {
+            list-style: none;
+            text-align: left;
+            margin-top: 1.5rem;
+        }
+
+        .indicators-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+        }
+
+        .indicators-list li::before {
+            content: '🤖';
+            margin-right: 0.75rem;
+        }
+
+        .human-card .indicators-list li::before {
+            content: '👤';
+        }
+
+        /* Analysis Demo Section */
+        .demo-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 3rem;
+            margin: 3rem 0;
+            box-shadow: var(--card-shadow);
+        }
+
+        .demo-upload {
+            border: 2px dashed var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .demo-upload:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .analysis-result {
+            background: #f8fafc;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .confidence-meter {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(var(--success-color) 0deg, var(--danger-color) 180deg, var(--text-secondary) 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .confidence-inner {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confidence-percentage {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        .confidence-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .detail-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .detail-content {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Statistics Section */
+        .stats-section {
+            background: var(--dark-color);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 2rem auto 0;
+        }
+
+        .stat-item {
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .service-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .service-card:nth-child(1) { animation-delay: 0.1s; }
+        .service-card:nth-child(2) { animation-delay: 0.2s; }
+        .service-card:nth-child(3) { animation-delay: 0.3s; }
+        .service-card:nth-child(4) { animation-delay: 0.4s; }
+        .service-card:nth-child(5) { animation-delay: 0.5s; }
+        .service-card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <span>Filterize AI</span>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="#home"><i class="fas fa-home"></i> Home</a></li>
+                <li class="nav-item"><a href="#services"><i class="fas fa-cogs"></i> Services</a></li>
+                <li class="nav-item"><a href="#ai-detection"><i class="fas fa-robot"></i> AI Detection</a></li>
+                <li class="nav-item"><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
+                <li class="nav-item"><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+            </ul>
+            <div class="user-actions">
+                <a href="#" class="btn btn-outline" onclick="showLogin()">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="#" class="btn btn-primary" onclick="showRegister()">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section" id="home">
+            <h1 class="hero-title">Advanced AI Content Detection</h1>
+            <p class="hero-subtitle">
+                Protect yourself from AI-generated content with our cutting-edge detection technology. 
+                Analyze text, images, videos, and documents with professional-grade accuracy.
+            </p>
+            <div class="hero-cta">
+                <a href="#demo" class="btn btn-primary">
+                    <i class="fas fa-play"></i> Try Demo
+                </a>
+                <a href="#services" class="btn btn-outline">
+                    <i class="fas fa-info-circle"></i> Learn More
+                </a>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services-section" id="services">
+            <h2 class="section-title">Comprehensive Analysis Suite</h2>
+            <p class="section-subtitle">
+                Professional-grade AI detection across multiple content types with detailed analysis and confidence scoring
+            </p>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-card-inner">
+                        <div class="service-card-front">
+                            <div class="service-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <h3 class="service-title">Image Analysis</h3>
+                            <p class="service-description">
+                                Advanced AI detection using deep learning models, metadata analysis, and visual pattern recognition.
+                            </p>
+                            <ul class="service-features">
+                                <li>TensorFlow-powered detection</li>
+                                <li>ResNet50 feature extraction</li>
+                                <li>Metadata analysis</li>
+                                <li>Visual pattern detection</li>
+                                <li>Confidence scoring</li>
+                            </ul>
+                            <a href="/enhanced_image_analysis.html" class="btn btn-primary service-action">
+                                <i class="fas fa-camera"></i> Analyze Images
+                            </a>
+                        </div>
+                        <div class="service-card-back">
+                            <div class="back-card-emoji">🖼️</div>
+                            <h3>Advanced Image AI Detection</h3>
+                            <p>TensorFlow-powered deep learning models with 95%+ accuracy in detecting AI-generated images</p>
+                            <div class="back-card-details">
+                                <strong>Detection Methods:</strong><br>
+                                • Convolutional Neural Networks<br>
+                                • EXIF metadata analysis<br>
+                                • Frequency domain analysis<br>
+                                • Artifact pattern recognition
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-card-inner">
+                        <div class="service-card-front">
+                            <div class="service-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <h3 class="service-title">Text Analysis</h3>
+                            <p class="service-description">
+                                Detect AI-generated text using advanced NLP models and writing pattern analysis.
+                            </p>
+                            <ul class="service-features">
+                                <li>Writing style analysis</li>
+                                <li>Pattern recognition</li>
+                                <li>Sentiment analysis</li>
+                                <li>Coherence checking</li>
+                                <li>Source verification</li>
+                            </ul>
+                            <a href="/text-analysis.html" class="btn btn-primary service-action">
+                                <i class="fas fa-pen"></i> Analyze Text
+                            </a>
+                        </div>
+                        <div class="service-card-back">
+                            <div class="back-card-emoji">📝</div>
+                            <h3>NLP-Powered Text Detection</h3>
+                            <p>Advanced natural language processing to identify AI-generated content patterns</p>
+                            <div class="back-card-details">
+                                <strong>Analysis Features:</strong><br>
+                                • Transformer pattern detection<br>
+                                • Perplexity scoring<br>
+                                • Style consistency analysis<br>
+                                • Statistical linguistic patterns
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-card-inner">
+                        <div class="service-card-front">
+                            <div class="service-icon">
+                                <i class="fas fa-volume-up"></i>
+                            </div>
+                            <h3 class="service-title">Voice Analysis</h3>
+                            <p class="service-description">
+                                Advanced audio analysis for deepfake detection and voice authenticity verification.
+                            </p>
+                            <ul class="service-features">
+                                <li>Deepfake detection</li>
+                                <li>Voice authentication</li>
+                                <li>Audio processing</li>
+                                <li>Spectral analysis</li>
+                                <li>Real-time processing</li>
+                            </ul>
+                            <a href="/voice-analysis.html" class="btn btn-primary service-action">
+                                <i class="fas fa-microphone"></i> Analyze Voice
+                            </a>
+                        </div>
+                        <div class="service-card-back">
+                            <div class="back-card-emoji">🎤</div>
+                            <h3>Audio Deepfake Detection</h3>
+                            <p>Sophisticated audio analysis to identify voice cloning and synthetic speech</p>
+                            <div class="back-card-details">
+                                <strong>Technologies:</strong><br>
+                                • Mel-spectrogram analysis<br>
+                                • Formant frequency analysis<br>
+                                • Pitch variation patterns<br>
+                                • Neural synthesis detection
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-card-inner">
+                        <div class="service-card-front">
+                            <div class="service-icon">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <h3 class="service-title">Video Analysis</h3>
+                            <p class="service-description">
+                                Comprehensive video analysis for deepfakes, manipulated content, and AI-generated videos.
+                            </p>
+                            <ul class="service-features">
+                                <li>Frame-by-frame analysis</li>
+                                <li>Temporal consistency</li>
+                                <li>Facial recognition</li>
+                                <li>Motion analysis</li>
+                                <li>Audio-visual sync</li>
+                            </ul>
+                            <a href="#" class="btn btn-primary service-action" onclick="analyzeVideo()">
+                                <i class="fas fa-film"></i> Analyze Video
+                            </a>
+                        </div>
+                        <div class="service-card-back">
+                            <div class="back-card-emoji">🎬</div>
+                            <h3>Video Deepfake Detection</h3>
+                            <p>Advanced temporal analysis for detecting manipulated and AI-generated videos</p>
+                            <div class="back-card-details">
+                                <strong>Analysis Methods:</strong><br>
+                                • Frame consistency checking<br>
+                                • Facial landmark tracking<br>
+                                • Temporal inconsistencies<br>
+                                • Compression artifacts
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-card-inner">
+                        <div class="service-card-front">
+                            <div class="service-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <h3 class="service-title">Document Analysis</h3>
+                            <p class="service-description">
+                                Analyze PDF and Word documents for AI-generated content, summarization, and authenticity.
+                            </p>
+                            <ul class="service-features">
+                                <li>PDF/Word support</li>
+                                <li>Content extraction</li>
+                                <li>AI detection</li>
+                                <li>Summarization</li>
+                                <li>Source verification</li>
+                            </ul>
+                            <a href="/document-analysis.html" class="btn btn-primary service-action" onclick="analyzeDocument()">
+                                <i class="fas fa-file-upload"></i> Analyze Document
+                            </a>
+                        </div>
+                        <div class="service-card-back">
+                            <div class="back-card-emoji">📄</div>
+                            <h3>Document AI Analysis</h3>
+                            <p>Comprehensive document analysis for detecting AI-generated content in PDFs and Word files</p>
+                            <div class="back-card-details">
+                                <strong>Features:</strong><br>
+                                • Multi-format support<br>
+                                • Content extraction<br>
+                                • Style analysis<br>
+                                • Authenticity verification
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-card-inner">
+                        <div class="service-card-front">
+                            <div class="service-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <h3 class="service-title">Web Analysis</h3>
+                            <p class="service-description">
+                                Analyze websites and online content for credibility, AI-generated content, and fact-checking.
+                            </p>
+                            <ul class="service-features">
+                                <li>Website scanning</li>
+                                <li>Content verification</li>
+                                <li>Fact-checking</li>
+                                <li>Source analysis</li>
+                                <li>Real-time updates</li>
+                            </ul>
+                            <a href="/website-analysis.html" class="btn btn-primary service-action" onclick="analyzeWebsite()">
+                                <i class="fas fa-search"></i> Analyze Website
+                            </a>
+                        </div>
+                        <div class="service-card-back">
+                            <div class="back-card-emoji">🌐</div>
+                            <h3>Website Credibility Analysis</h3>
+                            <p>Real-time website analysis for content authenticity and source verification</p>
+                            <div class="back-card-details">
+                                <strong>Capabilities:</strong><br>
+                                • Source verification<br>
+                                • Content authenticity<br>
+                                • Fact-checking integration<br>
+                                • Credibility scoring
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI vs Human Section -->
+        <section class="ai-human-section" id="ai-detection">
+            <h2 class="section-title">Understanding AI vs Human Content</h2>
+            <p class="section-subtitle">
+                Learn to identify the key differences between AI-generated and human-created content
+            </p>
+            
+            <div class="comparison-grid">
+                <div class="comparison-card ai-card">
+                    <div class="comparison-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="comparison-title">AI-Generated Content</h3>
+                    <p>Content created by artificial intelligence systems often exhibits specific patterns and characteristics that can be detected through advanced analysis.</p>
+                    
+                    <ul class="indicators-list">
+                        <li>Repetitive patterns and structures</li>
+                        <li>Unnatural symmetry in images</li>
+                        <li>Consistent writing style without variation</li>
+                        <li>Perfect grammar with lack of personality</li>
+                        <li>Artificial color harmonies in images</li>
+                        <li>Metadata signatures from AI tools</li>
+                        <li>Statistical anomalies in pixel distribution</li>
+                        <li>Over-smoothed textures and edges</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-card human-card">
+                    <div class="comparison-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 class="comparison-title">Human-Created Content</h3>
+                    <p>Human-created content displays natural variations, imperfections, and authentic characteristics that reflect genuine human creativity and expression.</p>
+                    
+                    <ul class="indicators-list">
+                        <li>Natural variations and imperfections</li>
+                        <li>Authentic emotional expression</li>
+                        <li>Personal writing style and voice</li>
+                        <li>Occasional grammatical inconsistencies</li>
+                        <li>Natural lighting and shadows</li>
+                        <li>Camera-specific metadata</li>
+                        <li>Random noise and texture patterns</li>
+                        <li>Authentic depth and perspective</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Section -->
+        <section class="demo-section" id="demo">
+            <h2 class="section-title">Try Our AI Detection Technology</h2>
+            <p class="section-subtitle">
+                Upload content to see our advanced AI detection in action with detailed analysis and confidence scoring
+            </p>
+            
+            <div class="demo-upload" onclick="uploadDemo()">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text">
+                    <strong>Click to upload or drag and drop</strong><br>
+                    Supports images, text files, audio, and documents
+                </div>
+            </div>
+
+            <div class="analysis-result" id="demoResult">
+                <div class="result-header">
+                    <div>
+                        <h3>Analysis Results</h3>
+                        <p>Comprehensive AI detection analysis</p>
+                    </div>
+                    <div class="confidence-meter">
+                        <div class="confidence-inner">
+                            <span class="confidence-percentage" id="confidencePercent">75%</span>
+                            <span class="confidence-label">AI Probability</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-details">
+                    <div class="detail-card">
+                        <div class="detail-title">Detection Methods Used</div>
+                        <div class="detail-content" id="detectionMethods">
+                            • Deep Learning Analysis<br>
+                            • Metadata Examination<br>
+                            • Visual Pattern Recognition<br>
+                            • Statistical Analysis
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-title">Key Indicators Found</div>
+                        <div class="detail-content" id="keyIndicators">
+                            • Artificial color balance detected<br>
+                            • Unnatural texture smoothness<br>
+                            • AI software signature in metadata<br>
+                            • Statistical anomalies in pixel distribution
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-title">Confidence Breakdown</div>
+                        <div class="detail-content" id="confidenceBreakdown">
+                            • Deep Learning: 85%<br>
+                            • Metadata: 70%<br>
+                            • Visual Patterns: 75%<br>
+                            • Overall Confidence: 75%
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-title">Recommendation</div>
+                        <div class="detail-content" id="recommendation">
+                            High probability of AI generation detected. Multiple analysis methods confirm artificial patterns. Recommend human verification for critical applications.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section class="stats-section">
+            <h2 class="section-title" style="color: white;">Platform Statistics</h2>
+            <p class="section-subtitle" style="color: rgba(255,255,255,0.8);">
+                Real-time performance metrics and analysis data
+            </p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalAnalyses">50,247</span>
+                    <span class="stat-label">Total Analyses</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="accuracyRate">94.8%</span>
+                    <span class="stat-label">Accuracy Rate</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="aiDetected">18,432</span>
+                    <span class="stat-label">AI Content Detected</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="avgProcessTime">2.3s</span>
+                    <span class="stat-label">Avg Processing Time</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 Filterize AI. Advanced Content Analysis Platform. All rights reserved.</p>
+        <p>Protecting digital authenticity with cutting-edge AI detection technology.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // User Authentication
+        function showLogin() {
+            const credentials = prompt('Enter credentials (username:password):');
+            if (credentials) {
+                const [username, password] = credentials.split(':');
+                if (username && password) {
+                    fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Login successful!');
+                            location.reload();
+                        } else {
+                            alert('Login failed: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Login error:', error);
+                        alert('Login error occurred');
+                    });
+                }
+            }
+        }
+
+        function showRegister() {
+            const username = prompt('Enter username:');
+            const password = prompt('Enter password:');
+            const email = prompt('Enter email:');
+            
+            if (username && password && email) {
+                fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password, email })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Registration successful!');
+                    } else {
+                        alert('Registration failed: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Registration error:', error);
+                    alert('Registration error occurred');
+                });
+            }
+        }
+
+        // Demo Upload
+        function uploadDemo() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*,text/*,audio/*,.pdf,.doc,.docx';
+            input.onchange = handleDemoUpload;
+            input.click();
+        }
+
+        function handleDemoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Show loading
+            const resultDiv = document.getElementById('demoResult');
+            resultDiv.style.display = 'block';
+            document.getElementById('confidencePercent').textContent = 'Analyzing...';
+
+            // Determine analysis endpoint based on file type
+            let endpoint = '/api/analyze';
+            if (file.type.startsWith('image/')) {
+                endpoint = '/api/analyze';
+            } else if (file.type.startsWith('audio/')) {
+                endpoint = '/api/analyze';
+            } else if (file.type.startsWith('text/') || file.name.endsWith('.txt')) {
+                endpoint = '/api/analyze';
+            }
+
+            fetch(endpoint, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateDemoResults(data);
+            })
+            .catch(error => {
+                console.error('Analysis error:', error);
+                document.getElementById('confidencePercent').textContent = 'Error';
+            });
+        }
+
+        function updateDemoResults(data) {
+            const confidence = Math.round(data.ai_probability * 100);
+            document.getElementById('confidencePercent').textContent = confidence + '%';
+            
+            // Update detection methods
+            if (data.detection_methods) {
+                document.getElementById('detectionMethods').innerHTML = 
+                    data.detection_methods.map(method => '• ' + method.replace('_', ' ')).join('<br>');
+            }
+            
+            // Update key indicators
+            if (data.flags) {
+                document.getElementById('keyIndicators').innerHTML = 
+                    data.flags.slice(0, 4).map(flag => '• ' + flag.replace('_', ' ')).join('<br>');
+            }
+            
+            // Update confidence breakdown
+            if (data.detailed_analysis) {
+                const breakdown = Object.entries(data.detailed_analysis)
+                    .map(([method, analysis]) => {
+                        const conf = analysis.confidence ? Math.round(analysis.confidence * 100) : 0;
+                        return `• ${method.replace('_', ' ')}: ${conf}%`;
+                    })
+                    .slice(0, 4)
+                    .join('<br>');
+                document.getElementById('confidenceBreakdown').innerHTML = breakdown;
+            }
+            
+            // Update recommendation
+            const recommendation = confidence > 70 ? 
+                'High probability of AI generation detected. Multiple analysis methods confirm artificial patterns.' :
+                confidence > 40 ?
+                'Moderate probability of AI generation. Some indicators present, human verification recommended.' :
+                'Low probability of AI generation. Content appears to be human-created.';
+            
+            document.getElementById('recommendation').textContent = recommendation;
+        }
+
+        // Service Actions
+        function analyzeVideo() {
+            alert('Video analysis feature coming soon! Currently in development.');
+        }
+
+        function analyzeDocument() {
+            window.open('/document-analysis.html', '_blank');
+        }
+
+        function analyzeWebsite() {
+            const url = prompt('Enter website URL to analyze:');
+            if (url) {
+                fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        type: 'website',
+                        content: url
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(`Website Analysis Complete!\nAI Probability: ${Math.round(data.ai_probability * 100)}%\nAnalysis: ${data.explanation}`);
+                })
+                .catch(error => {
+                    console.error('Website analysis error:', error);
+                    alert('Website analysis failed');
+                });
+            }
+        }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Update statistics periodically
+        function updateStats() {
+            const totalAnalyses = document.getElementById('totalAnalyses');
+            const current = parseInt(totalAnalyses.textContent.replace(',', ''));
+            totalAnalyses.textContent = (current + Math.floor(Math.random() * 10)).toLocaleString();
+        }
+
+        // Update stats every 30 seconds
+        setInterval(updateStats, 30000);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Filterize AI Platform Loaded');
+            
+            // Add smooth animations
+            const cards = document.querySelectorAll('.service-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>
