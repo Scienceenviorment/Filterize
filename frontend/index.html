@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Credibility Analyzer - AI-Powered Truth Detection</title>
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#inputText">Skip to content</a>
+  <div class="container">
+    <header>
+      <div class="branding">
+        <div class="logo-container">
+          <div class="icon-group" aria-hidden="true" role="img" aria-label="Filterize logo, chat bubbles forming a shield">
+            <img src="logo.svg" alt="Filterize" class="logo-svg"/>
+          </div>
+          <div style="text-align:left; margin-left:14px; display:inline-block; vertical-align:middle;">
+            <div class="logo-text">Filterize</div>
+            <div class="header-sub">Credibility Analyzer — AI-Powered Truth Detection</div>
+            <div class="credits">Created by Suryansh Jain &amp; Deepesh Kumar</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-left">
+          <h1 class="hero-title">Filterize — Make sense of what you read</h1>
+          <p class="hero-sub">Quickly check articles, posts, or headlines for credibility signals. Our lightweight demo combines heuristics with optional AI providers to give an explainable credibility score.</p>
+          <div class="hero-cta">
+            <button id="openOnboard" class="btn primary">✨ Quick tour</button>
+            <button id="sampleBtn" class="btn ghost" onclick="fillExample('Breaking: Scientists confirm chocolate cures aging — doctors shocked!')">Try sample</button>
+          </div>
+        </div>
+        <div class="hero-right panel">
+          <!-- Content Type Selector -->
+          <div class="content-type-selector">
+            <button id="textTab" class="tab-btn active" onclick="switchContentType('text')">📝 Text</button>
+            <button id="imageTab" class="tab-btn" onclick="switchContentType('image')">🖼️ Image</button>
+            <button id="videoTab" class="tab-btn" onclick="switchContentType('video')">🎥 Video</button>
+            <button id="urlTab" class="tab-btn" onclick="switchContentType('url')">🔗 Link</button>
+          </div>
+          
+          <!-- Text Analysis Panel -->
+          <div id="textPanel" class="content-panel active">
+            <label for="inputText" class="hidden">Content to analyze</label>
+            <textarea id="inputText" aria-label="Content to analyze" placeholder="Paste article, headline, or content here..."></textarea>
+          </div>
+          
+          <!-- Image Analysis Panel -->
+          <div id="imagePanel" class="content-panel hidden">
+            <div class="upload-area" id="imageUploadArea">
+              <div class="upload-icon">🖼️</div>
+              <div class="upload-text">
+                <strong>Click to upload an image</strong> or drag and drop
+                <div class="upload-hint">Supports JPG, PNG, GIF, WebP (max 10MB)</div>
+              </div>
+              <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            </div>
+            <div id="imagePreview" class="image-preview hidden"></div>
+          </div>
+          
+          <!-- Video Analysis Panel -->
+          <div id="videoPanel" class="content-panel hidden">
+            <div class="upload-area" id="videoUploadArea">
+              <div class="upload-icon">🎥</div>
+              <div class="upload-text">
+                <strong>Click to upload a video</strong> or drag and drop
+                <div class="upload-hint">Supports MP4, WebM, AVI (max 50MB)</div>
+              </div>
+              <input type="file" id="videoInput" accept="video/*" style="display: none;">
+            </div>
+            <div id="videoPreview" class="video-preview hidden"></div>
+          </div>
+          
+          <!-- URL Analysis Panel -->
+          <div id="urlPanel" class="content-panel hidden">
+            <input type="url" id="urlInput" placeholder="Enter URL to analyze (e.g., https://example.com/article)" class="url-input">
+            <div class="url-hint">We'll analyze the content from this webpage for AI generation indicators</div>
+          </div>
+          <div class="hero-controls">
+            <div class="examples" aria-hidden="true">Examples:
+              <button class="analyze-btn small" onclick="fillExample('Breaking: Scientists confirm chocolate cures aging — doctors shocked!')">Clickbait</button>
+              <button class="analyze-btn small" onclick="fillExample('Local council approves new community park after months of consultation.')">Trusted</button>
+              <button class="analyze-btn small" onclick="fillExample('Study shows correlation between screen time and sleep quality in teenagers.')">Study</button>
+            </div>
+            <div class="analyze-row">
+              <div class="analyze-toggle" aria-hidden="false">
+                <label for="modeSelect" class="hidden">Analysis mode</label>
+                <select id="modeSelect" aria-label="Analysis mode">
+                  <option value="auto">Auto (local → provider → heuristic)</option>
+                  <option value="local">Local model</option>
+                  <option value="provider">External provider</option>
+                  <option value="heuristic">Heuristic</option>
+                </select>
+              </div>
+              <button id="analyzeBtn" class="analyze-btn primary" aria-live="polite" aria-busy="false">🚀 Analyze</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <div id="resultsSection" class="hidden" role="region" aria-live="polite" tabindex="-1">
+      <!-- Credibility Gauge -->
+      <div class="gauge-container">
+        <h2 style="margin-bottom: 30px; color: #333;">Overall Credibility Score</h2>
+        <div class="gauge-wrapper">
+          <svg class="gauge-circle" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <circle class="gauge-bg" cx="100" cy="100" r="85"/>
+            <circle id="gaugeProgress" class="gauge-progress" cx="100" cy="100" r="85" stroke-dasharray="0 534" />
+          </svg>
+          <div class="gauge-center">
+            <div id="gaugeScore" class="gauge-score">0</div>
+            <div class="gauge-label">Credibility</div>
+          </div>
+        </div>
+        <div id="credibilityStatus" class="credibility-status status-medium">Analyzing...</div>
+        <div id="usedIndicator" class="used-indicator">Analysis used: auto</div>
+      </div>
+
+      <!-- AI Content Detection -->
+      <div id="aiDetectionSection" class="ai-detection-container hidden">
+        <h2 style="margin-bottom: 30px; color: #333;">🤖 AI Content Detection</h2>
+        <div class="ai-gauge-wrapper">
+          <svg class="gauge-circle" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="aiGaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#ff8e53;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ffb86b;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <circle class="gauge-bg" cx="100" cy="100" r="85"/>
+            <circle id="aiGaugeProgress" class="gauge-progress" cx="100" cy="100" r="85" stroke="url(#aiGaugeGradient)" stroke-dasharray="0 534" />
+          </svg>
+          <div class="gauge-center">
+            <div id="aiGaugeScore" class="gauge-score">0</div>
+            <div class="gauge-label">AI Probability</div>
+          </div>
+        </div>
+        <div id="aiStatus" class="ai-status status-low-ai">Analyzing...</div>
+        
+        <div class="ai-details-grid">
+          <div class="ai-detail-card">
+            <div class="ai-detail-title">Detection Methods</div>
+            <div id="detectionMethods" class="detection-methods"></div>
+          </div>
+          <div class="ai-detail-card">
+            <div class="ai-detail-title">Confidence</div>
+            <div id="aiConfidence" class="ai-metric">0%</div>
+          </div>
+          <div class="ai-detail-card">
+            <div class="ai-detail-title">Watermark</div>
+            <div id="watermarkStatus" class="watermark-status not-detected">Not detected</div>
+          </div>
+          <div class="ai-detail-card">
+            <div class="ai-detail-title">Perplexity</div>
+            <div id="perplexityScore" class="ai-metric">0</div>
+          </div>
+          <div class="ai-detail-card">
+            <div class="ai-detail-title">Reward Score</div>
+            <div id="rewardScore" class="ai-metric">0</div>
+          </div>
+        </div>
+        
+        <div class="ai-explanation">
+          <div class="ai-explanation-title">Analysis Explanation</div>
+          <div id="aiExplanation" class="ai-explanation-text">Analyzing content...</div>
+        </div>
+      </div>
+
+      <!-- Factors Grid -->
+      <div class="factors-grid">
+        <div class="factor-card">
+          <div class="factor-header">
+            <div class="factor-title">Source Credibility</div>
+          </div>
+          <div class="factor-score" id="factor1Score">0</div>
+          <div class="progress-bar"><div class="progress-fill" id="factor1Bar" style="width:0%"></div></div>
+        </div>
+
+        <div class="factor-card">
+          <div class="factor-header"><div class="factor-title">Fact Verification</div></div>
+          <div class="factor-score" id="factor2Score">0</div>
+          <div class="progress-bar"><div class="progress-fill" id="factor2Bar" style="width:0%"></div></div>
+        </div>
+
+        <div class="factor-card">
+          <div class="factor-header"><div class="factor-title">Bias Detection</div></div>
+          <div class="factor-score" id="factor3Score">0</div>
+          <div class="progress-bar"><div class="progress-fill" id="factor3Bar" style="width:0%"></div></div>
+        </div>
+
+        <div class="factor-card">
+          <div class="factor-header"><div class="factor-title">Clickbait Analysis</div></div>
+          <div class="factor-score" id="factor4Score">0</div>
+          <div class="progress-bar"><div class="progress-fill" id="factor4Bar" style="width:0%"></div></div>
+        </div>
+
+        <div class="factor-card">
+          <div class="factor-header"><div class="factor-title">Sentiment Balance</div></div>
+          <div class="factor-score" id="factor5Score">0</div>
+          <div class="progress-bar"><div class="progress-fill" id="factor5Bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Sentiment Chart -->
+      <div class="chart-container">
+        <h2 class="chart-title">📊 Sentiment Analysis</h2>
+        <div class="sentiment-bars">
+          <div class="sentiment-bar">
+            <div class="sentiment-label">Positive</div>
+            <div class="bar-wrapper"><div class="bar-fill bar-positive" id="positiveBar" style="width:0%">0%</div></div>
+          </div>
+          <div class="sentiment-bar">
+            <div class="sentiment-label">Neutral</div>
+            <div class="bar-wrapper"><div class="bar-fill bar-neutral" id="neutralBar" style="width:0%">0%</div></div>
+          </div>
+          <div class="sentiment-bar">
+            <div class="sentiment-label">Negative</div>
+            <div class="bar-wrapper"><div class="bar-fill bar-negative" id="negativeBar" style="width:0%">0%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Word Cloud -->
+      <div class="wordcloud-container">
+        <h2 style="margin-bottom:20px;color:#333;">🔎 Key Phrases</h2>
+        <div id="wordcloud" class="wordcloud"></div>
+      </div>
+
+      <!-- History (client-side) -->
+      <div class="history-panel" id="historyPanel">
+        <div class="history-header">
+          <h3 style="margin:0;">Analysis History</h3>
+          <div>
+            <button id="clearHistoryBtn" class="analyze-btn small">Clear</button>
+          </div>
+        </div>
+        <div id="historyList" class="history-list">No history yet</div>
+      </div>
+
+      <!-- Metrics panel -->
+      <div class="metrics-panel" id="metricsPanel">
+        <h3 style="margin:0 0 8px 0;">System Metrics</h3>
+        <div id="metricsList">Loading metrics...</div>
+      </div>
+
+      <!-- Sources (flip cards demo) -->
+      <div class="sources-grid" id="sourcesGrid">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="source-name">example.com</div><div class="source-credibility">80</div><div class="source-details">Trusted news site</div></div>
+            <div class="flip-card-back"><div class="source-detail-item"><div class="detail-label">Notes</div><div>Established publisher with editorial standards.</div></div></div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="source-name">unreliable.example</div><div class="source-credibility">25</div><div class="source-details">Questionable source</div></div>
+            <div class="flip-card-back"><div class="source-detail-item"><div class="detail-label">Notes</div><div>Known for sensational headlines and weak sourcing.</div></div></div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="source-name">factcheck.example</div><div class="source-credibility">92</div><div class="source-details">Fact-checker</div></div>
+            <div class="flip-card-back"><div class="source-detail-item"><div class="detail-label">Notes</div><div>Reliable fact-checking organization.</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="error" class="hidden" style="color: #fff; text-align:center;"></div>
+  </div>
+
+  <!-- Onboarding modal -->
+  <div id="onboardModal" role="dialog" aria-modal="true" aria-labelledby="onboardTitle" class="hidden" style="position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(11,18,32,0.6); z-index:1200;">
+    <div id="onboardDialog" tabindex="-1" style="background:white; border-radius:14px; padding:26px; max-width:720px; width:94%; box-shadow:0 30px 80px rgba(0,0,0,0.4);">
+      <h3 id="onboardTitle" style="margin-bottom:12px;">Welcome to Filterize 🎉</h3>
+      <p style="margin-bottom:18px; color:#444;">Filterize helps you quickly check whether a piece of content is likely credible. Try a sample, paste an article, or use the Quick tour. Results show a Credibility score, why elements matter, and key phrases.</p>
+      <div style="display:flex; gap:10px; justify-content:flex-end; align-items:center;">
+  <label style="display:flex; gap:8px; align-items:center; font-size:13px; color:#666;"><input id="dontShowOnboard" type="checkbox"> Don't show again</label>
+        <button id="onboardTry" class="analyze-btn" style="padding:10px 16px;">Try sample</button>
+        <button id="onboardClose" class="analyze-btn" style="padding:10px 16px; background:linear-gradient(90deg,#ffb86b,#ff6b6b);">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div id="toast" aria-live="polite" style="position:fixed; right:20px; bottom:20px; z-index:1300;"></div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
