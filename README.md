@@ -1,52 +1,87 @@
-# Media Literacy Assistant (Filterize)
+# Filterize - Multi-Media AI Content Detection
 
-This repository contains:
-- A demo SPA frontend served by `server.py` (Flask) — open http://localhost:5000 after starting the server.
-- A Streamlit prototype `app.py` that can load a DistilBERT model for text classification (optional, requires ML deps).
+An advanced content credibility analyzer with AI-generated content detection for text, images, videos, and web links.
 
-## Quick start (frontend demo - recommended)
+## Features
 
-1. Create and activate a Python virtual environment (PowerShell):
+🔍 **Multi-Media Analysis**
+- **Text Analysis**: Credibility scoring, sentiment analysis, and AI content detection
+- **Image Analysis**: AI-generated image detection using metadata, visual patterns, and statistical analysis
+- **Video Analysis**: AI-generated video detection with file pattern analysis
+- **URL Analysis**: Web content scraping and AI detection for linked articles and media
 
-```powershell
-python -m venv .venv; .\.venv\Scripts\Activate.ps1
+🤖 **Advanced AI Detection**
+- Watermark detection based on token distribution patterns
+- Perplexity analysis to identify predictable AI text
+- Reward model scoring for overly helpful/harmless content
+- Linguistic pattern analysis for formal AI language
+- Visual pattern recognition for AI-generated images
+- Metadata analysis for AI software signatures
+
+🎯 **Credibility Scoring**
+- Real-time credibility assessment (0-100 scale)
+- Multi-factor analysis including source credibility, fact verification, bias detection
+- Sentiment analysis with positive/negative/neutral breakdown
+- Key phrase extraction and visualization
+
+## Quick Start
+
+1. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   pip install -r requirements-ml.txt  # Optional for enhanced analysis
+   ```
+
+2. **Run the application**
+   ```bash
+   python server.py
+   ```
+
+3. **Access the application**
+   - Frontend: http://localhost:5000
+   - Backend API: http://localhost:5000/api/*
+
+## API Endpoints
+
+### Text Analysis
+```bash
+POST /api/analyze
+Content-Type: application/json
+{
+  "content": "Your text content here",
+  "prefer": "auto|local|provider|heuristic"
+}
 ```
 
-2. Install runtime requirements:
-
-```powershell
-pip install -r requirements.txt
+### Image Analysis
+```bash
+POST /api/analyze-image
+Content-Type: multipart/form-data
+# Upload image file with field name "image"
 ```
 
-3. Run the Flask server (serves the SPA at http://localhost:5000):
-
-```powershell
-python server.py
-# or use the helper script
-.\run_server.ps1
+### Video Analysis
+```bash
+POST /api/analyze-video
+Content-Type: multipart/form-data
+# Upload video file with field name "video"
 ```
 
-Open the URL in your browser. The server serves the SPA and the `/api/analyze` demo endpoint.
-
-## Streamlit app (optional — heavy ML dependencies)
-
-The Streamlit app (`app.py`) is a prototype that can load a DistilBERT model for text classification. This requires large ML packages such as `torch` or `tensorflow` and `transformers`.
-
-1. Install ML requirements (may take time and disk space):
-
-```powershell
-pip install -r requirements-ml.txt
+### URL Analysis
+```bash
+POST /api/analyze-url
+Content-Type: application/json
+{
+  "url": "https://example.com/article"
+}
 ```
 
-2. Run the Streamlit app:
+## Authors
 
-```powershell
-streamlit run app.py
-```
+- **Suryansh Jain** - Project Creator
+- **Deepesh Kumar** - Co-Developer
 
-Notes:
-- If you don't have a local model at `models/distilbert_fake_news`, change the path to a pretrained HF model ID or place a model in that folder.
-- The Streamlit app will not crash the server if packages are missing — it shows guidance in the sidebar.
+**Filterize** - Making sense of what you read in the age of AI 🤖✨
 
 ## Serving the frontend without Flask
 

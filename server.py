@@ -47,6 +47,14 @@ def _inc_metric(key, n=1):
 app = Flask(__name__, static_folder='frontend', static_url_path='')
 CORS(app)
 
+# Configure upload folder
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
+
+# Ensure upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 analyzer = SentimentIntensityAnalyzer()
 CLICKBAIT_PATTERNS = [r"you won't believe", r"this is what happens", r"shocking", r"unbelievable", r"will blow your mind"]
 EMOTIONAL_WORDS = set(["love", "hate", "amazing", "terrible", "disgrace", "outrage"])
@@ -348,11 +356,53 @@ def get_metrics():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def static_proxy(path):
-    """Serve static files and fall back to index.html for SPA routes."""
+    """
+    Serve static files and fall back to index.html for SPA routes.
+    This creates a unified backend + frontend application.
+    """
+    # Try to serve static file first
     if path != '' and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
+    
+    # For API routes, return 404 if not handled by other routes
+    if path.startswith('api/'):
+        return jsonify({'error': 'API endpoint not found'}), 404
+    
+    # For all other routes, serve the main SPA
     return send_from_directory(app.static_folder, 'index.html')
 
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for monitoring."""
+    return jsonify({
+        'status': 'healthy',
+        'version': '1.0.0',
+        'features': {
+            'text_analysis': True,
+            'image_analysis': True,
+            'video_analysis': True,
+            'url_analysis': True,
+            'ai_detection': True,
+            'caching': True
+        },
+        'endpoints': [
+            '/api/analyze',
+            '/api/analyze-image', 
+            '/api/analyze-video',
+            '/api/analyze-url',
+            '/api/metrics'
+        ]
+    })
+
+
 if __name__ == '__main__':
+    print("🚀 Starting Filterize - AI Content Detection System")
+    print("=" * 50)
+    print("📱 Frontend: http://localhost:5000")
+    print("🔧 API: http://localhost:5000/api/*")
+    print("💊 Health: http://localhost:5000/health")
+    print("=" * 50)
+    
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
