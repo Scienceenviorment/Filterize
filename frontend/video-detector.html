@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Detector - Filterize AI Detection Platform</title>
+    <link rel="stylesheet" href="service-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="service-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-shield-alt"></i>
+                <span>Filterize</span>
+            </div>
+            <button class="home-btn" onclick="goHome()">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="service-container">
+        <!-- Header Section -->
+        <div class="service-header">
+            <div class="service-icon">
+                <i class="fas fa-video"></i>
+            </div>
+            <h1>Video AI Detection</h1>
+            <p>Analyze videos for AI-generated content, deepfakes, and manipulation</p>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <h2><i class="fas fa-cloud-upload-alt"></i> Upload Videos</h2>
+            
+            <div class="video-upload-options">
+                <!-- Main Upload Area -->
+                <div class="main-upload">
+                    <div class="video-drop-zone" id="videoDropZone">
+                        <i class="fas fa-video"></i>
+                        <p>Drop video files here or click to browse</p>
+                        <div class="upload-stats">
+                            <span class="supported-formats">Supports: MP4, AVI, MOV, WMV, MKV (Max: 500MB)</span>
+                        </div>
+                    </div>
+                    <input type="file" id="videoUpload" accept="video/*" multiple style="display: none;">
+                </div>
+
+                <!-- Camera Recording -->
+                <div class="recording-section">
+                    <h3><i class="fas fa-camera"></i> Record Video</h3>
+                    <div class="camera-controls">
+                        <button class="btn secondary" onclick="startVideoRecording()">
+                            <i class="fas fa-video"></i> Start Recording
+                        </button>
+                        <button class="btn danger" onclick="stopVideoRecording()" disabled>
+                            <i class="fas fa-stop"></i> Stop Recording
+                        </button>
+                    </div>
+                    <div class="recording-preview" id="recordingPreview">
+                        <p><i class="fas fa-camera"></i> Camera preview will appear here</p>
+                    </div>
+                </div>
+
+                <!-- URL Input -->
+                <div class="url-section">
+                    <h3><i class="fas fa-link"></i> Analyze from URL</h3>
+                    <div class="url-input-group">
+                        <input type="url" id="videoUrl" placeholder="Enter video URL (YouTube, Vimeo, etc.)">
+                        <button class="btn secondary" onclick="loadVideoFromUrl()">
+                            <i class="fas fa-download"></i> Load
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Preview Section -->
+        <div class="video-preview-section" id="videoPreviewSection" style="display: none;">
+            <h2><i class="fas fa-play-circle"></i> Video Preview</h2>
+            <div class="video-gallery" id="videoGallery"></div>
+            <div class="preview-actions">
+                <button class="btn primary" onclick="analyzeAllVideos()">
+                    <i class="fas fa-search"></i> Analyze All Videos
+                </button>
+                <button class="btn secondary" onclick="clearAllVideos()">
+                    <i class="fas fa-trash"></i> Clear All
+                </button>
+            </div>
+        </div>
+
+        <!-- Analysis Results Section -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Analysis Results</h2>
+            
+            <!-- AI Detection Results -->
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <h3><i class="fas fa-robot"></i> AI Detection</h3>
+                    <div class="ai-probability" id="aiProbability">
+                        <div class="probability-circle">
+                            <span class="percentage">--</span>
+                        </div>
+                        <div class="probability-label">AI Generated</div>
+                    </div>
+                    <div class="confidence-indicators">
+                        <div class="indicator-item">
+                            <span class="indicator-label">Deepfake Detection:</span>
+                            <div class="indicator-bar">
+                                <div class="indicator-fill" id="deepfakeFill"></div>
+                            </div>
+                            <span class="indicator-value" id="deepfakeValue">--</span>
+                        </div>
+                        <div class="indicator-item">
+                            <span class="indicator-label">Face Swap:</span>
+                            <div class="indicator-bar">
+                                <div class="indicator-fill" id="faceSwapFill"></div>
+                            </div>
+                            <span class="indicator-value" id="faceSwapValue">--</span>
+                        </div>
+                        <div class="indicator-item">
+                            <span class="indicator-label">Voice Synthesis:</span>
+                            <div class="indicator-bar">
+                                <div class="indicator-fill" id="voiceSynthFill"></div>
+                            </div>
+                            <span class="indicator-value" id="voiceSynthValue">--</span>
+                        </div>
+                        <div class="indicator-item">
+                            <span class="indicator-label">Motion Artifacts:</span>
+                            <div class="indicator-bar">
+                                <div class="indicator-fill" id="motionFill"></div>
+                            </div>
+                            <span class="indicator-value" id="motionValue">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Analysis -->
+                <div class="analysis-card">
+                    <h3><i class="fas fa-cogs"></i> Technical Analysis</h3>
+                    <div class="technical-analysis" id="technicalAnalysis">
+                        <!-- Frame Analysis -->
+                        <div class="tech-section">
+                            <h4><i class="fas fa-film"></i> Frame Analysis</h4>
+                            <div class="properties-list">
+                                <div class="property">
+                                    <i class="fas fa-expand"></i>
+                                    <span class="prop-label">Resolution:</span>
+                                    <span class="prop-value" id="videoResolution">--</span>
+                                </div>
+                                <div class="property">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="prop-label">Frame Rate:</span>
+                                    <span class="prop-value" id="frameRate">--</span>
+                                </div>
+                                <div class="property">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    <span class="prop-label">Duration:</span>
+                                    <span class="prop-value" id="videoDuration">--</span>
+                                </div>
+                                <div class="property">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span class="prop-label">Codec:</span>
+                                    <span class="prop-value" id="videoCodec">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audio Analysis -->
+                        <div class="tech-section">
+                            <h4><i class="fas fa-volume-up"></i> Audio Analysis</h4>
+                            <div class="properties-list">
+                                <div class="property">
+                                    <i class="fas fa-music"></i>
+                                    <span class="prop-label">Audio Codec:</span>
+                                    <span class="prop-value" id="audioCodec">--</span>
+                                </div>
+                                <div class="property">
+                                    <i class="fas fa-signal"></i>
+                                    <span class="prop-label">Sample Rate:</span>
+                                    <span class="prop-value" id="sampleRate">--</span>
+                                </div>
+                                <div class="property">
+                                    <i class="fas fa-layer-group"></i>
+                                    <span class="prop-label">Channels:</span>
+                                    <span class="prop-value" id="audioChannels">--</span>
+                                </div>
+                                <div class="property">
+                                    <i class="fas fa-volume-high"></i>
+                                    <span class="prop-label">Bitrate:</span>
+                                    <span class="prop-value" id="audioBitrate">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Analysis -->
+            <div class="detailed-analysis">
+                <div class="analysis-tabs">
+                    <button class="tab-btn active" onclick="showTab('frames')">
+                        <i class="fas fa-images"></i> Frame Analysis
+                    </button>
+                    <button class="tab-btn" onclick="showTab('metadata')">
+                        <i class="fas fa-info-circle"></i> Metadata
+                    </button>
+                    <button class="tab-btn" onclick="showTab('timeline')">
+                        <i class="fas fa-timeline"></i> Timeline
+                    </button>
+                    <button class="tab-btn" onclick="showTab('reports')">
+                        <i class="fas fa-file-alt"></i> Reports
+                    </button>
+                </div>
+
+                <!-- Frame Analysis Tab -->
+                <div class="tab-content active" id="framesTab">
+                    <h3><i class="fas fa-images"></i> Key Frame Analysis</h3>
+                    <div class="frame-analysis-grid">
+                        <div class="frame-grid" id="frameGrid">
+                            <!-- Key frames will be populated here -->
+                        </div>
+                        <div class="frame-controls">
+                            <button class="btn secondary" onclick="extractFrames()">
+                                <i class="fas fa-camera"></i> Extract Key Frames
+                            </button>
+                            <button class="btn secondary" onclick="analyzeFrames()">
+                                <i class="fas fa-search"></i> Analyze Frames
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metadata Tab -->
+                <div class="tab-content" id="metadataTab">
+                    <h3><i class="fas fa-info-circle"></i> Video Metadata</h3>
+                    <div class="metadata-grid">
+                        <div class="metadata-section">
+                            <h4>File Information</h4>
+                            <div class="metadata-list" id="fileMetadata">
+                                <!-- File metadata will be populated here -->
+                            </div>
+                        </div>
+                        <div class="metadata-section">
+                            <h4>Creation Details</h4>
+                            <div class="metadata-list" id="creationMetadata">
+                                <!-- Creation metadata will be populated here -->
+                            </div>
+                        </div>
+                        <div class="metadata-section">
+                            <h4>Technical Details</h4>
+                            <div class="metadata-list" id="technicalMetadata">
+                                <!-- Technical metadata will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Tab -->
+                <div class="tab-content" id="timelineTab">
+                    <h3><i class="fas fa-timeline"></i> Analysis Timeline</h3>
+                    <div class="timeline-container">
+                        <div class="timeline-scrubber" id="timelineScrubber">
+                            <div class="scrubber-track">
+                                <div class="scrubber-handle" id="scrubberHandle"></div>
+                            </div>
+                        </div>
+                        <div class="timeline-analysis" id="timelineAnalysis">
+                            <!-- Timeline analysis markers will appear here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Tab -->
+                <div class="tab-content" id="reportsTab">
+                    <h3><i class="fas fa-file-alt"></i> Analysis Reports</h3>
+                    <div class="reports-grid">
+                        <div class="report-card">
+                            <h4><i class="fas fa-shield-alt"></i> Authenticity Report</h4>
+                            <p>Comprehensive analysis of video authenticity and AI detection</p>
+                            <button class="btn primary" onclick="generateReport('authenticity')">
+                                <i class="fas fa-download"></i> Generate Report
+                            </button>
+                        </div>
+                        <div class="report-card">
+                            <h4><i class="fas fa-bug"></i> Anomaly Report</h4>
+                            <p>Detailed analysis of detected anomalies and artifacts</p>
+                            <button class="btn primary" onclick="generateReport('anomaly')">
+                                <i class="fas fa-download"></i> Generate Report
+                            </button>
+                        </div>
+                        <div class="report-card">
+                            <h4><i class="fas fa-chart-bar"></i> Technical Report</h4>
+                            <p>Technical specifications and quality metrics</p>
+                            <button class="btn primary" onclick="generateReport('technical')">
+                                <i class="fas fa-download"></i> Generate Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Analysis Section -->
+        <div class="batch-section">
+            <h2><i class="fas fa-layer-group"></i> Batch Analysis</h2>
+            <div class="batch-controls">
+                <button class="btn secondary" onclick="openBatchModal()">
+                    <i class="fas fa-folder-open"></i> Bulk Upload
+                </button>
+                <button class="btn secondary" onclick="openComparisonModal()">
+                    <i class="fas fa-balance-scale"></i> Compare Videos
+                </button>
+                <button class="btn secondary" onclick="exportAnalysis()">
+                    <i class="fas fa-file-export"></i> Export Results
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch Upload Modal -->
+    <div class="modal" id="batchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-folder-open"></i> Batch Video Analysis</h3>
+                <button class="modal-close" onclick="closeBatchModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="batch-upload-area">
+                    <div class="batch-drop-zone" id="batchDropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drop multiple video files here</p>
+                        <span>Or click to select files</span>
+                    </div>
+                    <input type="file" id="batchUpload" accept="video/*" multiple style="display: none;">
+                </div>
+                <div class="batch-progress" id="batchProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="batchProgressFill"></div>
+                    </div>
+                    <div class="progress-text" id="batchProgressText">Processing...</div>
+                </div>
+                <div class="batch-results" id="batchResults"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeBatchModal()">Cancel</button>
+                <button class="btn primary" onclick="startBatchAnalysis()">
+                    <i class="fas fa-play"></i> Start Analysis
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Comparison Modal -->
+    <div class="modal" id="comparisonModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3><i class="fas fa-balance-scale"></i> Video Comparison</h3>
+                <button class="modal-close" onclick="closeComparisonModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="comparison-grid">
+                    <div class="comparison-side">
+                        <h4>Video A</h4>
+                        <div class="video-comparison-upload">
+                            <div class="video-drop-area" id="comparisonDropA">
+                                <i class="fas fa-video"></i>
+                                <p>Drop first video here</p>
+                            </div>
+                            <input type="file" id="comparisonUploadA" accept="video/*" style="display: none;">
+                        </div>
+                        <div class="video-preview" id="videoPreviewA">
+                            <p>Video A preview</p>
+                        </div>
+                    </div>
+                    <div class="comparison-results">
+                        <div class="comparison-score" id="comparisonScore">
+                            <div class="score-circle">
+                                <span class="score-percentage">--</span>
+                            </div>
+                            <div class="score-label">Similarity</div>
+                        </div>
+                        <div class="comparison-details" id="comparisonDetails">
+                            <div class="detail-item">
+                                <span class="detail-label">Frame Similarity:</span>
+                                <span class="detail-value">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Audio Match:</span>
+                                <span class="detail-value">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Motion Patterns:</span>
+                                <span class="detail-value">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comparison-side">
+                        <h4>Video B</h4>
+                        <div class="video-comparison-upload">
+                            <div class="video-drop-area" id="comparisonDropB">
+                                <i class="fas fa-video"></i>
+                                <p>Drop second video here</p>
+                            </div>
+                            <input type="file" id="comparisonUploadB" accept="video/*" style="display: none;">
+                        </div>
+                        <div class="video-preview" id="videoPreviewB">
+                            <p>Video B preview</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeComparisonModal()">Close</button>
+                <button class="btn primary" onclick="compareVideos()">
+                    <i class="fas fa-search"></i> Compare Videos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Recording Modal -->
+    <div class="modal" id="cameraModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-camera"></i> Record Video</h3>
+                <button class="modal-close" onclick="closeCameraModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="camera-container">
+                    <video id="cameraVideo" autoplay muted playsinline></video>
+                </div>
+                <div class="recording-status" id="recordingStatus">
+                    <span class="recording-indicator"></span>
+                    <span class="recording-time" id="recordingTime">00:00</span>
+                </div>
+                <div class="camera-actions">
+                    <button class="btn primary" id="recordBtn" onclick="toggleRecording()">
+                        <i class="fas fa-circle"></i> Start Recording
+                    </button>
+                    <button class="btn secondary" onclick="closeCameraModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Analyzing video...</div>
+    </div>
+
+    <script src="video-detector.js"></script>
+</body>
+</html>

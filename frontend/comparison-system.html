@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Comparison - Filterize</title>
+    <link rel="stylesheet" href="service-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="service-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-shield-alt"></i>
+                <span>Filterize</span>
+            </div>
+            <button class="home-btn" onclick="goHome()">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="service-container">
+        <!-- Header Section -->
+        <div class="service-header">
+            <div class="service-icon">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <h1>AI Content Comparison</h1>
+            <p>Compare any content types side-by-side with advanced AI analysis</p>
+        </div>
+
+        <!-- Comparison Type Selection -->
+        <div class="comparison-type-section">
+            <h2><i class="fas fa-layer-group"></i> Select Comparison Type</h2>
+            <div class="comparison-types">
+                <div class="comparison-type-card" onclick="selectComparisonType('text')">
+                    <div class="type-icon">
+                        <i class="fas fa-file-text"></i>
+                    </div>
+                    <h3>Text Comparison</h3>
+                    <p>Compare documents, articles, and written content</p>
+                    <ul>
+                        <li>AI detection comparison</li>
+                        <li>Writing style analysis</li>
+                        <li>Plagiarism checking</li>
+                        <li>Content similarity</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-type-card" onclick="selectComparisonType('image')">
+                    <div class="type-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h3>Image Comparison</h3>
+                    <p>Compare photos, artwork, and visual content</p>
+                    <ul>
+                        <li>AI generation detection</li>
+                        <li>Visual similarity analysis</li>
+                        <li>Metadata comparison</li>
+                        <li>Reverse image search</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-type-card" onclick="selectComparisonType('video')">
+                    <div class="type-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3>Video Comparison</h3>
+                    <p>Compare videos and detect deepfakes</p>
+                    <ul>
+                        <li>Deepfake detection</li>
+                        <li>Frame-by-frame analysis</li>
+                        <li>Audio comparison</li>
+                        <li>Motion pattern analysis</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-type-card" onclick="selectComparisonType('voice')">
+                    <div class="type-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3>Voice Comparison</h3>
+                    <p>Compare audio and voice recordings</p>
+                    <ul>
+                        <li>Voice cloning detection</li>
+                        <li>Speaker verification</li>
+                        <li>Content transcription</li>
+                        <li>Audio authenticity</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-type-card" onclick="selectComparisonType('pdf')">
+                    <div class="type-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h3>Document Comparison</h3>
+                    <p>Compare PDFs and documents</p>
+                    <ul>
+                        <li>Content extraction</li>
+                        <li>Structure analysis</li>
+                        <li>Metadata comparison</li>
+                        <li>Text authenticity</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-type-card" onclick="selectComparisonType('website')">
+                    <div class="type-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Website Comparison</h3>
+                    <p>Compare websites and web content</p>
+                    <ul>
+                        <li>Content analysis</li>
+                        <li>SEO comparison</li>
+                        <li>Security scanning</li>
+                        <li>Performance metrics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Comparison Interface -->
+        <div class="dynamic-comparison" id="comparisonInterface" style="display: none;">
+            <h2><i class="fas fa-balance-scale"></i> <span id="comparisonTitle">Content Comparison</span></h2>
+            
+            <!-- Comparison Grid -->
+            <div class="comparison-grid" id="comparisonGrid">
+                <div class="comparison-side">
+                    <h3>Content A</h3>
+                    <div class="upload-area" id="uploadAreaA">
+                        <div class="drop-zone" id="dropZoneA">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drop content here or click to browse</p>
+                            <span class="format-info" id="formatInfoA">Supported formats will appear here</span>
+                        </div>
+                        <input type="file" id="fileInputA" style="display: none;">
+                    </div>
+                    <div class="content-preview" id="contentPreviewA">
+                        <p>Content A preview will appear here</p>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn secondary" onclick="clearContent('A')">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button class="btn secondary" onclick="analyzeIndividual('A')">
+                            <i class="fas fa-search"></i> Analyze
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comparison-center">
+                    <div class="comparison-score" id="comparisonScore">
+                        <div class="score-circle">
+                            <span class="score-percentage">--</span>
+                        </div>
+                        <div class="score-label">Similarity</div>
+                    </div>
+                    
+                    <div class="comparison-actions">
+                        <button class="btn primary large" onclick="startComparison()" id="compareBtn" disabled>
+                            <i class="fas fa-balance-scale"></i> Compare Content
+                        </button>
+                        <button class="btn secondary" onclick="swapContent()">
+                            <i class="fas fa-exchange-alt"></i> Swap
+                        </button>
+                        <button class="btn secondary" onclick="generateComparisonReport()">
+                            <i class="fas fa-file-alt"></i> Generate Report
+                        </button>
+                    </div>
+
+                    <div class="ai-insights" id="aiInsights">
+                        <h4><i class="fas fa-brain"></i> AI Insights</h4>
+                        <div class="insight-item">
+                            <span class="insight-label">OpenAI Analysis:</span>
+                            <span class="insight-value" id="openaiInsight">Waiting for analysis...</span>
+                        </div>
+                        <div class="insight-item">
+                            <span class="insight-label">Internet Verification:</span>
+                            <span class="insight-value" id="internetInsight">Waiting for analysis...</span>
+                        </div>
+                        <div class="insight-item">
+                            <span class="insight-label">Confidence Level:</span>
+                            <span class="insight-value" id="confidenceInsight">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-side">
+                    <h3>Content B</h3>
+                    <div class="upload-area" id="uploadAreaB">
+                        <div class="drop-zone" id="dropZoneB">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drop content here or click to browse</p>
+                            <span class="format-info" id="formatInfoB">Supported formats will appear here</span>
+                        </div>
+                        <input type="file" id="fileInputB" style="display: none;">
+                    </div>
+                    <div class="content-preview" id="contentPreviewB">
+                        <p>Content B preview will appear here</p>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn secondary" onclick="clearContent('B')">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button class="btn secondary" onclick="analyzeIndividual('B')">
+                            <i class="fas fa-search"></i> Analyze
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Analysis Results -->
+            <div class="detailed-results" id="detailedResults" style="display: none;">
+                <h3><i class="fas fa-chart-line"></i> Detailed Analysis</h3>
+                
+                <div class="analysis-tabs">
+                    <button class="tab-btn active" onclick="showResultTab('overview')">
+                        <i class="fas fa-eye"></i> Overview
+                    </button>
+                    <button class="tab-btn" onclick="showResultTab('ai-detection')">
+                        <i class="fas fa-robot"></i> AI Detection
+                    </button>
+                    <button class="tab-btn" onclick="showResultTab('similarity')">
+                        <i class="fas fa-balance-scale"></i> Similarity
+                    </button>
+                    <button class="tab-btn" onclick="showResultTab('verification')">
+                        <i class="fas fa-check-circle"></i> Verification
+                    </button>
+                    <button class="tab-btn" onclick="showResultTab('research')">
+                        <i class="fas fa-search"></i> Research
+                    </button>
+                </div>
+
+                <!-- Overview Tab -->
+                <div class="tab-content active" id="overviewTab">
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <h4><i class="fas fa-chart-pie"></i> Quick Summary</h4>
+                            <div class="summary-stats" id="summaryStats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Overall Similarity:</span>
+                                    <span class="stat-value" id="overallSimilarity">--</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">AI Probability A:</span>
+                                    <span class="stat-value" id="aiProbabilityA">--</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">AI Probability B:</span>
+                                    <span class="stat-value" id="aiProbabilityB">--</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Confidence Level:</span>
+                                    <span class="stat-value" id="confidenceLevel">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overview-card">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Key Findings</h4>
+                            <div class="findings-list" id="keyFindings">
+                                <p>Analysis results will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Detection Tab -->
+                <div class="tab-content" id="ai-detectionTab">
+                    <div class="ai-detection-comparison">
+                        <div class="detection-side">
+                            <h4>Content A - AI Analysis</h4>
+                            <div class="ai-indicators" id="aiIndicatorsA">
+                                <!-- AI indicators will be populated here -->
+                            </div>
+                        </div>
+                        <div class="detection-side">
+                            <h4>Content B - AI Analysis</h4>
+                            <div class="ai-indicators" id="aiIndicatorsB">
+                                <!-- AI indicators will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Similarity Tab -->
+                <div class="tab-content" id="similarityTab">
+                    <div class="similarity-analysis" id="similarityAnalysis">
+                        <!-- Similarity analysis will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Verification Tab -->
+                <div class="tab-content" id="verificationTab">
+                    <div class="verification-results" id="verificationResults">
+                        <!-- Verification results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Research Tab -->
+                <div class="tab-content" id="researchTab">
+                    <div class="research-results" id="researchResults">
+                        <!-- Internet research results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Features -->
+        <div class="advanced-features">
+            <h2><i class="fas fa-cogs"></i> Advanced Comparison Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>OpenAI Integration</h3>
+                    <p>Advanced AI analysis using OpenAI's latest models for accurate content assessment</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Internet Research</h3>
+                    <p>Real-time internet verification and fact-checking for comprehensive analysis</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Multi-Model Consensus</h3>
+                    <p>Cross-validation using multiple AI models for maximum accuracy</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Dynamic Scoring</h3>
+                    <p>Intelligent scoring system that adapts based on content type and context</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Analyzing content with OpenAI and internet research...</div>
+    </div>
+
+    <script src="comparison-system.js"></script>
+</body>
+</html>

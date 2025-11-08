@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filterize - Advanced AI Detection Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="unified-styles.css">
+    <script src="instant-navigation.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --success-color: #4CAF50;
+            --warning-color: #ff9800;
+            --error-color: #f44336;
+            --dark-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text-light: #e8e8e8;
+            --text-muted: #a0a0a0;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--dark-bg);
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveBackground 20s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(22, 33, 62, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(102, 126, 234, 0.2);
+            color: var(--accent-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: var(--gradient-2);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Service Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .service-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .service-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .service-description {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .ai-providers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .ai-provider-tag {
+            background: rgba(102, 126, 234, 0.2);
+            color: var(--text-light);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(102, 126, 234, 0.2);
+            color: var(--text-light);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Comparison Mode Toggle */
+        .comparison-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: 0.4s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: var(--gradient-1);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        /* Chatbot */
+        .chatbot-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        .chatbot-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .chatbot-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chatbot-header {
+            background: var(--gradient-1);
+            padding: 1rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.8rem 1rem;
+            border-radius: 15px;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: var(--gradient-1);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--text-light);
+            border-bottom-left-radius: 5px;
+        }
+
+        .chatbot-input {
+            padding: 1rem;
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            outline: none;
+        }
+
+        .chatbot-input input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .chatbot-send {
+            padding: 0.8rem 1rem;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-send:hover {
+            transform: scale(1.05);
+        }
+
+        /* Quick Replies */
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .quick-reply {
+            background: rgba(102, 126, 234, 0.2);
+            color: var(--text-light);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .quick-reply:hover {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chatbot-window {
+                width: 300px;
+                height: 400px;
+            }
+
+            .chatbot-container {
+                bottom: 1rem;
+                right: 1rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Enhanced animations */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                Filterize
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero fade-in">
+            <div class="ai-badge">
+                <i class="fas fa-robot"></i>
+                Powered by 9 AI Providers
+            </div>
+            <h1>Advanced AI Detection Platform</h1>
+            <p>Distinguish between AI-generated and human-created content with unprecedented accuracy using multi-AI consensus technology.</p>
+        </section>
+
+        <!-- Global Comparison Toggle -->
+        <div class="comparison-toggle fade-in">
+            <label class="toggle-switch">
+                <input type="checkbox" id="globalComparison">
+                <span class="slider"></span>
+            </label>
+            <div>
+                <strong>Comparison Mode</strong>
+                <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">Analyze two pieces of content side-by-side</p>
+            </div>
+        </div>
+
+        <!-- Services Grid -->
+        <section class="services-grid">
+            <!-- Text Analysis -->
+            <div class="service-card slide-up">
+                <div class="service-icon">
+                    <i class="fas fa-file-text"></i>
+                </div>
+                <h3 class="service-title">Text Analysis</h3>
+                <p class="service-description">Advanced linguistic analysis using 10+ detection algorithms and multi-AI consensus for maximum accuracy.</p>
+                
+                <div class="ai-providers">
+                    <span class="ai-provider-tag">ChatGPT</span>
+                    <span class="ai-provider-tag">Claude</span>
+                    <span class="ai-provider-tag">Gemini</span>
+                    <span class="ai-provider-tag">Perplexity</span>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/frontend/text-analysis.html" class="btn btn-primary">
+                        <i class="fas fa-analyze"></i>
+                        Analyze Text
+                    </a>
+                    <button class="btn btn-secondary" onclick="openComparison('text')">
+                        <i class="fas fa-balance-scale"></i>
+                        Compare
+                    </button>
+                </div>
+            </div>
+
+            <!-- Image Analysis -->
+            <div class="service-card slide-up" style="animation-delay: 0.1s;">
+                <div class="service-icon">
+                    <i class="fas fa-image"></i>
+                </div>
+                <h3 class="service-title">Image Detection</h3>
+                <p class="service-description">Detect AI-generated images through metadata analysis, visual artifacts, and generation pattern recognition.</p>
+                
+                <div class="ai-providers">
+                    <span class="ai-provider-tag">GPT-4 Vision</span>
+                    <span class="ai-provider-tag">Gemini Pro</span>
+                    <span class="ai-provider-tag">HuggingFace</span>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/frontend/image-analysis-unified.html" class="btn btn-primary">
+                        <i class="fas fa-camera"></i>
+                        Analyze Image
+                    </a>
+                    <button class="btn btn-secondary" onclick="openComparison('image')">
+                        <i class="fas fa-balance-scale"></i>
+                        Compare
+                    </button>
+                </div>
+            </div>
+
+            <!-- Video Analysis -->
+            <div class="service-card slide-up" style="animation-delay: 0.2s;">
+                <div class="service-icon">
+                    <i class="fas fa-video"></i>
+                </div>
+                <h3 class="service-title">Video Analysis</h3>
+                <p class="service-description">Advanced deepfake detection supporting Sora, Veo, and other AI video generation models.</p>
+                
+                <div class="ai-providers">
+                    <span class="ai-provider-tag">Sora</span>
+                    <span class="ai-provider-tag">Veo</span>
+                    <span class="ai-provider-tag">Replicate</span>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/frontend/video-analysis.html" class="btn btn-primary">
+                        <i class="fas fa-play"></i>
+                        Analyze Video
+                    </a>
+                    <button class="btn btn-secondary" onclick="openComparison('video')">
+                        <i class="fas fa-balance-scale"></i>
+                        Compare
+                    </button>
+                </div>
+            </div>
+
+            <!-- Voice/Audio Analysis -->
+            <div class="service-card slide-up" style="animation-delay: 0.25s;">
+                <div class="service-icon">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <h3 class="service-title">Voice & Audio Analysis</h3>
+                <p class="service-description">Advanced voice cloning detection, speech-to-text transcription, and audio authenticity verification.</p>
+                
+                <div class="ai-providers">
+                    <span class="ai-provider-tag">ElevenLabs</span>
+                    <span class="ai-provider-tag">Murf</span>
+                    <span class="ai-provider-tag">Deepfake</span>
+                    <span class="ai-provider-tag">Speech-to-Text</span>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/frontend/voice-analysis.html" class="btn btn-primary">
+                        <i class="fas fa-microphone"></i>
+                        Analyze Audio
+                    </a>
+                    <button class="btn btn-secondary" onclick="openComparison('audio')">
+                        <i class="fas fa-balance-scale"></i>
+                        Compare
+                    </button>
+                </div>
+            </div>
+
+            <!-- Document Analysis -->
+            <div class="service-card slide-up" style="animation-delay: 0.3s;">
+                <div class="service-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h3 class="service-title">Document Analysis</h3>
+                <p class="service-description">Extract and analyze content from PDFs and Word documents with intelligent summarization.</p>
+                
+                <div class="ai-providers">
+                    <span class="ai-provider-tag">Multi-AI</span>
+                    <span class="ai-provider-tag">Translation</span>
+                    <span class="ai-provider-tag">Summary</span>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/frontend/document-analysis-unified.html" class="btn btn-primary">
+                        <i class="fas fa-file-upload"></i>
+                        Analyze Document
+                    </a>
+                    <button class="btn btn-secondary" onclick="openComparison('document')">
+                        <i class="fas fa-balance-scale"></i>
+                        Compare
+                    </button>
+                </div>
+            </div>
+
+            <!-- Website Analysis -->
+            <div class="service-card slide-up" style="animation-delay: 0.4s;">
+                <div class="service-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3 class="service-title">Website Analysis</h3>
+                <p class="service-description">Scrape and analyze website content with fact-checking and security assessment capabilities.</p>
+                
+                <div class="ai-providers">
+                    <span class="ai-provider-tag">Fact Check</span>
+                    <span class="ai-provider-tag">Security</span>
+                    <span class="ai-provider-tag">Content</span>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/frontend/website-analysis-unified.html" class="btn btn-primary">
+                        <i class="fas fa-link"></i>
+                        Analyze Website
+                    </a>
+                    <button class="btn btn-secondary" onclick="openComparison('website')">
+                        <i class="fas fa-balance-scale"></i>
+                        Compare
+                    </button>
+                </div>
+            </div>
+
+            <!-- Enhanced AI Analysis -->
+            <div class="service-card slide-up" style="animation-delay: 0.5s;">
+                <div class="service-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="service-title">Enhanced AI Analysis</h3>
+                <p class="service-description">Comprehensive analysis combining all AI providers with translation and detailed reporting.</p>
+                
+                <div class="ai-providers">
+                    <span class="ai-provider-tag">All 9 AIs</span>
+                    <span class="ai-provider-tag">Consensus</span>
+                    <span class="ai-provider-tag">Report</span>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="openEnhancedAnalysis()">
+                        <i class="fas fa-rocket"></i>
+                        Enhanced Analysis
+                    </button>
+                    <button class="btn btn-secondary" onclick="openComparison('enhanced')">
+                        <i class="fas fa-balance-scale"></i>
+                        Compare
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section fade-in">
+            <div class="stat-card">
+                <div class="stat-number">9</div>
+                <div class="stat-label">AI Providers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">95%</div>
+                <div class="stat-label">Accuracy Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">16</div>
+                <div class="stat-label">Languages Supported</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Content Types</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Chatbot -->
+    <div class="chatbot-container">
+        <button class="chatbot-toggle" onclick="toggleChatbot()">
+            <i class="fas fa-comments"></i>
+        </button>
+        
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <h3>
+                    <i class="fas fa-robot"></i>
+                    Filterize Assistant
+                </h3>
+                <button class="chatbot-close" onclick="toggleChatbot()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="message bot">
+                    👋 Hi! I'm your Filterize assistant. I can help you navigate our AI detection platform, explain features, and guide you through analysis. What would you like to know?
+                    <div class="quick-replies">
+                        <span class="quick-reply" onclick="sendQuickReply('What can Filterize do?')">Features</span>
+                        <span class="quick-reply" onclick="sendQuickReply('How do I analyze content?')">Tutorial</span>
+                        <span class="quick-reply" onclick="sendQuickReply('Explain AI detection accuracy')">Accuracy</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chatbot-input">
+                <input type="text" id="chatbotInput" placeholder="Ask me anything about Filterize..." onkeypress="handleChatKeyPress(event)">
+                <button class="chatbot-send" onclick="sendChatMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chatbot functionality
+        let chatbotOpen = false;
+
+        function toggleChatbot() {
+            const window = document.getElementById('chatbotWindow');
+            chatbotOpen = !chatbotOpen;
+            window.style.display = chatbotOpen ? 'flex' : 'none';
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        function sendQuickReply(message) {
+            sendChatMessage(message);
+        }
+
+        async function sendChatMessage(message = null) {
+            const input = document.getElementById('chatbotInput');
+            const messagesContainer = document.getElementById('chatbotMessages');
+            
+            const userMessage = message || input.value.trim();
+            if (!userMessage) return;
+
+            // Add user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user';
+            userDiv.textContent = userMessage;
+            messagesContainer.appendChild(userDiv);
+
+            // Clear input
+            input.value = '';
+
+            // Add loading message
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message bot';
+            loadingDiv.innerHTML = '<div class="loading"></div> Thinking...';
+            messagesContainer.appendChild(loadingDiv);
+
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                // Send to chatbot API
+                const response = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: userMessage,
+                        user_id: 'web_user_' + Date.now()
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Remove loading message
+                messagesContainer.removeChild(loadingDiv);
+
+                if (data.success) {
+                    const botDiv = document.createElement('div');
+                    botDiv.className = 'message bot';
+                    
+                    // Format bot response
+                    let botResponse = data.response.text;
+                    
+                    // Convert markdown-style formatting
+                    botResponse = botResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    botResponse = botResponse.replace(/•/g, '•');
+                    
+                    botDiv.innerHTML = botResponse;
+
+                    // Add quick replies if available
+                    if (data.response.quick_replies && data.response.quick_replies.length > 0) {
+                        const quickRepliesDiv = document.createElement('div');
+                        quickRepliesDiv.className = 'quick-replies';
+                        
+                        data.response.quick_replies.forEach(reply => {
+                            const replySpan = document.createElement('span');
+                            replySpan.className = 'quick-reply';
+                            replySpan.textContent = reply;
+                            replySpan.onclick = () => sendQuickReply(reply);
+                            quickRepliesDiv.appendChild(replySpan);
+                        });
+                        
+                        botDiv.appendChild(quickRepliesDiv);
+                    }
+
+                    messagesContainer.appendChild(botDiv);
+                } else {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'message bot';
+                    errorDiv.textContent = '❌ Sorry, I encountered an error. Please try again.';
+                    messagesContainer.appendChild(errorDiv);
+                }
+            } catch (error) {
+                // Remove loading message
+                messagesContainer.removeChild(loadingDiv);
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'message bot';
+                errorDiv.textContent = '🔧 I\'m having technical difficulties. Please try again in a moment.';
+                messagesContainer.appendChild(errorDiv);
+            }
+
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Comparison mode functionality
+        function openComparison(type) {
+            const comparisonEnabled = document.getElementById('globalComparison').checked;
+            if (comparisonEnabled) {
+                // Open comparison modal
+                showComparisonModal(type);
+            } else {
+                // Enable comparison mode and show instructions
+                document.getElementById('globalComparison').checked = true;
+                showComparisonModal(type);
+            }
+        }
+
+        function showComparisonModal(type) {
+            // Create comparison modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                z-index: 10000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: var(--card); border-radius: 20px; padding: 2rem; max-width: 800px; width: 90%; max-height: 90%; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="color: var(--accent); margin: 0;">🔄 ${type.charAt(0).toUpperCase() + type.slice(1)} Comparison</h2>
+                        <button onclick="closeComparisonModal()" style="background: var(--danger); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                        <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px;">
+                            <h3 style="color: var(--primary); margin-bottom: 1rem;">📁 Item A</h3>
+                            <div class="upload-area" onclick="document.getElementById('fileA').click()" style="border: 2px dashed var(--primary); border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; margin-bottom: 1rem;">
+                                <i class="fas fa-upload" style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
+                                <div id="fileAName">Upload first ${type}</div>
+                            </div>
+                            <input type="file" id="fileA" style="display: none;" onchange="handleComparisonFile('A', this)">
+                            <div id="resultA" style="margin-top: 1rem; display: none;">
+                                <h4 style="color: var(--accent);">Analysis Results A</h4>
+                                <div id="detailsA"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px;">
+                            <h3 style="color: var(--secondary); margin-bottom: 1rem;">📁 Item B</h3>
+                            <div class="upload-area" onclick="document.getElementById('fileB').click()" style="border: 2px dashed var(--secondary); border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; margin-bottom: 1rem;">
+                                <i class="fas fa-upload" style="font-size: 2rem; color: var(--secondary); margin-bottom: 0.5rem;"></i>
+                                <div id="fileBName">Upload second ${type}</div>
+                            </div>
+                            <input type="file" id="fileB" style="display: none;" onchange="handleComparisonFile('B', this)">
+                            <div id="resultB" style="margin-top: 1rem; display: none;">
+                                <h4 style="color: var(--accent);">Analysis Results B</h4>
+                                <div id="detailsB"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button onclick="runComparison('${type}')" id="compareBtn" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.1rem; cursor: pointer; margin-right: 1rem;" disabled>
+                            <i class="fas fa-balance-scale"></i> Compare Items
+                        </button>
+                        <button onclick="closeComparisonModal()" style="background: var(--danger); color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.1rem; cursor: pointer;">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    </div>
+                    
+                    <div id="comparisonResults" style="margin-top: 2rem; display: none;">
+                        <h3 style="color: var(--accent); margin-bottom: 1rem;">📊 Comparison Results</h3>
+                        <div id="comparisonDetails"></div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            window.currentModal = modal;
+        }
+
+        function closeComparisonModal() {
+            if (window.currentModal) {
+                document.body.removeChild(window.currentModal);
+                window.currentModal = null;
+            }
+        }
+
+        let comparisonFiles = { A: null, B: null };
+        let comparisonResults = { A: null, B: null };
+
+        function handleComparisonFile(slot, input) {
+            const file = input.files[0];
+            if (file) {
+                comparisonFiles[slot] = file;
+                document.getElementById('file' + slot + 'Name').textContent = file.name;
+                
+                // Enable compare button if both files selected
+                if (comparisonFiles.A && comparisonFiles.B) {
+                    document.getElementById('compareBtn').disabled = false;
+                }
+            }
+        }
+
+        async function runComparison(type) {
+            if (!comparisonFiles.A || !comparisonFiles.B) return;
+            
+            document.getElementById('compareBtn').disabled = true;
+            document.getElementById('compareBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+            
+            try {
+                // Analyze both files
+                const resultA = await analyzeFile(comparisonFiles.A, type);
+                const resultB = await analyzeFile(comparisonFiles.B, type);
+                
+                comparisonResults.A = resultA;
+                comparisonResults.B = resultB;
+                
+                // Display individual results
+                displayComparisonResult('A', resultA);
+                displayComparisonResult('B', resultB);
+                
+                // Display comparison
+                displayComparison(type, resultA, resultB);
+                
+            } catch (error) {
+                alert('Comparison failed: ' + error.message);
+            } finally {
+                document.getElementById('compareBtn').disabled = false;
+                document.getElementById('compareBtn').innerHTML = '<i class="fas fa-balance-scale"></i> Compare Items';
+            }
+        }
+
+        async function analyzeFile(file, type) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', type);
+            
+            const response = await fetch('/api/upload-analyze', {
+                method: 'POST',
+                body: formData
+            });
+            
+            return await response.json();
+        }
+
+        function displayComparisonResult(slot, result) {
+            const resultDiv = document.getElementById('result' + slot);
+            const detailsDiv = document.getElementById('details' + slot);
+            
+            resultDiv.style.display = 'block';
+            
+            const aiProb = result.ai_probability || 0;
+            const isAI = result.is_ai_generated || result.is_ai_voice || result.is_deepfake || false;
+            
+            detailsDiv.innerHTML = 
+                '<div style="margin-bottom: 0.5rem;">' +
+                    '<strong>Status:</strong> ' + (isAI ? '🤖 AI Generated' : '👤 Human Created') +
+                '</div>' +
+                '<div style="margin-bottom: 0.5rem;">' +
+                    '<strong>AI Probability:</strong> ' + aiProb + '%' +
+                '</div>' +
+                '<div style="background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; margin: 0.5rem 0;">' +
+                    '<div style="background: ' + (isAI ? 'var(--danger)' : 'var(--success)') + '; height: 100%; width: ' + aiProb + '%; border-radius: 8px;"></div>' +
+                '</div>';
+        }
+
+        function displayComparison(type, resultA, resultB) {
+            const comparisonDiv = document.getElementById('comparisonResults');
+            const detailsDiv = document.getElementById('comparisonDetails');
+            
+            comparisonDiv.style.display = 'block';
+            
+            const probA = resultA.ai_probability || 0;
+            const probB = resultB.ai_probability || 0;
+            const diff = Math.abs(probA - probB);
+            
+            detailsDiv.innerHTML = 
+                '<div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">' +
+                    '<h4 style="color: var(--accent); margin-bottom: 1rem;">Summary</h4>' +
+                    '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">' +
+                        '<div style="text-align: center; padding: 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">' +
+                            '<div style="font-size: 2rem; margin-bottom: 0.5rem;">' + probA + '%</div>' +
+                            '<div style="color: var(--primary);">Item A AI Probability</div>' +
+                        '</div>' +
+                        '<div style="text-align: center; padding: 1rem; background: rgba(118, 75, 162, 0.1); border-radius: 8px;">' +
+                            '<div style="font-size: 2rem; margin-bottom: 0.5rem;">' + probB + '%</div>' +
+                            '<div style="color: var(--secondary);">Item B AI Probability</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="text-align: center; margin-top: 1rem; padding: 1rem; background: rgba(96, 165, 250, 0.1); border-radius: 8px;">' +
+                        '<div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Difference: ' + diff.toFixed(1) + '%</div>' +
+                        '<div style="color: var(--accent);">' +
+                            (diff < 10 ? '✅ Similar AI likelihood' : 
+                              diff < 30 ? '⚠️ Moderate difference' : 
+                              '🔍 Significant difference detected') +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        function openEnhancedAnalysis() {
+            // Open enhanced analysis modal
+            alert('Opening enhanced AI analysis with all providers...');
+            // Implement enhanced analysis modal here
+        }
+
+        // Animation on scroll
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.slide-up');
+            const windowHeight = window.innerHeight;
+
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('fade-in');
+                }
+            });
+        }
+
+        // Initialize
+        window.addEventListener('scroll', animateOnScroll);
+        window.addEventListener('load', animateOnScroll);
+
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to service cards
+            const serviceCards = document.querySelectorAll('.service-card');
+            serviceCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-10px) scale(1)';
+                });
+            });
+
+            // Auto-close chatbot on outside click
+            document.addEventListener('click', function(event) {
+                const chatbotContainer = document.querySelector('.chatbot-container');
+                const chatbotWindow = document.getElementById('chatbotWindow');
+                
+                if (chatbotOpen && !chatbotContainer.contains(event.target)) {
+                    toggleChatbot();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

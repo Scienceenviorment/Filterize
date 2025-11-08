@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Comparison - Filterize AI Detection Platform</title>
+    <link rel="stylesheet" href="service-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="service-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-shield-alt"></i>
+                <span>Filterize</span>
+            </div>
+            <button class="home-btn" onclick="goHome()">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="service-container">
+        <!-- Header Section -->
+        <div class="service-header">
+            <div class="service-icon">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <h1>Voice Comparison Analysis</h1>
+            <p>Compare two voice samples using advanced AI detection and OpenAI analysis</p>
+        </div>
+
+        <!-- Comparison Setup Section -->
+        <div class="comparison-setup">
+            <h2><i class="fas fa-microphone"></i> Upload Voice Samples</h2>
+            
+            <div class="comparison-grid">
+                <!-- Voice Sample A -->
+                <div class="comparison-side">
+                    <h3>Voice Sample A</h3>
+                    <div class="voice-upload-area" id="voiceUploadA">
+                        <div class="upload-zone" onclick="document.getElementById('audioFileA').click()">
+                            <i class="fas fa-microphone"></i>
+                            <p>Click to upload first voice sample</p>
+                            <span class="supported-formats">MP3, WAV, M4A, OGG</span>
+                        </div>
+                        <input type="file" id="audioFileA" accept="audio/*" onchange="handleVoiceUpload('A', this)">
+                    </div>
+                    
+                    <div class="voice-controls">
+                        <button class="btn secondary" onclick="startRecording('A')">
+                            <i class="fas fa-circle"></i> Record Voice A
+                        </button>
+                    </div>
+                    
+                    <div class="voice-preview" id="voicePreviewA">
+                        <div class="preview-placeholder">
+                            <i class="fas fa-volume-up"></i>
+                            <span>Voice A preview will appear here</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Results -->
+                <div class="comparison-center">
+                    <div class="comparison-status" id="comparisonStatus">
+                        <div class="similarity-circle" id="similarityCircle">
+                            <span class="similarity-percentage">--</span>
+                        </div>
+                        <div class="similarity-label">Voice Similarity</div>
+                        <button class="btn primary" id="compareBtn" onclick="compareVoices()" disabled>
+                            <i class="fas fa-search"></i> Compare Voices
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Voice Sample B -->
+                <div class="comparison-side">
+                    <h3>Voice Sample B</h3>
+                    <div class="voice-upload-area" id="voiceUploadB">
+                        <div class="upload-zone" onclick="document.getElementById('audioFileB').click()">
+                            <i class="fas fa-microphone"></i>
+                            <p>Click to upload second voice sample</p>
+                            <span class="supported-formats">MP3, WAV, M4A, OGG</span>
+                        </div>
+                        <input type="file" id="audioFileB" accept="audio/*" onchange="handleVoiceUpload('B', this)">
+                    </div>
+                    
+                    <div class="voice-controls">
+                        <button class="btn secondary" onclick="startRecording('B')">
+                            <i class="fas fa-circle"></i> Record Voice B
+                        </button>
+                    </div>
+                    
+                    <div class="voice-preview" id="voicePreviewB">
+                        <div class="preview-placeholder">
+                            <i class="fas fa-volume-up"></i>
+                            <span>Voice B preview will appear here</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Results Section -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Enhanced Comparison Results</h2>
+            
+            <!-- Overview Cards -->
+            <div class="results-overview">
+                <div class="result-card">
+                    <div class="card-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Overall Similarity</h3>
+                        <div class="percentage-display" id="overallSimilarity">--</div>
+                        <p class="result-description" id="similarityDescription">Analysis pending...</p>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="card-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>AI Detection Match</h3>
+                        <div class="percentage-display" id="aiDetectionMatch">--</div>
+                        <p class="result-description" id="aiMatchDescription">Analysis pending...</p>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="card-icon">
+                        <i class="fas fa-shield-check"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Authenticity Score</h3>
+                        <div class="percentage-display" id="authenticityScore">--</div>
+                        <p class="result-description" id="authenticityDescription">Analysis pending...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Analysis -->
+            <div class="detailed-comparison">
+                <div class="comparison-tabs">
+                    <button class="tab-btn active" onclick="showComparisonTab('analysis')">
+                        <i class="fas fa-chart-bar"></i> Analysis
+                    </button>
+                    <button class="tab-btn" onclick="showComparisonTab('technical')">
+                        <i class="fas fa-cogs"></i> Technical
+                    </button>
+                    <button class="tab-btn" onclick="showComparisonTab('openai')">
+                        <i class="fas fa-brain"></i> OpenAI Insights
+                    </button>
+                    <button class="tab-btn" onclick="showComparisonTab('research')">
+                        <i class="fas fa-globe"></i> Internet Research
+                    </button>
+                </div>
+
+                <!-- Analysis Tab -->
+                <div class="tab-content active" id="analysisTab">
+                    <h3><i class="fas fa-chart-bar"></i> Voice Pattern Analysis</h3>
+                    <div class="analysis-metrics">
+                        <div class="metric-row">
+                            <div class="metric-label">Pitch Similarity:</div>
+                            <div class="metric-bar">
+                                <div class="bar-fill" id="pitchSimilarity"></div>
+                            </div>
+                            <div class="metric-value" id="pitchValue">--</div>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-label">Tone Quality:</div>
+                            <div class="metric-bar">
+                                <div class="bar-fill" id="toneQuality"></div>
+                            </div>
+                            <div class="metric-value" id="toneValue">--</div>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-label">Speech Patterns:</div>
+                            <div class="metric-bar">
+                                <div class="bar-fill" id="speechPatterns"></div>
+                            </div>
+                            <div class="metric-value" id="speechValue">--</div>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-label">Vocal Characteristics:</div>
+                            <div class="metric-bar">
+                                <div class="bar-fill" id="vocalCharacteristics"></div>
+                            </div>
+                            <div class="metric-value" id="vocalValue">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Tab -->
+                <div class="tab-content" id="technicalTab">
+                    <h3><i class="fas fa-cogs"></i> Technical Comparison</h3>
+                    <div class="technical-grid">
+                        <div class="tech-section">
+                            <h4>Audio Properties</h4>
+                            <div class="properties-comparison" id="audioProperties">
+                                <!-- Will be populated with comparison data -->
+                            </div>
+                        </div>
+                        <div class="tech-section">
+                            <h4>Frequency Analysis</h4>
+                            <div class="frequency-comparison" id="frequencyAnalysis">
+                                <!-- Will be populated with frequency data -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OpenAI Tab -->
+                <div class="tab-content" id="openaiTab">
+                    <h3><i class="fas fa-brain"></i> OpenAI Analysis Insights</h3>
+                    <div class="openai-insights" id="openaiInsights">
+                        <div class="insight-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Generating AI insights...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Research Tab -->
+                <div class="tab-content" id="researchTab">
+                    <h3><i class="fas fa-globe"></i> Internet Research Results</h3>
+                    <div class="research-results" id="researchResults">
+                        <div class="research-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Searching internet for validation...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="export-section">
+                <h3><i class="fas fa-download"></i> Export Results</h3>
+                <div class="export-buttons">
+                    <button class="btn secondary" onclick="exportResults('pdf')">
+                        <i class="fas fa-file-pdf"></i> Export PDF Report
+                    </button>
+                    <button class="btn secondary" onclick="exportResults('json')">
+                        <i class="fas fa-file-code"></i> Export JSON Data
+                    </button>
+                    <button class="btn secondary" onclick="exportResults('csv')">
+                        <i class="fas fa-file-csv"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recording Modal -->
+    <div class="modal" id="recordingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-microphone"></i> Record Voice Sample</h3>
+                <button class="modal-close" onclick="closeRecordingModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="recording-interface">
+                    <div class="recording-status" id="recordingStatus">
+                        <div class="status-indicator"></div>
+                        <span class="status-text">Ready to record</span>
+                    </div>
+                    <div class="recording-timer" id="recordingTimer">00:00</div>
+                    <div class="recording-controls">
+                        <button class="btn primary" id="recordToggle" onclick="toggleRecording()">
+                            <i class="fas fa-circle"></i> Start Recording
+                        </button>
+                        <button class="btn secondary" onclick="closeRecordingModal()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Processing comparison...</div>
+    </div>
+
+    <script src="voice-comparison.js"></script>
+</body>
+</html>

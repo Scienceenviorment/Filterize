@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice AI Detector - Filterize</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/frontend/professional-styles.css">
+    <link rel="stylesheet" href="/frontend/service-styles.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="service-nav">
+        <div class="nav-container">
+            <button class="home-btn" onclick="goHome()">
+                <i class="fas fa-home"></i> Back to Home
+            </button>
+            <div class="service-title">
+                <i class="fas fa-microphone"></i>
+                Voice AI Detector
+            </div>
+            <div class="service-actions">
+                <button class="btn btn-outline" onclick="openVoiceComparison()">
+                    <i class="fas fa-balance-scale"></i> Compare Voices
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="service-container">
+        <!-- Upload/Record Section -->
+        <div class="upload-section">
+            <h2 class="section-title">Analyze Voice for AI Detection</h2>
+            <p class="section-subtitle">Upload an audio file or record your voice to detect if it's AI-generated</p>
+            
+            <div class="upload-options">
+                <!-- File Upload Option -->
+                <div class="upload-card">
+                    <div class="upload-header">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Upload Audio File</h3>
+                    </div>
+                    <div class="upload-area" id="audioUploadArea" onclick="document.getElementById('audioInput').click()">
+                        <i class="fas fa-file-audio"></i>
+                        <p>Click to upload audio file</p>
+                        <span class="upload-hint">Supports: MP3, WAV, M4A, OGG</span>
+                    </div>
+                    <input type="file" id="audioInput" accept="audio/*" style="display: none;" onchange="handleAudioUpload(event)">
+                </div>
+
+                <!-- Voice Recording Option -->
+                <div class="upload-card">
+                    <div class="upload-header">
+                        <i class="fas fa-microphone"></i>
+                        <h3>Record Voice</h3>
+                    </div>
+                    <div class="recording-area">
+                        <div class="recording-controls">
+                            <button class="record-btn" id="recordBtn" onclick="toggleRecording()">
+                                <i class="fas fa-microphone"></i>
+                                <span>Start Recording</span>
+                            </button>
+                            <div class="recording-timer" id="recordingTimer">00:00</div>
+                        </div>
+                        <div class="recording-status" id="recordingStatus">
+                            <p>Click "Start Recording" to begin</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audio Player Section -->
+        <div class="audio-player-section" id="audioPlayerSection" style="display: none;">
+            <h3>Audio Preview</h3>
+            <div class="audio-player">
+                <audio id="audioPlayer" controls style="width: 100%;"></audio>
+            </div>
+            <div class="audio-actions">
+                <button class="btn btn-primary" onclick="analyzeAudio()">
+                    <i class="fas fa-search"></i> Analyze Audio
+                </button>
+                <button class="btn btn-outline" onclick="clearAudio()">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading Section -->
+        <div class="loading-section" id="loadingSection" style="display: none;">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <div class="loading-steps">
+                    <div class="step active" id="step1">
+                        <i class="fas fa-file-audio"></i>
+                        <span>Processing Audio</span>
+                    </div>
+                    <div class="step" id="step2">
+                        <i class="fas fa-language"></i>
+                        <span>Transcribing to Text</span>
+                    </div>
+                    <div class="step" id="step3">
+                        <i class="fas fa-brain"></i>
+                        <span>AI Analysis</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2 class="section-title">Analysis Results</h2>
+            
+            <!-- AI Detection Results -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>AI Detection Analysis</h3>
+                </div>
+                <div class="detection-results">
+                    <div class="percentage-display">
+                        <div class="percentage-item human">
+                            <div class="percentage-circle" id="humanPercentage">
+                                <span class="percentage-value" id="humanValue">0%</span>
+                                <span class="percentage-label">Human</span>
+                            </div>
+                        </div>
+                        <div class="percentage-item ai">
+                            <div class="percentage-circle" id="aiPercentage">
+                                <span class="percentage-value" id="aiValue">0%</span>
+                                <span class="percentage-label">AI Generated</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detection-verdict" id="detectionVerdict">
+                        <div class="verdict-text"></div>
+                        <div class="confidence-score">Confidence: <span id="confidenceScore">0%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transcription Results -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-file-text"></i>
+                    <h3>Voice Transcription</h3>
+                    <button class="btn btn-outline btn-sm" onclick="readTranscription()">
+                        <i class="fas fa-volume-up"></i> Read Aloud
+                    </button>
+                </div>
+                <div class="transcription-content">
+                    <div class="transcription-text" id="transcriptionText">
+                        Transcribed text will appear here...
+                    </div>
+                    <div class="transcription-meta">
+                        <span class="language">Language: <span id="detectedLanguage">English</span></span>
+                        <span class="duration">Duration: <span id="audioDuration">0:00</span></span>
+                        <span class="word-count">Words: <span id="wordCount">0</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Results -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>Voice Summary</h3>
+                </div>
+                <div class="summary-content" id="summaryContent">
+                    <div class="summary-item">
+                        <h4>Main Topic</h4>
+                        <p id="mainTopic">Analysis will provide the main topic discussed...</p>
+                    </div>
+                    <div class="summary-item">
+                        <h4>Key Points</h4>
+                        <ul id="keyPoints">
+                            <li>Key points will be extracted from the voice content...</li>
+                        </ul>
+                    </div>
+                    <div class="summary-item">
+                        <h4>Voice Characteristics</h4>
+                        <div class="voice-characteristics" id="voiceCharacteristics">
+                            <span class="characteristic">Tone: <span id="voiceTone">Neutral</span></span>
+                            <span class="characteristic">Pace: <span id="voicePace">Normal</span></span>
+                            <span class="characteristic">Clarity: <span id="voiceClarity">High</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Details -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-cogs"></i>
+                    <h3>Technical Analysis</h3>
+                </div>
+                <div class="technical-details" id="technicalDetails">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="label">Audio Quality</span>
+                            <span class="value" id="audioQuality">High</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Sample Rate</span>
+                            <span class="value" id="sampleRate">44.1 kHz</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Bit Rate</span>
+                            <span class="value" id="bitRate">320 kbps</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Analysis Method</span>
+                            <span class="value">Multi-AI Consensus</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="result-actions">
+                <button class="btn btn-primary" onclick="downloadReport()">
+                    <i class="fas fa-download"></i> Download Report
+                </button>
+                <button class="btn btn-outline" onclick="shareResults()">
+                    <i class="fas fa-share"></i> Share Results
+                </button>
+                <button class="btn btn-outline" onclick="analyzeAnother()">
+                    <i class="fas fa-plus"></i> Analyze Another
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Comparison Modal -->
+    <div class="comparison-modal" id="voiceComparisonModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-balance-scale"></i> Voice Comparison</h2>
+                <button class="modal-close" onclick="closeVoiceComparison()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="comparison-grid">
+                    <!-- Voice 1 -->
+                    <div class="comparison-item">
+                        <h3>Voice Sample 1</h3>
+                        <div class="voice-upload">
+                            <div class="upload-options-mini">
+                                <button class="btn btn-outline" onclick="document.getElementById('voice1Input').click()">
+                                    <i class="fas fa-upload"></i> Upload Audio
+                                </button>
+                                <button class="btn btn-outline" onclick="recordVoice(1)">
+                                    <i class="fas fa-microphone"></i> Record
+                                </button>
+                            </div>
+                            <input type="file" id="voice1Input" accept="audio/*" style="display: none;" onchange="handleComparisonUpload(1, event)">
+                            <div class="voice-preview" id="voice1Preview"></div>
+                        </div>
+                        <div class="voice-results" id="voice1Results"></div>
+                    </div>
+
+                    <!-- Voice 2 -->
+                    <div class="comparison-item">
+                        <h3>Voice Sample 2</h3>
+                        <div class="voice-upload">
+                            <div class="upload-options-mini">
+                                <button class="btn btn-outline" onclick="document.getElementById('voice2Input').click()">
+                                    <i class="fas fa-upload"></i> Upload Audio
+                                </button>
+                                <button class="btn btn-outline" onclick="recordVoice(2)">
+                                    <i class="fas fa-microphone"></i> Record
+                                </button>
+                            </div>
+                            <input type="file" id="voice2Input" accept="audio/*" style="display: none;" onchange="handleComparisonUpload(2, event)">
+                            <div class="voice-preview" id="voice2Preview"></div>
+                        </div>
+                        <div class="voice-results" id="voice2Results"></div>
+                    </div>
+                </div>
+
+                <!-- Comparison Results -->
+                <div class="comparison-results" id="comparisonResults" style="display: none;">
+                    <h3>Comparison Analysis</h3>
+                    
+                    <div class="comparison-summary">
+                        <div class="similarity-score">
+                            <div class="score-circle">
+                                <span class="score-value" id="similarityScore">0%</span>
+                                <span class="score-label">Similarity</span>
+                            </div>
+                        </div>
+                        <div class="comparison-verdict" id="comparisonVerdict">
+                            <p class="verdict-text"></p>
+                        </div>
+                    </div>
+
+                    <div class="comparison-details">
+                        <div class="detail-section">
+                            <h4>Content Analysis</h4>
+                            <div class="content-comparison" id="contentComparison">
+                                <div class="content-item">
+                                    <h5>What was said in Voice 1:</h5>
+                                    <p id="voice1Content"></p>
+                                </div>
+                                <div class="content-item">
+                                    <h5>What was said in Voice 2:</h5>
+                                    <p id="voice2Content"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Key Points Comparison</h4>
+                            <div class="points-comparison" id="pointsComparison">
+                                <div class="points-item">
+                                    <h5>Voice 1 Main Points:</h5>
+                                    <ul id="voice1Points"></ul>
+                                </div>
+                                <div class="points-item">
+                                    <h5>Voice 2 Main Points:</h5>
+                                    <ul id="voice2Points"></ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Differences & Similarities</h4>
+                            <div class="differences-analysis" id="differencesAnalysis">
+                                <div class="analysis-item">
+                                    <h5>Why they are similar:</h5>
+                                    <p id="similaritiesReason"></p>
+                                </div>
+                                <div class="analysis-item">
+                                    <h5>Why they are different:</h5>
+                                    <p id="differencesReason"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-actions">
+                    <button class="btn btn-primary" onclick="compareVoices()" id="compareBtn" disabled>
+                        <i class="fas fa-chart-bar"></i> Compare Voices
+                    </button>
+                    <button class="btn btn-outline" onclick="downloadComparisonReport()">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-overlay" onclick="closeVoiceComparison()"></div>
+    </div>
+
+    <script src="/frontend/voice-detector.js"></script>
+</body>
+</html>

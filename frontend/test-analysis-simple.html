@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Test - Filterize AI</title>
+    <link rel="stylesheet" href="/frontend/unified-styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🧪 Analysis Test</h1>
+            <p class="page-subtitle">Test if analysis results are showing properly</p>
+        </div>
+
+        <div class="section">
+            <div class="card">
+                <h3>Quick Analysis Test</h3>
+                <textarea id="testInput" class="form-input" placeholder="Enter text to test...">This is a sample text to test our AI detection system and see if the results display correctly on the frontend interface. The system should analyze this content and show meaningful results.</textarea>
+                <button class="btn btn-primary" onclick="testAnalysis()">Test Analysis</button>
+                
+                <div id="testResults" class="mt-md" style="display: none;">
+                    <h4>Test Results:</h4>
+                    <div id="resultContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testAnalysis() {
+            const text = document.getElementById('testInput').value;
+            const resultsDiv = document.getElementById('testResults');
+            const contentDiv = document.getElementById('resultContent');
+            
+            console.log('Starting analysis test...');
+            
+            try {
+                // Show loading
+                contentDiv.innerHTML = '<p>🔄 Analyzing...</p>';
+                resultsDiv.style.display = 'block';
+                
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content: text,
+                        type: 'text'
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                console.log('Analysis result:', result);
+
+                // Display results
+                let html = '<div class="result-card">';
+                html += '<h5>✅ Analysis Completed</h5>';
+                html += `<p><strong>Status:</strong> ${response.status}</p>`;
+                html += `<p><strong>Response Keys:</strong> ${Object.keys(result).join(', ')}</p>`;
+                
+                if (result.ai_analysis) {
+                    const ai = result.ai_analysis;
+                    const cred = ai.credibility_assessment || {};
+                    const score = result.fact_check_score || cred.score || 0;
+                    const aiProb = Math.max(0, 100 - score);
+                    
+                    html += `<p><strong>AI Probability:</strong> ${aiProb}%</p>`;
+                    html += `<p><strong>Credibility Score:</strong> ${score}%</p>`;
+                    html += `<p><strong>Analysis Method:</strong> ${result.analysis_method || 'N/A'}</p>`;
+                    
+                    if (ai.key_insights && ai.key_insights.length > 0) {
+                        html += '<p><strong>Key Insights:</strong></p><ul>';
+                        ai.key_insights.forEach(insight => {
+                            html += `<li>${insight}</li>`;
+                        });
+                        html += '</ul>';
+                    }
+                } else {
+                    html += '<p>⚠️ No ai_analysis found in response</p>';
+                }
+                
+                html += '</div>';
+                contentDiv.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                contentDiv.innerHTML = `<div class="result-card bg-danger"><h5>❌ Analysis Failed</h5><p>${error.message}</p></div>`;
+            }
+        }
+    </script>
+</body>
+</html>

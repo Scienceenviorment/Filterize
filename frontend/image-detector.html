@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image AI Detector - Filterize</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/frontend/professional-styles.css">
+    <link rel="stylesheet" href="/frontend/service-styles.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="service-nav">
+        <div class="nav-container">
+            <button class="home-btn" onclick="goHome()">
+                <i class="fas fa-home"></i> Back to Home
+            </button>
+            <div class="service-title">
+                <i class="fas fa-image"></i>
+                Image AI Detector
+            </div>
+            <div class="service-actions">
+                <button class="btn btn-outline" onclick="openImageComparison()">
+                    <i class="fas fa-balance-scale"></i> Compare Images
+                </button>
+                <button class="btn btn-outline" onclick="openBatchAnalysis()">
+                    <i class="fas fa-layer-group"></i> Batch Analysis
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="service-container">
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <h2 class="section-title">Analyze Images for AI Detection</h2>
+            <p class="section-subtitle">Upload images or provide URLs to detect AI-generated content and analyze visual characteristics</p>
+            
+            <div class="image-upload-options">
+                <!-- Main Upload Area -->
+                <div class="upload-card main-upload">
+                    <div class="upload-header">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Upload Images</h3>
+                        <div class="upload-stats">
+                            <span class="file-count">0 files selected</span>
+                            <span class="supported-formats">JPG, PNG, GIF, WebP, BMP</span>
+                        </div>
+                    </div>
+                    <div class="image-drop-zone" id="imageDropZone" onclick="document.getElementById('imageInput').click()">
+                        <i class="fas fa-images"></i>
+                        <p>Drop images here or click to browse</p>
+                        <span class="upload-hint">Supports multiple files • Max 10MB per image</span>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
+                </div>
+
+                <!-- URL and Camera Options -->
+                <div class="upload-options-grid">
+                    <!-- URL Input -->
+                    <div class="upload-card">
+                        <div class="upload-header">
+                            <i class="fas fa-link"></i>
+                            <h3>Analyze from URL</h3>
+                        </div>
+                        <div class="url-input-area">
+                            <input type="url" id="imageUrlInput" placeholder="https://example.com/image.jpg" />
+                            <button class="btn btn-primary" onclick="analyzeImageURL()">
+                                <i class="fas fa-download"></i> Fetch & Analyze
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Camera Capture -->
+                    <div class="upload-card">
+                        <div class="upload-header">
+                            <i class="fas fa-camera"></i>
+                            <h3>Camera Capture</h3>
+                        </div>
+                        <div class="camera-controls">
+                            <button class="btn btn-outline" onclick="openCamera()">
+                                <i class="fas fa-video"></i> Open Camera
+                            </button>
+                            <button class="btn btn-primary" onclick="capturePhoto()" id="captureBtn" disabled>
+                                <i class="fas fa-camera"></i> Capture
+                            </button>
+                        </div>
+                        <div class="camera-preview" id="cameraPreview"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Preview Section -->
+        <div class="image-preview-section" id="imagePreviewSection" style="display: none;">
+            <h3>Image Preview</h3>
+            <div class="image-gallery" id="imageGallery"></div>
+            <div class="preview-actions">
+                <button class="btn btn-primary" onclick="analyzeSelectedImages()">
+                    <i class="fas fa-search"></i> Analyze Images
+                </button>
+                <button class="btn btn-outline" onclick="clearImages()">
+                    <i class="fas fa-trash"></i> Clear All
+                </button>
+                <button class="btn btn-outline" onclick="downloadOriginals()">
+                    <i class="fas fa-download"></i> Download Originals
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Analysis Tools -->
+        <div class="quick-tools-section">
+            <h3>Quick Analysis Tools</h3>
+            <div class="quick-tools-grid">
+                <button class="quick-tool" onclick="runMetadataExtraction()">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Metadata</span>
+                </button>
+                <button class="quick-tool" onclick="runColorAnalysis()">
+                    <i class="fas fa-palette"></i>
+                    <span>Color Analysis</span>
+                </button>
+                <button class="quick-tool" onclick="runObjectDetection()">
+                    <i class="fas fa-search-plus"></i>
+                    <span>Object Detection</span>
+                </button>
+                <button class="quick-tool" onclick="runFaceDetection()">
+                    <i class="fas fa-user"></i>
+                    <span>Face Detection</span>
+                </button>
+                <button class="quick-tool" onclick="runReverseSearch()">
+                    <i class="fas fa-search"></i>
+                    <span>Reverse Search</span>
+                </button>
+                <button class="quick-tool" onclick="runQualityCheck()">
+                    <i class="fas fa-star"></i>
+                    <span>Quality Check</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading Section -->
+        <div class="loading-section" id="loadingSection" style="display: none;">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <div class="loading-steps">
+                    <div class="step active" id="step1">
+                        <i class="fas fa-image"></i>
+                        <span>Processing Images</span>
+                    </div>
+                    <div class="step" id="step2">
+                        <i class="fas fa-brain"></i>
+                        <span>AI Analysis</span>
+                    </div>
+                    <div class="step" id="step3">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Generating Report</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2 class="section-title">Image Analysis Results</h2>
+            
+            <!-- AI Detection Results -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>AI Detection Analysis</h3>
+                    <div class="confidence-badge" id="confidenceBadge">
+                        <span class="confidence-value" id="confidenceValue">0%</span>
+                        <span class="confidence-label">Confidence</span>
+                    </div>
+                </div>
+                <div class="detection-results">
+                    <div class="percentage-display">
+                        <div class="percentage-item human">
+                            <div class="percentage-circle" id="humanPercentage">
+                                <span class="percentage-value" id="humanValue">0%</span>
+                                <span class="percentage-label">Real Image</span>
+                            </div>
+                        </div>
+                        <div class="percentage-item ai">
+                            <div class="percentage-circle" id="aiPercentage">
+                                <span class="percentage-value" id="aiValue">0%</span>
+                                <span class="percentage-label">AI Generated</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detection-verdict" id="detectionVerdict">
+                        <div class="verdict-text"></div>
+                        <div class="verdict-explanation" id="verdictExplanation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Analysis -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-eye"></i>
+                    <h3>Visual Analysis</h3>
+                </div>
+                <div class="visual-analysis-grid">
+                    <div class="analysis-item">
+                        <h4>AI Indicators</h4>
+                        <div class="indicator-list" id="aiIndicators">
+                            <div class="indicator-item">
+                                <span class="indicator-label">Pixel Inconsistency</span>
+                                <div class="indicator-bar">
+                                    <div class="indicator-fill" id="pixelInconsistency"></div>
+                                </div>
+                                <span class="indicator-value" id="pixelValue">0%</span>
+                            </div>
+                            <div class="indicator-item">
+                                <span class="indicator-label">Compression Artifacts</span>
+                                <div class="indicator-bar">
+                                    <div class="indicator-fill" id="compressionArtifacts"></div>
+                                </div>
+                                <span class="indicator-value" id="compressionValue">0%</span>
+                            </div>
+                            <div class="indicator-item">
+                                <span class="indicator-label">Unnatural Patterns</span>
+                                <div class="indicator-bar">
+                                    <div class="indicator-fill" id="unnaturalPatterns"></div>
+                                </div>
+                                <span class="indicator-value" id="patternsValue">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analysis-item">
+                        <h4>Image Properties</h4>
+                        <div class="properties-list" id="imageProperties">
+                            <div class="property">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                                <span class="prop-label">Dimensions:</span>
+                                <span class="prop-value" id="imageDimensions">1920x1080</span>
+                            </div>
+                            <div class="property">
+                                <i class="fas fa-file-image"></i>
+                                <span class="prop-label">Format:</span>
+                                <span class="prop-value" id="imageFormat">JPEG</span>
+                            </div>
+                            <div class="property">
+                                <i class="fas fa-weight"></i>
+                                <span class="prop-label">File Size:</span>
+                                <span class="prop-value" id="fileSize">2.5 MB</span>
+                            </div>
+                            <div class="property">
+                                <i class="fas fa-palette"></i>
+                                <span class="prop-label">Color Depth:</span>
+                                <span class="prop-value" id="colorDepth">24-bit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metadata Analysis -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>Metadata Analysis</h3>
+                </div>
+                <div class="metadata-grid" id="metadataGrid">
+                    <div class="metadata-section">
+                        <h4>Camera Information</h4>
+                        <div class="metadata-list">
+                            <div class="metadata-item">
+                                <span class="meta-label">Camera Model:</span>
+                                <span class="meta-value" id="cameraModel">Unknown</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="meta-label">Date Taken:</span>
+                                <span class="meta-value" id="dateTaken">Not Available</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="meta-label">GPS Location:</span>
+                                <span class="meta-value" id="gpsLocation">Not Available</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metadata-section">
+                        <h4>Technical Details</h4>
+                        <div class="metadata-list">
+                            <div class="metadata-item">
+                                <span class="meta-label">Software:</span>
+                                <span class="meta-value" id="software">Unknown</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="meta-label">Creation Method:</span>
+                                <span class="meta-value" id="creationMethod">Camera Capture</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="meta-label">Modification History:</span>
+                                <span class="meta-value" id="modificationHistory">None Detected</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Analysis -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-search-plus"></i>
+                    <h3>Content Analysis</h3>
+                </div>
+                <div class="content-analysis-grid">
+                    <div class="content-section">
+                        <h4>Detected Objects</h4>
+                        <div class="objects-list" id="detectedObjects">
+                            <div class="object-tag">Person (95%)</div>
+                            <div class="object-tag">Building (87%)</div>
+                            <div class="object-tag">Sky (92%)</div>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h4>Color Analysis</h4>
+                        <div class="color-palette" id="colorPalette">
+                            <div class="color-swatch" style="background-color: #3498db;" title="Primary Blue"></div>
+                            <div class="color-swatch" style="background-color: #2ecc71;" title="Primary Green"></div>
+                            <div class="color-swatch" style="background-color: #f39c12;" title="Primary Orange"></div>
+                            <div class="color-swatch" style="background-color: #e74c3c;" title="Primary Red"></div>
+                            <div class="color-swatch" style="background-color: #9b59b6;" title="Primary Purple"></div>
+                        </div>
+                        <div class="color-analysis" id="colorAnalysis">
+                            <span class="color-stat">Dominant: Blue (35%)</span>
+                            <span class="color-stat">Saturation: High</span>
+                            <span class="color-stat">Brightness: Medium</span>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h4>Quality Assessment</h4>
+                        <div class="quality-metrics" id="qualityMetrics">
+                            <div class="quality-item">
+                                <span class="quality-label">Sharpness:</span>
+                                <span class="quality-value high">Excellent</span>
+                            </div>
+                            <div class="quality-item">
+                                <span class="quality-label">Noise Level:</span>
+                                <span class="quality-value medium">Low</span>
+                            </div>
+                            <div class="quality-item">
+                                <span class="quality-label">Compression:</span>
+                                <span class="quality-value high">High Quality</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="result-actions">
+                <button class="btn btn-primary" onclick="downloadReport()">
+                    <i class="fas fa-download"></i> Download Report
+                </button>
+                <button class="btn btn-outline" onclick="shareResults()">
+                    <i class="fas fa-share"></i> Share Results
+                </button>
+                <button class="btn btn-outline" onclick="analyzeAnother()">
+                    <i class="fas fa-plus"></i> Analyze Another
+                </button>
+                <button class="btn btn-outline" onclick="exportAnalysis()">
+                    <i class="fas fa-file-export"></i> Export Analysis
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Comparison Modal -->
+    <div class="comparison-modal" id="imageComparisonModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-balance-scale"></i> Image Comparison</h2>
+                <button class="modal-close" onclick="closeImageComparison()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="comparison-grid">
+                    <!-- Image 1 -->
+                    <div class="comparison-item">
+                        <h3>Image 1</h3>
+                        <div class="image-comparison-upload">
+                            <div class="image-drop-area" onclick="document.getElementById('compareImg1Input').click()">
+                                <i class="fas fa-image"></i>
+                                <p>Drop image here or click to browse</p>
+                            </div>
+                            <input type="file" id="compareImg1Input" accept="image/*" style="display: none;" onchange="handleComparisonUpload(1, event)">
+                            <div class="image-preview" id="img1Preview"></div>
+                        </div>
+                        <div class="comparison-results" id="img1Results"></div>
+                    </div>
+
+                    <!-- Image 2 -->
+                    <div class="comparison-item">
+                        <h3>Image 2</h3>
+                        <div class="image-comparison-upload">
+                            <div class="image-drop-area" onclick="document.getElementById('compareImg2Input').click()">
+                                <i class="fas fa-image"></i>
+                                <p>Drop image here or click to browse</p>
+                            </div>
+                            <input type="file" id="compareImg2Input" accept="image/*" style="display: none;" onchange="handleComparisonUpload(2, event)">
+                            <div class="image-preview" id="img2Preview"></div>
+                        </div>
+                        <div class="comparison-results" id="img2Results"></div>
+                    </div>
+                </div>
+
+                <!-- Comparison Results -->
+                <div class="comparison-results-section" id="comparisonResults" style="display: none;">
+                    <h3>Comparison Analysis</h3>
+                    
+                    <div class="comparison-summary">
+                        <div class="similarity-metrics">
+                            <div class="metric">
+                                <div class="metric-circle">
+                                    <span class="metric-value" id="visualSimilarity">0%</span>
+                                </div>
+                                <span class="metric-label">Visual Similarity</span>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-circle">
+                                    <span class="metric-value" id="colorSimilarity">0%</span>
+                                </div>
+                                <span class="metric-label">Color Similarity</span>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-circle">
+                                    <span class="metric-value" id="structureSimilarity">0%</span>
+                                </div>
+                                <span class="metric-label">Structure Match</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detailed-comparison">
+                        <div class="comparison-section">
+                            <h4>Key Differences</h4>
+                            <div class="differences-list" id="keyDifferences">
+                                <div class="difference-item">
+                                    <strong>Color Palette:</strong> Image 1 has warmer tones while Image 2 is cooler.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="comparison-section">
+                            <h4>Similarities Found</h4>
+                            <div class="similarities-list" id="keySimilarities">
+                                <div class="similarity-item">
+                                    <strong>Composition:</strong> Both images follow similar compositional rules.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="comparison-section">
+                            <h4>AI Detection Comparison</h4>
+                            <div class="ai-comparison" id="aiDetectionComparison">
+                                <div class="ai-comp-item">
+                                    <span class="image-label">Image 1:</span>
+                                    <span class="ai-score" id="img1AIScore">25% AI</span>
+                                </div>
+                                <div class="ai-comp-item">
+                                    <span class="image-label">Image 2:</span>
+                                    <span class="ai-score" id="img2AIScore">78% AI</span>
+                                </div>
+                                <div class="ai-verdict" id="comparisonVerdict">
+                                    Image 2 is significantly more likely to be AI-generated than Image 1.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-actions">
+                    <button class="btn btn-primary" onclick="compareImages()" id="compareBtn" disabled>
+                        <i class="fas fa-chart-bar"></i> Compare Images
+                    </button>
+                    <button class="btn btn-outline" onclick="downloadComparisonReport()">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-overlay" onclick="closeImageComparison()"></div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div class="comparison-modal" id="cameraModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-camera"></i> Camera Capture</h2>
+                <button class="modal-close" onclick="closeCamera()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="camera-container">
+                    <video id="cameraVideo" autoplay playsinline></video>
+                    <canvas id="captureCanvas" style="display: none;"></canvas>
+                </div>
+                <div class="camera-actions">
+                    <button class="btn btn-primary" onclick="takePicture()">
+                        <i class="fas fa-camera"></i> Take Picture
+                    </button>
+                    <button class="btn btn-outline" onclick="closeCamera()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-overlay" onclick="closeCamera()"></div>
+    </div>
+
+    <script src="/frontend/image-detector.js"></script>
+</body>
+</html>

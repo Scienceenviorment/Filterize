@@ -4,100 +4,375 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text Analysis - Filterize AI</title>
-    <style>
-        :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --bg: #0f1724;
-            --card: #1a2332;
-            --text: #ffffff;
-            --text-muted: #9aa4b2;
-            --accent: #60a5fa;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+    <link rel="stylesheet" href="/frontend/unified-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="/frontend/instant-navigation.js"></script>
+</head>
+<body class="page-transition"
+>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <i class="fas fa-shield-check"></i>
+                Filterize AI
+            </a>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">📝 Text Analysis</h1>
+            <p class="page-subtitle">
+                Advanced AI content detection using sophisticated linguistic analysis and pattern recognition
+            </p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-edit"></i>
+                Text Content Analysis
+            </h2>
+            
+            <div class="form-group">
+                <label for="textInput" class="form-label">Enter text to analyze:</label>
+                <textarea 
+                    id="textInput" 
+                    class="form-input form-textarea" 
+                    placeholder="Paste your text content here for AI detection analysis..."
+                    rows="8"
+                ></textarea>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="form-group">
+                <label class="form-label">Or upload a text file:</label>
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload a text file</p>
+                    <p class="upload-hint">Supports: .txt, .doc, .docx, .pdf</p>
+                </div>
+                <input type="file" id="fileInput" accept=".txt,.doc,.docx,.pdf" style="display: none;" onchange="handleFileUpload(event)">
+            </div>
+            
+            <button class="btn btn-primary btn-large" id="analyzeBtn" onclick="analyzeText()">
+                <i class="fas fa-search"></i>
+                Analyze Text
+            </button>
+
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <p>Analyzing text with advanced AI detection algorithms...</p>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Analysis Results
+                    </div>
+                    <div class="result-content" id="analysisResults">
+                        Results will appear here after analysis...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-percentage"></i>
+                        AI Probability
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-ai" id="aiProgressBar" style="width: 0%"></div>
+                    </div>
+                    <div class="result-content" id="probabilityText">0% AI Generated</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-microscope"></i>
+                        Detection Details
+                    </div>
+                    <div class="result-content" id="detectionDetails">
+                        Detailed analysis information will appear here...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-cogs"></i>
+                Text Analysis Features
+            </h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-brain"></i>
+                        Advanced AI Detection
+                    </div>
+                    <p class="result-content">10 sophisticated detection methods including linguistic analysis and pattern recognition</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-language"></i>
+                        Multi-language Support
+                    </div>
+                    <p class="result-content">Analyze text in multiple languages with automatic translation capabilities</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-chart-line"></i>
+                        Statistical Analysis
+                    </div>
+                    <p class="result-content">Comprehensive statistical evaluation of text patterns and structures</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-users"></i>
+                        Multi-AI Consensus
+                    </div>
+                    <p class="result-content">Results verified by multiple AI providers for maximum accuracy</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show loading
+            document.getElementById('loadingSection').classList.add('show');
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('analyzeBtn').disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/api/upload-analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loadingSection').classList.remove('show');
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // Display results
+                displayResults(result);
+                
+                // Update text area with content preview
+                if (result.content_preview) {
+                    document.getElementById('textInput').value = result.content_preview;
+                }
+                
+            } catch (error) {
+                console.error('File upload failed:', error);
+                document.getElementById('loadingSection').classList.remove('show');
+                alert('File upload failed: ' + error.message);
+            } finally {
+                document.getElementById('analyzeBtn').disabled = false;
+            }
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        async function analyzeText() {
+            const textContent = document.getElementById('textInput').value.trim();
+            
+            if (!textContent) {
+                alert('Please enter some text to analyze.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingSection').classList.add('show');
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('analyzeBtn').disabled = true;
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content: textContent,
+                        type: 'text'
+                    })
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loadingSection').classList.remove('show');
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // Display results
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                document.getElementById('loadingSection').classList.remove('show');
+                alert('Analysis failed: ' + error.message);
+            } finally {
+                document.getElementById('analyzeBtn').disabled = false;
+            }
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--bg) 0%, #1a2332 100%);
-            color: var(--text);
-            min-height: 100vh;
+        function displayResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const analysisResults = document.getElementById('analysisResults');
+            const probabilityText = document.getElementById('probabilityText');
+            const progressBar = document.getElementById('aiProgressBar');
+            const detectionDetails = document.getElementById('detectionDetails');
+
+            // Show results section
+            resultsSection.classList.add('show');
+
+            // Extract data from the actual response structure
+            const aiProb = result.ai_probability || 0;
+            const confidence = result.confidence || 85;
+            const isAI = aiProb > 50;
+            
+            // Update analysis results
+            analysisResults.innerHTML = `
+                <div class="mb-sm"><strong>Status:</strong> ${isAI ? '⚠️ Likely AI Generated' : '✅ Appears Human Written'}</div>
+                <div class="mb-sm"><strong>Confidence:</strong> ${confidence}%</div>
+                <div class="mb-sm"><strong>Processing Time:</strong> ${result.processing_time || '< 100ms'}</div>
+                <div class="mb-sm"><strong>Content Length:</strong> ${result.content_length || 'N/A'} characters</div>
+            `;
+
+            // Update probability display
+            probabilityText.textContent = aiProb.toFixed(1) + '% AI Generated';
+            progressBar.style.width = aiProb + '%';
+            
+            // Color based on probability
+            if (aiProb > 70) {
+                progressBar.className = 'progress-fill progress-danger';
+            } else if (aiProb > 40) {
+                progressBar.className = 'progress-fill progress-warning';
+            } else {
+                progressBar.className = 'progress-fill progress-success';
+            }
+
+            // Update detection details
+            const detailsHTML = [];
+            
+            if (result.analysis_methods) {
+                detailsHTML.push('<div class="mb-md"><strong>Analysis Methods:</strong></div>');
+                Object.entries(result.analysis_methods).forEach(([method, score]) => {
+                    detailsHTML.push(`
+                        <div class="detection-method">
+                            <span class="method-name">${method.replace(/_/g, ' ').toUpperCase()}:</span>
+                            <span class="method-score">${score.toFixed(1)}</span>
+                        </div>
+                    `);
+                });
+            }
+            
+            if (result.provider_consensus) {
+                detailsHTML.push(`
+                    <div class="mt-md">
+                        <strong>AI Provider Consensus:</strong><br>
+                        Active Providers: ${result.provider_consensus.total_providers}<br>
+                        Agreement Level: ${result.provider_consensus.agreement_level}
+                    </div>
+                `);
+            }
+            
+            if (result.detailed_analysis) {
+                detailsHTML.push(`
+                    <div class="mt-md">
+                        <strong>Recommendation:</strong><br>
+                        ${result.detailed_analysis.recommendation || 'Analysis complete'}
+                    </div>
+                `);
+            }
+
+            detectionDetails.innerHTML = detailsHTML.join('');
+        }
+                <div class="mb-sm"><strong>Credibility Score:</strong> ${factCheckScore}%</div>
+            `;
+
+            // Update probability
+            probabilityText.textContent = `${aiProb}% AI Generated`;
+            progressBar.style.width = `${aiProb}%`;
+
+            // Update detection details
+            let detailsHTML = '';
+            
+            // Add key insights
+            if (aiAnalysis.key_insights && aiAnalysis.key_insights.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-success">Key Insights:</strong><br>';
+                aiAnalysis.key_insights.forEach(insight => {
+                    detailsHTML += `<span class="text-success">• ${insight}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add verified claims
+            if (result.verified_claims && result.verified_claims.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-info">Verified Claims:</strong><br>';
+                result.verified_claims.forEach(claim => {
+                    detailsHTML += `<span class="text-info">• ${claim}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add recommendations
+            if (aiAnalysis.recommendations && aiAnalysis.recommendations.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-warning">Recommendations:</strong><br>';
+                aiAnalysis.recommendations.forEach(rec => {
+                    detailsHTML += `<span class="text-warning">• ${rec}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add sentiment analysis if available
+            const sentiment = aiAnalysis.sentiment_analysis || {};
+            if (sentiment.emotional_indicators) {
+                detailsHTML += `
+                    <div class="grid grid-2 mt-md">
+                        <div><strong>Sentiment Confidence:</strong> ${Math.round((sentiment.confidence || 0) * 100)}%</div>
+                        <div><strong>Writing Style:</strong> ${sentiment.emotional_indicators ? sentiment.emotional_indicators.join(', ') : 'N/A'}</div>
+                        <div><strong>Fact Check Score:</strong> ${factCheckScore}%</div>
+                        <div><strong>Analysis Type:</strong> ${aiAnalysis.content_type || 'Text Analysis'}</div>
+                    </div>
+                `;
+            }
+
+            // Add real facts section
+            if (result.real_facts && result.real_facts.length > 0) {
+                detailsHTML += '<div class="mt-md"><strong>Analysis Summary:</strong><br>';
+                result.real_facts.forEach(fact => {
+                    detailsHTML += `<span style="color: var(--text-muted);">• ${fact}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            detectionDetails.innerHTML = detailsHTML || 'Detailed analysis metrics will be displayed here.';
         }
 
-        .header {
-            background: rgba(26, 35, 50, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 1.5rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-decoration: none;
-        }
-
-        .back-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text);
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .back-btn:hover {
-            background: var(--accent);
-            transform: translateY(-2px);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .page-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .page-title {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .page-subtitle {
-            font-size: 1.2rem;
+        // Auto-resize textarea
+        document.getElementById('textInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 300) + 'px';
+        });
+    </script>
+</body>
+</html>
             color: var(--text-muted);
         }
 

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filterize - Advanced AI Content Detection Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/frontend/professional-styles.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-shield-check"></i>
+                <span class="logo-text">Filterize</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#home" class="nav-link active" onclick="showSection('home')">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#services" class="nav-link" onclick="showSection('services')">
+                        <i class="fas fa-cogs"></i> Services
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#contact" class="nav-link" onclick="showSection('contact')">
+                        <i class="fas fa-envelope"></i> Contact Us
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#login" class="nav-link login-btn" onclick="showSection('login')">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="section active">
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        Advanced AI Content Detection
+                        <span class="highlight">Made Simple</span>
+                    </h1>
+                    <p class="hero-description">
+                        Filterize uses cutting-edge artificial intelligence to detect AI-generated content 
+                        across text, images, videos, voice, and documents with unprecedented accuracy.
+                    </p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" onclick="showSection('services')">
+                            <i class="fas fa-rocket"></i> Try Our Services
+                        </button>
+                        <button class="btn btn-secondary" onclick="openDemo()">
+                            <i class="fas fa-play"></i> Watch Demo
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="floating-card">
+                        <i class="fas fa-brain"></i>
+                        <h3>AI Detection</h3>
+                        <p>99.5% Accuracy</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Overview -->
+        <div class="features-section">
+            <div class="container">
+                <h2 class="section-title">Why Choose Filterize?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3>Lightning Fast</h3>
+                        <p>Get analysis results in under 100ms with our optimized AI algorithms</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Highly Accurate</h3>
+                        <p>99.5% accuracy rate using multi-AI provider consensus technology</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3>Multi-Format Support</h3>
+                        <p>Analyze text, images, videos, voice, PDFs, and websites seamlessly</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Comparison Tools</h3>
+                        <p>Compare multiple content pieces side-by-side for detailed analysis</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Developer Section -->
+        <div class="developer-section">
+            <div class="container">
+                <h2 class="section-title">About Our Developer</h2>
+                <div class="developer-content">
+                    <div class="developer-info">
+                        <div class="developer-avatar">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="developer-details">
+                            <h3>Science Environment</h3>
+                            <p class="developer-title">Lead AI Developer & Founder</p>
+                            <p class="developer-bio">
+                                Passionate about leveraging artificial intelligence to solve real-world problems. 
+                                Specialized in machine learning, natural language processing, and computer vision 
+                                with over 5 years of experience in AI development.
+                            </p>
+                            <div class="developer-skills">
+                                <span class="skill">AI/ML</span>
+                                <span class="skill">Deep Learning</span>
+                                <span class="skill">Computer Vision</span>
+                                <span class="skill">NLP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stats-section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">99.5%</div>
+                        <div class="stat-label">Accuracy Rate</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">100ms</div>
+                        <div class="stat-label">Average Response</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">10K+</div>
+                        <div class="stat-label">Analyses Completed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">6</div>
+                        <div class="stat-label">AI Providers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="section">
+        <div class="container">
+            <h1 class="page-title">Our Services</h1>
+            <p class="page-subtitle">Comprehensive AI detection across all content types</p>
+            
+            <!-- Services Grid -->
+            <div class="services-grid">
+                <!-- Text Detection -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-file-text"></i>
+                    </div>
+                    <h3>Text Detector</h3>
+                    <p>Advanced linguistic analysis to detect AI-generated text content</p>
+                    <div class="service-features">
+                        <span>✓ Multi-language support</span>
+                        <span>✓ Real-time analysis</span>
+                        <span>✓ Confidence scoring</span>
+                    </div>
+                    <div class="service-buttons">
+                        <button class="btn btn-primary" onclick="openDetector('text')">
+                            <i class="fas fa-play"></i> Try Now
+                        </button>
+                        <button class="btn btn-outline" onclick="openComparison('text')">
+                            <i class="fas fa-balance-scale"></i> Compare
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Image Detection -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h3>Image Detector</h3>
+                    <p>Computer vision algorithms to identify AI-generated images</p>
+                    <div class="service-features">
+                        <span>✓ Multiple formats</span>
+                        <span>✓ Deep analysis</span>
+                        <span>✓ Metadata extraction</span>
+                    </div>
+                    <div class="service-buttons">
+                        <button class="btn btn-primary" onclick="openDetector('image')">
+                            <i class="fas fa-play"></i> Try Now
+                        </button>
+                        <button class="btn btn-outline" onclick="openComparison('image')">
+                            <i class="fas fa-balance-scale"></i> Compare
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Video Detection -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3>Video Detector</h3>
+                    <p>Frame-by-frame analysis to detect AI-generated video content</p>
+                    <div class="service-features">
+                        <span>✓ Frame analysis</span>
+                        <span>✓ Audio detection</span>
+                        <span>✓ Motion tracking</span>
+                    </div>
+                    <div class="service-buttons">
+                        <button class="btn btn-primary" onclick="openDetector('video')">
+                            <i class="fas fa-play"></i> Try Now
+                        </button>
+                        <button class="btn btn-outline" onclick="openComparison('video')">
+                            <i class="fas fa-balance-scale"></i> Compare
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Voice Detection -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3>Voice Detector</h3>
+                    <p>Audio analysis with speech-to-text conversion for AI detection</p>
+                    <div class="service-features">
+                        <span>✓ Speech-to-text</span>
+                        <span>✓ Voice patterns</span>
+                        <span>✓ Audio quality</span>
+                    </div>
+                    <div class="service-buttons">
+                        <button class="btn btn-primary" onclick="openDetector('voice')">
+                            <i class="fas fa-play"></i> Try Now
+                        </button>
+                        <button class="btn btn-outline" onclick="openComparison('voice')">
+                            <i class="fas fa-balance-scale"></i> Compare
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PDF Detection -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h3>PDF Detector</h3>
+                    <p>Extract and analyze text content from PDF documents</p>
+                    <div class="service-features">
+                        <span>✓ Text extraction</span>
+                        <span>✓ Document analysis</span>
+                        <span>✓ Multi-page support</span>
+                    </div>
+                    <div class="service-buttons">
+                        <button class="btn btn-primary" onclick="openDetector('pdf')">
+                            <i class="fas fa-play"></i> Try Now
+                        </button>
+                        <button class="btn btn-outline" onclick="openComparison('pdf')">
+                            <i class="fas fa-balance-scale"></i> Compare
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Website Detection -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Website Detector</h3>
+                    <p>Analyze web content and detect AI-generated website text</p>
+                    <div class="service-features">
+                        <span>✓ Content scraping</span>
+                        <span>✓ Real-time analysis</span>
+                        <span>✓ SEO insights</span>
+                    </div>
+                    <div class="service-buttons">
+                        <button class="btn btn-primary" onclick="openDetector('website')">
+                            <i class="fas fa-play"></i> Try Now
+                        </button>
+                        <button class="btn btn-outline" onclick="openComparison('website')">
+                            <i class="fas fa-balance-scale"></i> Compare
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Content Generation Section -->
+            <div class="content-generation-section">
+                <h2 class="section-title">AI Content Generation</h2>
+                <p class="section-subtitle">Generate information using AI prompts</p>
+                
+                <div class="generation-container">
+                    <div class="prompt-area">
+                        <label for="promptInput" class="form-label">Enter your prompt:</label>
+                        <textarea 
+                            id="promptInput" 
+                            class="form-textarea" 
+                            placeholder="Ask anything... e.g., 'Explain how AI detection works' or 'Generate a summary about machine learning'"
+                            rows="4"
+                        ></textarea>
+                        <button class="btn btn-primary" onclick="generateContent()">
+                            <i class="fas fa-magic"></i> Generate Content
+                        </button>
+                    </div>
+                    
+                    <div class="generation-results" id="generationResults">
+                        <div class="result-placeholder">
+                            <i class="fas fa-lightbulb"></i>
+                            <p>Enter a prompt above to generate AI-powered content and information</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <h1 class="page-title">Contact Us</h1>
+            <p class="page-subtitle">Get in touch with our team</p>
+            
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3>Email</h3>
+                        <p>contact@filterize.ai</p>
+                        <p>support@filterize.ai</p>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <h3>Phone</h3>
+                        <p>+1 (555) 123-4567</p>
+                        <p>Available 24/7</p>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3>Address</h3>
+                        <p>123 AI Innovation Drive</p>
+                        <p>Tech Valley, CA 94000</p>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3>Hours</h3>
+                        <p>Monday - Friday: 9AM - 6PM</p>
+                        <p>Weekend: 10AM - 4PM</p>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <h3>Send us a message</h3>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Section -->
+    <section id="login" class="section">
+        <div class="container">
+            <div class="login-container">
+                <h1 class="page-title">Login to Filterize</h1>
+                <p class="page-subtitle">Access your account and advanced features</p>
+                
+                <div class="login-card">
+                    <div class="login-options">
+                        <button class="btn btn-google" onclick="loginWithGoogle()">
+                            <i class="fab fa-google"></i> Sign in with Google
+                        </button>
+                        
+                        <div class="divider">
+                            <span>or</span>
+                        </div>
+                        
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <label for="loginEmail">Email</label>
+                                <input type="email" id="loginEmail" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="loginPassword">Password</label>
+                                <input type="password" id="loginPassword" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full">
+                                <i class="fas fa-sign-in-alt"></i> Sign In
+                            </button>
+                        </form>
+                        
+                        <div class="login-footer">
+                            <p>Don't have an account? <a href="#" onclick="showSignup()">Sign up here</a></p>
+                            <p><a href="#" onclick="showForgotPassword()">Forgot your password?</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Chatbot -->
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-toggle" id="chatbotToggle" onclick="toggleChatbot()">
+            <i class="fas fa-comments"></i>
+        </div>
+        
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <h4><i class="fas fa-robot"></i> AI Assistant</h4>
+                <button class="chatbot-close" onclick="toggleChatbot()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        Hi! I'm your AI assistant. How can I help you with Filterize today?
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chatbot-input">
+                <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendChatMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Processing your request...</p>
+        </div>
+    </div>
+
+    <script src="/frontend/professional-scripts.js"></script>
+</body>
+</html>

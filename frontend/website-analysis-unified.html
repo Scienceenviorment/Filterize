@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Analysis - Filterize AI</title>
+    <link rel="stylesheet" href="/frontend/unified-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <i class="fas fa-shield-check"></i>
+                Filterize AI
+            </a>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🌐 Website Analysis</h1>
+            <p class="page-subtitle">
+                Comprehensive website analysis, content verification, and credibility assessment
+            </p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-link"></i>
+                Enter Website URL for Analysis
+            </h2>
+            
+            <div class="input-group">
+                <input type="url" id="websiteUrl" class="form-input" placeholder="https://example.com" aria-label="Website URL">
+                <button class="btn btn-primary" onclick="analyzeWebsite()">
+                    <i class="fas fa-search"></i>
+                    Analyze Website
+                </button>
+            </div>
+
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <p>Analyzing website content and credibility...</p>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Website Overview
+                    </div>
+                    <div class="result-content" id="websiteOverview">
+                        Website information will appear here after analysis...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-shield-check"></i>
+                        Credibility Score
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-success" id="credibilityProgressBar"></div>
+                    </div>
+                    <div class="result-content" id="credibilityText">0% Credible</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-robot"></i>
+                        AI Content Detection
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-ai" id="aiProgressBar"></div>
+                    </div>
+                    <div class="result-content" id="aiContentText">0% AI Generated</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-clipboard-list"></i>
+                        Content Summary
+                    </div>
+                    <div class="result-content" id="contentSummary">
+                        Website content summary will appear here...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Risk Assessment
+                    </div>
+                    <div class="result-content" id="riskAssessment">
+                        Risk analysis will appear here...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-microscope"></i>
+                        Detailed Analysis
+                    </div>
+                    <div class="result-content" id="detailedAnalysis">
+                        Detailed analysis information will appear here...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-cogs"></i>
+                Website Analysis Features
+            </h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-certificate"></i>
+                        Credibility Assessment
+                    </div>
+                    <p class="result-content">Comprehensive analysis of website trustworthiness and authority</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-robot"></i>
+                        AI Content Detection
+                    </div>
+                    <p class="result-content">Detection of AI-generated content and automated text</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-search"></i>
+                        Content Analysis
+                    </div>
+                    <p class="result-content">Deep analysis of website content, structure, and metadata</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-shield-alt"></i>
+                        Security Assessment
+                    </div>
+                    <p class="result-content">Security analysis and potential threat detection</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeWebsite() {
+            const urlInput = document.getElementById('websiteUrl');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                alert('Please enter a website URL');
+                return;
+            }
+
+            // Validate URL format
+            try {
+                new URL(url);
+            } catch (e) {
+                alert('Please enter a valid URL (e.g., https://example.com)');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingSection').classList.add('show');
+            document.getElementById('resultsSection').classList.remove('show');
+
+            try {
+                const response = await fetch('/api/analyze-website', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loadingSection').classList.remove('show');
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // Display results
+                displayWebsiteResults(result);
+                
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                document.getElementById('loadingSection').classList.remove('show');
+                alert('Analysis failed: ' + error.message);
+            }
+        }
+
+        function displayWebsiteResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const websiteOverview = document.getElementById('websiteOverview');
+            const credibilityText = document.getElementById('credibilityText');
+            const credibilityProgressBar = document.getElementById('credibilityProgressBar');
+            const aiContentText = document.getElementById('aiContentText');
+            const aiProgressBar = document.getElementById('aiProgressBar');
+            const contentSummary = document.getElementById('contentSummary');
+            const riskAssessment = document.getElementById('riskAssessment');
+            const detailedAnalysis = document.getElementById('detailedAnalysis');
+
+            // Show results section
+            resultsSection.classList.add('show');
+
+            // Update website overview
+            websiteOverview.innerHTML = `
+                <div class="mb-sm"><strong>Title:</strong> ${result.title || 'N/A'}</div>
+                <div class="mb-sm"><strong>Domain:</strong> ${result.domain || 'N/A'}</div>
+                <div class="mb-sm"><strong>Language:</strong> ${result.language || 'N/A'}</div>
+                <div class="mb-sm"><strong>Last Updated:</strong> ${result.last_updated || 'N/A'}</div>
+                <div class="mb-sm"><strong>Status:</strong> ${result.status || 'Active'}</div>
+            `;
+
+            // Update credibility score
+            const credibilityScore = result.credibility_score || 0;
+            credibilityText.textContent = `${credibilityScore}% Credible`;
+            credibilityProgressBar.style.width = `${credibilityScore}%`;
+
+            // Update AI content detection
+            const aiContentScore = result.ai_content_score || 0;
+            aiContentText.textContent = `${aiContentScore}% AI Generated`;
+            aiProgressBar.style.width = `${aiContentScore}%`;
+
+            // Update content summary
+            contentSummary.innerHTML = `
+                <div class="mb-md"><strong>Summary:</strong></div>
+                <p class="mb-md">${result.content_summary || 'Website content summary will be generated here...'}</p>
+                <div class="mb-sm"><strong>Key Topics:</strong> ${result.key_topics ? result.key_topics.join(', ') : 'N/A'}</div>
+                <div class="mb-sm"><strong>Content Type:</strong> ${result.content_type || 'N/A'}</div>
+            `;
+
+            // Update risk assessment
+            const riskLevel = result.risk_level || 'Unknown';
+            const riskColor = getRiskColor(riskLevel);
+            
+            riskAssessment.innerHTML = `
+                <div class="mb-sm"><strong>Risk Level:</strong> <span class="${riskColor}">${riskLevel}</span></div>
+                <div class="mb-sm"><strong>Trust Rating:</strong> ${result.trust_rating || 'N/A'}/10</div>
+                <div class="mb-sm"><strong>Security Score:</strong> ${result.security_score || 'N/A'}%</div>
+                <div class="mb-sm"><strong>HTTPS:</strong> ${result.https_enabled ? '✅ Enabled' : '❌ Disabled'}</div>
+            `;
+
+            // Update detailed analysis
+            let detailsHTML = '';
+            
+            if (result.positive_indicators && result.positive_indicators.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-success">Positive Indicators:</strong><br>';
+                result.positive_indicators.forEach(indicator => {
+                    detailsHTML += `<span class="text-success">• ${indicator}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            if (result.warning_indicators && result.warning_indicators.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-warning">Warning Indicators:</strong><br>';
+                result.warning_indicators.forEach(indicator => {
+                    detailsHTML += `<span class="text-warning">• ${indicator}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            if (result.negative_indicators && result.negative_indicators.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-danger">Negative Indicators:</strong><br>';
+                result.negative_indicators.forEach(indicator => {
+                    detailsHTML += `<span class="text-danger">• ${indicator}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add technical details
+            detailsHTML += `
+                <div class="grid grid-2 mt-md">
+                    <div><strong>Page Load Time:</strong> ${result.load_time || 'N/A'}</div>
+                    <div><strong>SSL Certificate:</strong> ${result.ssl_valid ? 'Valid' : 'Invalid'}</div>
+                    <div><strong>Content Length:</strong> ${result.content_length || 'N/A'} chars</div>
+                    <div><strong>External Links:</strong> ${result.external_links || 0}</div>
+                </div>
+            `;
+
+            detailedAnalysis.innerHTML = detailsHTML || 'Detailed analysis metrics will be displayed here.';
+        }
+
+        function getRiskColor(riskLevel) {
+            switch (riskLevel.toLowerCase()) {
+                case 'low': return 'text-success';
+                case 'medium': return 'text-warning';
+                case 'high': return 'text-danger';
+                default: return 'text-muted';
+            }
+        }
+
+        // Allow Enter key to trigger analysis
+        document.getElementById('websiteUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeWebsite();
+            }
+        });
+    </script>
+</body>
+</html>

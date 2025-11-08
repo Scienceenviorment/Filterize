@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Analysis - Filterize AI</title>
+    <link rel="stylesheet" href="/frontend/unified-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <i class="fas fa-shield-check"></i>
+                Filterize AI
+            </a>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">📄 Document Analysis</h1>
+            <p class="page-subtitle">
+                AI-powered document analysis, content summarization, and translation services
+            </p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-upload"></i>
+                Upload Document for Analysis
+            </h2>
+            
+            <div class="upload-area" onclick="document.getElementById('documentInput').click()">
+                <div class="upload-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="upload-text">Click to upload document or drag and drop</div>
+                <div class="upload-subtext">Supports PDF, DOC, DOCX, TXT files (Max: 10MB)</div>
+            </div>
+            
+            <input type="file" id="documentInput" class="file-input" accept=".pdf,.doc,.docx,.txt" onchange="handleDocumentSelect(this)" aria-label="Document file upload">
+            
+            <button class="btn btn-primary btn-large" id="analyzeDocumentBtn" onclick="analyzeDocument()" disabled>
+                <i class="fas fa-search"></i>
+                Analyze Document
+            </button>
+
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <p>Analyzing document content and generating insights...</p>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Analysis Results
+                    </div>
+                    <div class="result-content" id="analysisResults">
+                        Results will appear here after analysis...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-robot"></i>
+                        AI Content Detection
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-ai" id="aiProgressBar"></div>
+                    </div>
+                    <div class="result-content" id="probabilityText">0% AI Generated</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-clipboard-list"></i>
+                        Content Summary
+                    </div>
+                    <div class="result-content" id="summaryText">
+                        Document summary will appear here...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-language"></i>
+                        Translation & Language
+                    </div>
+                    <div class="result-content" id="translationText">
+                        Language detection and translation options will appear here...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-microscope"></i>
+                        Detailed Analysis
+                    </div>
+                    <div class="result-content" id="detectionDetails">
+                        Detailed analysis information will appear here...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-cogs"></i>
+                Document Analysis Features
+            </h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-robot"></i>
+                        AI Content Detection
+                    </div>
+                    <p class="result-content">Advanced algorithms to detect AI-generated text and content</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-chart-line"></i>
+                        Content Analysis
+                    </div>
+                    <p class="result-content">Comprehensive analysis of content quality, readability, and structure</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-compress-alt"></i>
+                        Smart Summarization
+                    </div>
+                    <p class="result-content">AI-powered summarization with key insights and highlights</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-globe"></i>
+                        Multi-Language Support
+                    </div>
+                    <p class="result-content">Language detection and translation to 100+ languages</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedDocumentFile = null;
+
+        function handleDocumentSelect(input) {
+            const file = input.files[0];
+            if (file) {
+                selectedDocumentFile = file;
+                document.getElementById('analyzeDocumentBtn').disabled = false;
+                
+                // Update upload area text
+                const uploadArea = document.querySelector('.upload-area');
+                uploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="upload-text">✅ ${file.name}</div>
+                    <div class="upload-subtext">Size: ${(file.size / (1024*1024)).toFixed(2)} MB</div>
+                `;
+            }
+        }
+
+        async function analyzeDocument() {
+            if (!selectedDocumentFile) return;
+
+            // Show loading
+            document.getElementById('loadingSection').classList.add('show');
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('analyzeDocumentBtn').disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedDocumentFile);
+                formData.append('type', 'document');
+
+                const response = await fetch('/api/analyze-content', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loadingSection').classList.remove('show');
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // Display results
+                displayDocumentResults(result);
+                
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                document.getElementById('loadingSection').classList.remove('show');
+                alert('Analysis failed: ' + error.message);
+            } finally {
+                document.getElementById('analyzeDocumentBtn').disabled = false;
+            }
+        }
+
+        function displayDocumentResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const analysisResults = document.getElementById('analysisResults');
+            const probabilityText = document.getElementById('probabilityText');
+            const progressBar = document.getElementById('aiProgressBar');
+            const summaryText = document.getElementById('summaryText');
+            const translationText = document.getElementById('translationText');
+            const detectionDetails = document.getElementById('detectionDetails');
+
+            // Show results section
+            resultsSection.classList.add('show');
+
+            // Update analysis results
+            const aiProb = result.ai_probability || 0;
+            const isAI = result.is_ai_generated || false;
+            
+            analysisResults.innerHTML = `
+                <div class="mb-sm"><strong>Status:</strong> ${isAI ? '⚠️ Likely AI Generated Content' : '✅ Appears Human Written'}</div>
+                <div class="mb-sm"><strong>Confidence:</strong> ${result.confidence || 0}%</div>
+                <div class="mb-sm"><strong>Word Count:</strong> ${result.word_count || 'N/A'}</div>
+                <div class="mb-sm"><strong>Language:</strong> ${result.detected_language || 'English'}</div>
+            `;
+
+            // Update probability
+            probabilityText.textContent = `${aiProb}% AI Generated`;
+            progressBar.style.width = `${aiProb}%`;
+
+            // Update summary
+            summaryText.innerHTML = `
+                <div class="mb-md"><strong>Summary:</strong></div>
+                <p class="mb-md">${result.summary || 'Document summary will be generated here...'}</p>
+                <div class="mb-sm"><strong>Key Topics:</strong> ${result.key_topics ? result.key_topics.join(', ') : 'N/A'}</div>
+                <div class="mb-sm"><strong>Readability Score:</strong> ${result.readability_score || 'N/A'}</div>
+            `;
+
+            // Update translation
+            translationText.innerHTML = `
+                <div class="mb-sm"><strong>Detected Language:</strong> ${result.detected_language || 'English'}</div>
+                <div class="mb-sm"><strong>Language Confidence:</strong> ${result.language_confidence || 'N/A'}%</div>
+                <div class="mb-md">
+                    <button class="btn btn-secondary" onclick="translateDocument('es')">Translate to Spanish</button>
+                    <button class="btn btn-secondary" onclick="translateDocument('fr')">Translate to French</button>
+                    <button class="btn btn-secondary" onclick="translateDocument('de')">Translate to German</button>
+                </div>
+                <div id="translationResult"></div>
+            `;
+
+            // Update detection details
+            let detailsHTML = '';
+            
+            if (result.ai_indicators && result.ai_indicators.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-danger">AI Indicators:</strong><br>';
+                result.ai_indicators.forEach(indicator => {
+                    detailsHTML += `<span class="text-danger">• ${indicator}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            if (result.human_indicators && result.human_indicators.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-success">Human Indicators:</strong><br>';
+                result.human_indicators.forEach(indicator => {
+                    detailsHTML += `<span class="text-success">• ${indicator}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add content metrics
+            detailsHTML += `
+                <div class="grid grid-2 mt-md">
+                    <div><strong>Sentences:</strong> ${result.sentence_count || 'N/A'}</div>
+                    <div><strong>Paragraphs:</strong> ${result.paragraph_count || 'N/A'}</div>
+                    <div><strong>Avg Words/Sentence:</strong> ${result.avg_words_per_sentence || 'N/A'}</div>
+                    <div><strong>Complexity Score:</strong> ${result.complexity_score || 'N/A'}</div>
+                </div>
+            `;
+
+            detectionDetails.innerHTML = detailsHTML || 'Detailed analysis metrics will be displayed here.';
+        }
+
+        async function translateDocument(targetLang) {
+            try {
+                const response = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: selectedDocumentFile ? 'Document content' : 'No document selected',
+                        target_language: targetLang
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                document.getElementById('translationResult').innerHTML = `
+                    <div class="mt-md p-md bg-card rounded">
+                        <strong>Translation (${targetLang.toUpperCase()}):</strong><br>
+                        ${result.translated_text || 'Translation not available'}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Translation failed:', error);
+                document.getElementById('translationResult').innerHTML = `
+                    <div class="mt-md p-md bg-danger rounded">
+                        Translation failed: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Allow drag and drop
+        const uploadArea = document.querySelector('.upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('documentInput').files = files;
+                handleDocumentSelect(document.getElementById('documentInput'));
+            }
+        });
+    </script>
+</body>
+</html>

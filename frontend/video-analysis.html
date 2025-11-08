@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Analysis - Filterize AI</title>
+    <link rel="stylesheet" href="/frontend/unified-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <i class="fas fa-shield-check"></i>
+                Filterize AI
+            </a>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🎬 Video Analysis</h1>
+            <p class="page-subtitle">
+                Advanced deepfake detection, video authenticity verification, and comprehensive video content analysis
+            </p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-upload"></i>
+                Upload Video for Analysis
+            </h2>
+            
+            <div class="upload-area" onclick="document.getElementById('videoInput').click()">
+                <div class="upload-icon">
+                    <i class="fas fa-video"></i>
+                </div>
+                <div class="upload-text">Click to upload video or drag and drop</div>
+                <div class="upload-subtext">Supports MP4, AVI, MOV, MKV files (Max: 100MB)</div>
+            </div>
+            
+            <input type="file" id="videoInput" class="file-input" accept="video/*" onchange="handleFileSelect(this)" aria-label="Video file upload">
+            
+            <button class="btn btn-primary btn-large" id="analyzeVideoBtn" onclick="analyzeVideo()" disabled>
+                <i class="fas fa-search"></i>
+                Analyze Video
+            </button>
+
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <p>Analyzing video for deepfakes and AI generation...</p>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Analysis Results
+                    </div>
+                    <div class="result-content" id="analysisResults">
+                        Results will appear here after analysis...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-percentage"></i>
+                        AI Video Probability
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-ai" id="aiProgressBar"></div>
+                    </div>
+                    <div class="result-content" id="probabilityText">0% AI Generated</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-robot"></i>
+                        Deepfake Detection
+                    </div>
+                    <div class="result-content" id="deepfakeResults">
+                        Deepfake analysis will appear here...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-microscope"></i>
+                        Detection Details
+                    </div>
+                    <div class="result-content" id="detectionDetails">
+                        Detailed analysis information will appear here...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-cogs"></i>
+                Video Analysis Features
+            </h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-face-meh"></i>
+                        Deepfake Detection
+                    </div>
+                    <p class="result-content">Advanced algorithms to detect face swaps and AI-generated content</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-eye"></i>
+                        Frame Analysis
+                    </div>
+                    <p class="result-content">Per-frame analysis for inconsistencies and AI generation patterns</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-waveform-lines"></i>
+                        Audio-Visual Sync
+                    </div>
+                    <p class="result-content">Detection of lip-sync mismatches and audio-visual inconsistencies</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-clock"></i>
+                        Temporal Analysis
+                    </div>
+                    <p class="result-content">Analysis of temporal inconsistencies and frame artifacts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('analyzeVideoBtn').disabled = false;
+                
+                // Update upload area text
+                const uploadArea = document.querySelector('.upload-area');
+                uploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="upload-text">✅ ${file.name}</div>
+                    <div class="upload-subtext">Size: ${(file.size / (1024*1024)).toFixed(2)} MB</div>
+                `;
+            }
+        }
+
+        async function analyzeVideo() {
+            if (!selectedFile) return;
+
+            // Show loading
+            document.getElementById('loadingSection').classList.add('show');
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('analyzeVideoBtn').disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('type', 'video');
+
+                const response = await fetch('/api/upload-analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loadingSection').classList.remove('show');
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // Display results
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                document.getElementById('loadingSection').classList.remove('show');
+                alert('Analysis failed: ' + error.message);
+            } finally {
+                document.getElementById('analyzeVideoBtn').disabled = false;
+            }
+        }
+
+        function displayResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const analysisResults = document.getElementById('analysisResults');
+            const probabilityText = document.getElementById('probabilityText');
+            const progressBar = document.getElementById('aiProgressBar');
+            const deepfakeResults = document.getElementById('deepfakeResults');
+            const detectionDetails = document.getElementById('detectionDetails');
+
+            // Show results section
+            resultsSection.classList.add('show');
+
+            // Extract data from the actual response structure
+            const aiAnalysis = result.ai_analysis || {};
+            const credibility = aiAnalysis.credibility_assessment || {};
+            const factCheckScore = result.fact_check_score || credibility.score || 0;
+            const aiProb = Math.max(0, 100 - factCheckScore); // Convert credibility to AI probability
+            const isDeepfake = aiProb > 50;
+            
+            // Update analysis results
+            analysisResults.innerHTML = `
+                <div class="mb-sm"><strong>Status:</strong> ${isDeepfake ? '⚠️ Potential Deepfake Detected' : '✅ Appears Authentic Video'}</div>
+                <div class="mb-sm"><strong>Confidence:</strong> ${credibility.confidence || 'High'}</div>
+                <div class="mb-sm"><strong>Analysis Method:</strong> ${result.analysis_method || 'AI Integrated'}</div>
+                <div class="mb-sm"><strong>Detection Score:</strong> ${factCheckScore}%</div>
+            `;
+
+            // Update probability
+            probabilityText.textContent = `${aiProb}% AI Generated`;
+            progressBar.style.width = `${aiProb}%`;
+
+            // Update deepfake results
+            deepfakeResults.innerHTML = `
+                <div class="mb-sm"><strong>Deepfake Score:</strong> ${aiProb}%</div>
+                <div class="mb-sm"><strong>Content Type:</strong> ${aiAnalysis.content_type || 'Video Analysis'}</div>
+                <div class="mb-sm"><strong>Content Length:</strong> ${aiAnalysis.content_length || 'N/A'}</div>
+                <div class="mb-sm"><strong>Analysis Quality:</strong> ${credibility.confidence || 'High'}</div>
+            `;
+
+            // Update detection details
+            let detailsHTML = '';
+            
+            // Add key insights
+            if (aiAnalysis.key_insights && aiAnalysis.key_insights.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-success">Analysis Results:</strong><br>';
+                aiAnalysis.key_insights.forEach(insight => {
+                    detailsHTML += `<span class="text-success">• ${insight}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add recommendations
+            if (aiAnalysis.recommendations && aiAnalysis.recommendations.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-warning">Recommendations:</strong><br>';
+                aiAnalysis.recommendations.forEach(rec => {
+                    detailsHTML += `<span class="text-warning">• ${rec}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add credibility factors
+            if (credibility.factors && credibility.factors.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-info">Analysis Factors:</strong><br>';
+                credibility.factors.forEach(factor => {
+                    detailsHTML += `<span class="text-info">• ${factor}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add technical metrics
+            detailsHTML += `
+                <div class="grid grid-2 mt-md">
+                    <div><strong>Processing Time:</strong> ${result.metadata?.processing_time || 'N/A'}</div>
+                    <div><strong>Analysis Date:</strong> ${aiAnalysis.analysis_date ? new Date(aiAnalysis.analysis_date).toLocaleDateString() : 'N/A'}</div>
+                    <div><strong>Server Version:</strong> ${result.metadata?.server_version || 'N/A'}</div>
+                    <div><strong>Content Quality:</strong> ${credibility.score || 0}%</div>
+                </div>
+            `;
+
+            // Add real facts section
+            if (result.real_facts && result.real_facts.length > 0) {
+                detailsHTML += '<div class="mt-md"><strong>Analysis Summary:</strong><br>';
+                result.real_facts.forEach(fact => {
+                    detailsHTML += `<span style="color: var(--text-muted);">• ${fact}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            detectionDetails.innerHTML = detailsHTML || 'Detailed analysis metrics will be displayed here.';
+        }
+
+        // Allow drag and drop
+        const uploadArea = document.querySelector('.upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('videoInput').files = files;
+                handleFileSelect(document.getElementById('videoInput'));
+            }
+        });
+    </script>
+</body>
+</html>
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .analysis-section {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--accent);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+
+        .upload-area:hover {
+            background: rgba(96, 165, 250, 0.05);
+            border-color: var(--primary);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .result-content {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .probability-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 20px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .probability-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .ai-probability {
+            background: linear-gradient(90deg, var(--danger), var(--warning));
+        }
+
+        .human-probability {
+            background: linear-gradient(90deg, var(--success), var(--accent));
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .upload-area {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <i class="fas fa-shield-check"></i>
+                Filterize AI
+            </a>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🎥 Video Analysis</h1>
+            <p class="page-subtitle">
+                Advanced deepfake detection and video authenticity verification using AI-powered analysis
+            </p>
+        </div>
+
+        <div class="analysis-section">
+            <h2 class="section-title">Upload Video for Analysis</h2>
+            
+            <div class="upload-area" onclick="document.getElementById('videoInput').click()">
+                <div class="upload-icon">
+                    <i class="fas fa-video"></i>
+                </div>
+                <div class="upload-text">Click to upload video or drag and drop</div>
+                <div class="upload-subtext">Supports MP4, AVI, MOV, WEBM files (Max: 100MB)</div>
+            </div>
+            
+            <input type="file" id="videoInput" class="file-input" accept="video/*" onchange="handleFileSelect(this)">
+            
+            <button class="analyze-btn" id="analyzeBtn" onclick="analyzeVideo()" disabled>
+                <i class="fas fa-search"></i>
+                Analyze Video
+            </button>
+
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <p>Analyzing video for deepfake patterns...</p>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="result-card">
+                    <div class="result-title">🎯 Analysis Results</div>
+                    <div class="result-content" id="analysisResults">
+                        Results will appear here after analysis...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">📊 AI Probability</div>
+                    <div class="probability-bar">
+                        <div class="probability-fill ai-probability" id="aiProbabilityBar" style="width: 0%"></div>
+                    </div>
+                    <div class="result-content" id="probabilityText">0% AI Generated</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">🔍 Detection Details</div>
+                    <div class="result-content" id="detectionDetails">
+                        Detailed analysis information will appear here...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="analysis-section">
+            <h2 class="section-title">✨ Video Analysis Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="feature-title">Deepfake Detection</h3>
+                    <p class="feature-description">Advanced algorithms to detect AI-generated faces and synthetic videos</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3 class="feature-title">Facial Analysis</h3>
+                    <p class="feature-description">Analyze facial landmarks and movements for authenticity verification</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-waveform"></i>
+                    </div>
+                    <h3 class="feature-title">Temporal Consistency</h3>
+                    <p class="feature-description">Check frame-to-frame consistency and temporal patterns</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-compress"></i>
+                    </div>
+                    <h3 class="feature-title">Compression Analysis</h3>
+                    <p class="feature-description">Analyze compression artifacts and encoding patterns</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('analyzeBtn').disabled = false;
+                
+                // Update upload area text
+                const uploadArea = document.querySelector('.upload-area');
+                uploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="upload-text">✅ ${file.name}</div>
+                    <div class="upload-subtext">Size: ${(file.size / (1024*1024)).toFixed(2)} MB</div>
+                `;
+            }
+        }
+
+        async function analyzeVideo() {
+            if (!selectedFile) return;
+
+            // Show loading
+            document.getElementById('loadingSection').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = true;
+
+            try {
+                // Simulate video upload and analysis
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('type', 'video');
+
+                const response = await fetch('/api/upload-analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loadingSection').style.display = 'none';
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // Display results
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                document.getElementById('loadingSection').style.display = 'none';
+                alert('Analysis failed: ' + error.message);
+            } finally {
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+
+        function displayResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const analysisResults = document.getElementById('analysisResults');
+            const probabilityText = document.getElementById('probabilityText');
+            const probabilityBar = document.getElementById('aiProbabilityBar');
+            const detectionDetails = document.getElementById('detectionDetails');
+
+            // Show results section
+            resultsSection.style.display = 'block';
+
+            // Update analysis results
+            const aiProb = result.ai_probability || 0;
+            const isDeepfake = result.is_deepfake || false;
+            
+            analysisResults.innerHTML = `
+                <strong>Status:</strong> ${isDeepfake ? '⚠️ Potential Deepfake Detected' : '✅ Appears Authentic'}<br>
+                <strong>Confidence:</strong> ${result.confidence || 0}%<br>
+                <strong>Analysis Method:</strong> ${result.analysis_method || 'Enhanced Video AI'}
+            `;
+
+            // Update probability
+            probabilityText.textContent = `${aiProb}% AI Generated`;
+            probabilityBar.style.width = `${aiProb}%`;
+
+            // Update detection details
+            const videoAnalysis = result.video_analysis || {};
+            detectionDetails.innerHTML = `
+                <strong>Temporal Consistency:</strong> ${videoAnalysis.temporal_consistency || 'N/A'}<br>
+                <strong>Facial Analysis:</strong> ${videoAnalysis.facial_analysis || 'N/A'}<br>
+                <strong>Audio Sync:</strong> ${videoAnalysis.audio_sync || 'N/A'}<br>
+                <strong>Compression:</strong> ${videoAnalysis.compression_analysis || 'N/A'}<br>
+                <strong>Frame Consistency:</strong> ${videoAnalysis.frame_consistency || 'N/A'}
+            `;
+
+            // Show AI indicators if present
+            if (videoAnalysis.ai_indicators && videoAnalysis.ai_indicators.length > 0) {
+                detectionDetails.innerHTML += `<br><br><strong>AI Indicators:</strong><br>`;
+                videoAnalysis.ai_indicators.forEach(indicator => {
+                    detectionDetails.innerHTML += `• ${indicator}<br>`;
+                });
+            }
+
+            // Show human indicators if present
+            if (videoAnalysis.human_indicators && videoAnalysis.human_indicators.length > 0) {
+                detectionDetails.innerHTML += `<br><strong>Human Indicators:</strong><br>`;
+                videoAnalysis.human_indicators.forEach(indicator => {
+                    detectionDetails.innerHTML += `• ${indicator}<br>`;
+                });
+            }
+        }
+
+        // Allow drag and drop
+        const uploadArea = document.querySelector('.upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = 'rgba(96, 165, 250, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('videoInput').files = files;
+                handleFileSelect(document.getElementById('videoInput'));
+            }
+        });
+    </script>
+</body>
+</html>

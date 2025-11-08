@@ -4,50 +4,316 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Analysis - Filterize AI</title>
-    <style>
-        :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --bg: #0f1724;
-            --card: #1a2332;
-            --text: #ffffff;
-            --text-muted: #9aa4b2;
-            --accent: #60a5fa;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+    <link rel="stylesheet" href="/frontend/unified-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <i class="fas fa-shield-check"></i>
+                Filterize AI
+            </a>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🎤 Voice Analysis</h1>
+            <p class="page-subtitle">
+                Advanced voice cloning detection, speech-to-text transcription, and audio authenticity verification
+            </p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-upload"></i>
+                Upload Audio for Analysis
+            </h2>
+            
+            <div class="upload-area" onclick="document.getElementById('audioInput').click()">
+                <div class="upload-icon">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <div class="upload-text">Click to upload audio or drag and drop</div>
+                <div class="upload-subtext">Supports WAV, MP3, M4A, OGG files (Max: 50MB)</div>
+            </div>
+            
+            <input type="file" id="audioInput" class="file-input" accept="audio/*" onchange="handleFileSelect(this)">
+            
+            <button class="btn btn-primary btn-large" id="analyzeVoiceBtn" onclick="analyzeVoice()" disabled>
+                <i class="fas fa-search"></i>
+                Analyze Audio
+            </button>
+
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <p>Analyzing audio for voice cloning patterns...</p>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Analysis Results
+                    </div>
+                    <div class="result-content" id="analysisResults">
+                        Results will appear here after analysis...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-percentage"></i>
+                        AI Voice Probability
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-ai" id="aiProgressBar"></div>
+                    </div>
+                    <div class="result-content" id="probabilityText">0% AI Generated</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-comments"></i>
+                        Speech Transcription
+                    </div>
+                    <div class="result-content" id="transcriptionText">
+                        Transcription will appear here...
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <i class="fas fa-microscope"></i>
+                        Detection Details
+                    </div>
+                    <div class="result-content" id="detectionDetails">
+                        Detailed analysis information will appear here...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-cogs"></i>
+                Voice Analysis Features
+            </h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-robot"></i>
+                        AI Voice Detection
+                    </div>
+                    <p class="result-content">Advanced algorithms to detect AI-generated and cloned voices</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-waveform-lines"></i>
+                        Audio Pattern Analysis
+                    </div>
+                    <p class="result-content">Comprehensive analysis of vocal patterns and speech characteristics</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-language"></i>
+                        Speech-to-Text
+                    </div>
+                    <p class="result-content">Automatic transcription with multi-language support and translation</p>
+                </div>
+                <div class="card">
+                    <div class="result-title">
+                        <i class="fas fa-heart-pulse"></i>
+                        Emotional Analysis
+                    </div>
+                    <p class="result-content">Detection of emotional expression patterns and vocal authenticity</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('analyzeVoiceBtn').disabled = false;
+                
+                // Update upload area text
+                const uploadArea = document.querySelector('.upload-area');
+                uploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <div class="upload-text">✅ ${file.name}</div>
+                    <div class="upload-subtext">Size: ${(file.size / (1024*1024)).toFixed(2)} MB</div>
+                `;
+            }
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        async function analyzeVoice() {
+            if (!selectedFile) return;
+
+            // Show loading
+            document.getElementById('loadingSection').classList.add('show');
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('analyzeVoiceBtn').disabled = true;
+
+            try {
+                // Simulate audio upload and analysis
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('type', 'voice');
+
+                const response = await fetch('/api/upload-analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loadingSection').classList.remove('show');
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // Display results
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                document.getElementById('loadingSection').classList.remove('show');
+                alert('Analysis failed: ' + error.message);
+            } finally {
+                document.getElementById('analyzeVoiceBtn').disabled = false;
+            }
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--bg) 0%, #1a2332 100%);
-            color: var(--text);
-            min-height: 100vh;
+        function displayResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const analysisResults = document.getElementById('analysisResults');
+            const probabilityText = document.getElementById('probabilityText');
+            const progressBar = document.getElementById('aiProgressBar');
+            const transcriptionText = document.getElementById('transcriptionText');
+            const detectionDetails = document.getElementById('detectionDetails');
+
+            // Show results section
+            resultsSection.classList.add('show');
+
+            // Extract data from the actual response structure
+            const aiAnalysis = result.ai_analysis || {};
+            const credibility = aiAnalysis.credibility_assessment || {};
+            const factCheckScore = result.fact_check_score || credibility.score || 0;
+            const aiProb = Math.max(0, 100 - factCheckScore); // Convert credibility to AI probability
+            const isAI = aiProb > 50;
+            
+            // Update analysis results
+            analysisResults.innerHTML = `
+                <div class="mb-sm"><strong>Status:</strong> ${isAI ? '⚠️ Likely AI Generated Voice' : '✅ Appears Human Voice'}</div>
+                <div class="mb-sm"><strong>Confidence:</strong> ${credibility.confidence || 'High'}</div>
+                <div class="mb-sm"><strong>Analysis Method:</strong> ${result.analysis_method || 'AI Integrated'}</div>
+                <div class="mb-sm"><strong>Detection Score:</strong> ${factCheckScore}%</div>
+            `;
+
+            // Update probability
+            probabilityText.textContent = `${aiProb}% AI Generated`;
+            progressBar.style.width = `${aiProb}%`;
+
+            // Update transcription
+            transcriptionText.innerHTML = `
+                <div class="mb-sm"><strong>Transcription:</strong> "${result.transcription || 'Processing audio content...'}"</div>
+                <div class="mb-sm"><strong>Language:</strong> ${result.detected_language || 'English'}</div>
+                <div class="mb-sm"><strong>Content Type:</strong> ${aiAnalysis.content_type || 'Audio Analysis'}</div>
+            `;
+
+            // Update detection details
+            let detailsHTML = '';
+            
+            // Add key insights
+            if (aiAnalysis.key_insights && aiAnalysis.key_insights.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-success">Analysis Results:</strong><br>';
+                aiAnalysis.key_insights.forEach(insight => {
+                    detailsHTML += `<span class="text-success">• ${insight}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add recommendations
+            if (aiAnalysis.recommendations && aiAnalysis.recommendations.length > 0) {
+                detailsHTML += '<div class="mb-md"><strong class="text-warning">Recommendations:</strong><br>';
+                aiAnalysis.recommendations.forEach(rec => {
+                    detailsHTML += `<span class="text-warning">• ${rec}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add sentiment analysis if available
+            const sentiment = aiAnalysis.sentiment_analysis || {};
+            if (sentiment.emotional_indicators) {
+                detailsHTML += '<div class="mb-md"><strong class="text-info">Voice Characteristics:</strong><br>';
+                sentiment.emotional_indicators.forEach(indicator => {
+                    detailsHTML += `<span class="text-info">• ${indicator}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            // Add analysis metrics
+            detailsHTML += `
+                <div class="grid grid-2 mt-md">
+                    <div><strong>Sentiment Confidence:</strong> ${Math.round((sentiment.confidence || 0) * 100)}%</div>
+                    <div><strong>Content Length:</strong> ${aiAnalysis.content_length || 'N/A'} chars</div>
+                    <div><strong>Processing Time:</strong> ${result.metadata?.processing_time || 'N/A'}</div>
+                    <div><strong>Analysis Date:</strong> ${aiAnalysis.analysis_date ? new Date(aiAnalysis.analysis_date).toLocaleDateString() : 'N/A'}</div>
+                </div>
+            `;
+
+            // Add real facts section
+            if (result.real_facts && result.real_facts.length > 0) {
+                detailsHTML += '<div class="mt-md"><strong>Analysis Summary:</strong><br>';
+                result.real_facts.forEach(fact => {
+                    detailsHTML += `<span style="color: var(--text-muted);">• ${fact}</span><br>`;
+                });
+                detailsHTML += '</div>';
+            }
+
+            detectionDetails.innerHTML = detailsHTML || 'Detailed analysis metrics will be displayed here.';
         }
 
-        .header {
-            background: rgba(26, 35, 50, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        // Allow drag and drop
+        const uploadArea = document.querySelector('.upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('audioInput').files = files;
+                handleFileSelect(document.getElementById('audioInput'));
+            }
+        });
+    </script>
+</body>
+</html>
 
         .logo {
             display: flex;

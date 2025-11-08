@@ -200,6 +200,13 @@
             margin-top: 2rem;
         }
 
+        .service-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
         .service-card {
             background: white;
             border-radius: var(--border-radius);
@@ -211,6 +218,8 @@
             overflow: hidden;
             perspective: 1000px;
             transform-style: preserve-3d;
+            width: 100%;
+            height: 400px;
         }
 
         .service-card::before {
@@ -372,6 +381,102 @@
             left: 100%;
         }
 
+        /* External Action Button Styles */
+        .service-action-external {
+            position: relative;
+            overflow: hidden;
+            padding: 1rem 2rem;
+            margin-top: 1rem;
+            background: var(--bg-gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 200px;
+            z-index: 10;
+        }
+
+        .service-action-external:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            text-decoration: none;
+            color: white;
+        }
+
+        .service-action-external::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .service-action-external:hover::before {
+            left: 100%;
+        }
+
+        .service-action-external i {
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .service-action-external:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Service Comparison Button Styles */
+        .service-comparison-btn {
+            position: relative;
+            overflow: hidden;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 200px;
+            z-index: 10;
+            font-size: 0.9rem;
+        }
+
+        .service-comparison-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 116, 139, 0.4);
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+        }
+
+        .service-comparison-btn i {
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .service-comparison-btn:hover i {
+            transform: scale(1.05);
+        }
+
         /* Animation Classes */
         .back-card-emoji {
             font-size: 3rem;
@@ -479,6 +584,847 @@
 
         .navbar-brand:hover {
             transform: scale(1.05);
+        }
+
+        /* About Section Styles */
+        .about-section {
+            padding: 4rem 2rem;
+            background: #f8fafc;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 3rem;
+        }
+
+        .about-description h3 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .about-description p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .tech-list {
+            list-style: none;
+        }
+
+        .tech-list li {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            color: var(--text-secondary);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tech-list li i {
+            color: var(--primary-color);
+            width: 20px;
+        }
+
+        .team-section h3 {
+            color: var(--dark-color);
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .team-member {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border: 1px solid #e2e8f0;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+        .member-avatar {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .member-info h4 {
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .member-role {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .member-description {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .linkedin-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .linkedin-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Contact Section Styles */
+        .contact-section {
+            padding: 4rem 2rem;
+            background: var(--dark-color);
+            color: white;
+        }
+
+        .contact-section .section-title {
+            color: white;
+        }
+
+        .contact-section .section-subtitle {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 3rem;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .contact-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: var(--transition);
+        }
+
+        .contact-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-5px);
+        }
+
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--bg-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-details h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .contact-role {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .contact-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .contact-link:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .general-contact h3 {
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .info-item i {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .info-item strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-item p {
+            color: rgba(255,255,255,0.7);
+            margin: 0;
+        }
+
+        /* Contact Form Styles */
+        .contact-form-section h3 {
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .contact-form {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .contact-form .form-group {
+            margin: 0;
+        }
+
+        .contact-form input,
+        .contact-form select,
+        .contact-form textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: var(--border-radius);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .contact-form input::placeholder,
+        .contact-form textarea::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .contact-form input:focus,
+        .contact-form select:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .submit-btn {
+            padding: 1rem 2rem;
+            background: var(--bg-gradient);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: #1a202c;
+            color: white;
+            padding: 3rem 2rem 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .footer-section p {
+            color: rgba(255,255,255,0.7);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-section ul li a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Statistics Section Fixes */
+        .stats-title {
+            color: white !important;
+        }
+
+        .stats-subtitle {
+            color: rgba(255,255,255,0.8) !important;
+        }
+
+        /* Comparison Modal Styles */
+        .comparison-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .comparison-modal-content {
+            background: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: var(--border-radius);
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .comparison-modal-header {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .comparison-modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .comparison-close {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .comparison-close:hover {
+            transform: scale(1.1);
+        }
+
+        .comparison-type-selector {
+            padding: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-type-selector h4 {
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .comparison-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .comparison-type-btn {
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .comparison-type-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .comparison-type-btn.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .comparison-section {
+            display: none;
+            padding: 2rem;
+        }
+
+        .comparison-section.active {
+            display: block;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            align-items: start;
+            margin-bottom: 2rem;
+        }
+
+        .comparison-item h4 {
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+            text-align: center;
+        }
+
+        .comparison-vs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 200px;
+        }
+
+        .vs-circle {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .drop-zone, .audio-upload-zone, .document-upload-zone {
+            border: 2px dashed #cbd5e0;
+            border-radius: var(--border-radius);
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: #f8fafc;
+        }
+
+        .video-upload-zone {
+            border: 2px dashed #cbd5e0;
+            border-radius: var(--border-radius);
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: #f8fafc;
+        }
+
+        .drop-zone:hover, .audio-upload-zone:hover, .document-upload-zone:hover, .video-upload-zone:hover {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .drop-zone.dragover {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .drop-zone i, .audio-upload-zone i, .document-upload-zone i {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .video-upload-zone i {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .drop-zone p, .audio-upload-zone p, .document-upload-zone p, .video-upload-zone p {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .hidden-file-input {
+            display: none !important;
+        }
+
+        .image-preview, .audio-preview, .document-preview {
+            margin-top: 1rem;
+            min-height: 100px;
+            border-radius: var(--border-radius);
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .video-preview {
+            margin-top: 1rem;
+            min-height: 100px;
+            border-radius: var(--border-radius);
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--border-radius);
+        }
+
+        .video-preview video {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--border-radius);
+        }
+
+        /* Transcription Results */
+        .transcription-result {
+            margin-top: 1rem;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            background: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            display: none;
+        }
+
+        .transcription-result.show {
+            display: block;
+        }
+
+        .transcription-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .transcription-header h5 {
+            margin: 0;
+            color: var(--dark-color);
+            font-size: 1rem;
+        }
+
+        .translate-btn {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .translate-btn:hover {
+            background: #0284c7;
+            transform: translateY(-1px);
+        }
+
+        .transcription-text {
+            background: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid #e0f2fe;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .transcription-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .transcription-stat {
+            text-align: center;
+            padding: 0.75rem;
+            background: white;
+            border-radius: var(--border-radius);
+            border: 1px solid #e0f2fe;
+        }
+
+        .transcription-stat .stat-value {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .transcription-stat .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            resize: vertical;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .record-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .record-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+
+        .compare-btn {
+            background: var(--bg-gradient);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        .compare-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .compare-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .comparison-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            background: #f8fafc;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .comparison-final-results {
+            padding: 2rem;
+            border-top: 1px solid #e2e8f0;
+            display: none;
+        }
+
+        .comparison-final-results.show {
+            display: block;
+        }
+
+        .winner-announcement {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .winner-card {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .comparison-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .metric {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .metric-value {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive Design for Comparison Modal */
+        @media (max-width: 768px) {
+            .comparison-modal-content {
+                width: 98%;
+                margin: 1% auto;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .comparison-vs {
+                min-height: auto;
+                margin: 1rem 0;
+            }
+            
+            .comparison-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Responsive Design for New Sections */
+        @media (max-width: 768px) {
+            .about-content,
+            .contact-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
         }
 
         /* AI vs Human Section */
@@ -723,6 +1669,16 @@
                 grid-template-columns: 1fr;
             }
 
+            .service-wrapper {
+                width: 100%;
+            }
+
+            .service-action-external {
+                min-width: 180px;
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
             .comparison-grid {
                 grid-template-columns: 1fr;
             }
@@ -814,220 +1770,250 @@
             </p>
             
             <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-card-inner">
-                        <div class="service-card-front">
-                            <div class="service-icon">
-                                <i class="fas fa-image"></i>
+                <div class="service-wrapper">
+                    <div class="service-card">
+                        <div class="service-card-inner">
+                            <div class="service-card-front">
+                                <div class="service-icon">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <h3 class="service-title">Image Analysis</h3>
+                                <p class="service-description">
+                                    Advanced AI detection using deep learning models, metadata analysis, and visual pattern recognition.
+                                </p>
+                                <ul class="service-features">
+                                    <li>TensorFlow-powered detection</li>
+                                    <li>ResNet50 feature extraction</li>
+                                    <li>Metadata analysis</li>
+                                    <li>Visual pattern detection</li>
+                                    <li>Confidence scoring</li>
+                                </ul>
                             </div>
-                            <h3 class="service-title">Image Analysis</h3>
-                            <p class="service-description">
-                                Advanced AI detection using deep learning models, metadata analysis, and visual pattern recognition.
-                            </p>
-                            <ul class="service-features">
-                                <li>TensorFlow-powered detection</li>
-                                <li>ResNet50 feature extraction</li>
-                                <li>Metadata analysis</li>
-                                <li>Visual pattern detection</li>
-                                <li>Confidence scoring</li>
-                            </ul>
-                            <a href="/enhanced_image_analysis.html" class="btn btn-primary service-action">
-                                <i class="fas fa-camera"></i> Analyze Images
-                            </a>
-                        </div>
-                        <div class="service-card-back">
-                            <div class="back-card-emoji">🖼️</div>
-                            <h3>Advanced Image AI Detection</h3>
-                            <p>TensorFlow-powered deep learning models with 95%+ accuracy in detecting AI-generated images</p>
-                            <div class="back-card-details">
-                                <strong>Detection Methods:</strong><br>
-                                • Convolutional Neural Networks<br>
-                                • EXIF metadata analysis<br>
-                                • Frequency domain analysis<br>
-                                • Artifact pattern recognition
+                            <div class="service-card-back">
+                                <div class="back-card-emoji">🖼️</div>
+                                <h3>Advanced Image AI Detection</h3>
+                                <p>TensorFlow-powered deep learning models with 95%+ accuracy in detecting AI-generated images</p>
+                                <div class="back-card-details">
+                                    <strong>Detection Methods:</strong><br>
+                                    • Convolutional Neural Networks<br>
+                                    • EXIF metadata analysis<br>
+                                    • Frequency domain analysis<br>
+                                    • Artifact pattern recognition
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <a href="/enhanced_image_analysis.html" class="btn btn-primary service-action-external">
+                        <i class="fas fa-camera"></i> Analyze Images
+                    </a>
+                    <button class="btn btn-secondary service-comparison-btn" onclick="openComparison('image')">
+                        <i class="fas fa-balance-scale"></i> Compare Images
+                    </button>
                 </div>
 
-                <div class="service-card">
-                    <div class="service-card-inner">
-                        <div class="service-card-front">
-                            <div class="service-icon">
-                                <i class="fas fa-file-alt"></i>
+                <div class="service-wrapper">
+                    <div class="service-card">
+                        <div class="service-card-inner">
+                            <div class="service-card-front">
+                                <div class="service-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <h3 class="service-title">Text Analysis</h3>
+                                <p class="service-description">
+                                    Detect AI-generated text using advanced NLP models and writing pattern analysis.
+                                </p>
+                                <ul class="service-features">
+                                    <li>Writing style analysis</li>
+                                    <li>Pattern recognition</li>
+                                    <li>Sentiment analysis</li>
+                                    <li>Coherence checking</li>
+                                    <li>Source verification</li>
+                                </ul>
                             </div>
-                            <h3 class="service-title">Text Analysis</h3>
-                            <p class="service-description">
-                                Detect AI-generated text using advanced NLP models and writing pattern analysis.
-                            </p>
-                            <ul class="service-features">
-                                <li>Writing style analysis</li>
-                                <li>Pattern recognition</li>
-                                <li>Sentiment analysis</li>
-                                <li>Coherence checking</li>
-                                <li>Source verification</li>
-                            </ul>
-                            <a href="/text-analysis.html" class="btn btn-primary service-action">
-                                <i class="fas fa-pen"></i> Analyze Text
-                            </a>
-                        </div>
-                        <div class="service-card-back">
-                            <div class="back-card-emoji">📝</div>
-                            <h3>NLP-Powered Text Detection</h3>
-                            <p>Advanced natural language processing to identify AI-generated content patterns</p>
-                            <div class="back-card-details">
-                                <strong>Analysis Features:</strong><br>
-                                • Transformer pattern detection<br>
-                                • Perplexity scoring<br>
-                                • Style consistency analysis<br>
-                                • Statistical linguistic patterns
+                            <div class="service-card-back">
+                                <div class="back-card-emoji">📝</div>
+                                <h3>NLP-Powered Text Detection</h3>
+                                <p>Advanced natural language processing to identify AI-generated content patterns</p>
+                                <div class="back-card-details">
+                                    <strong>Analysis Features:</strong><br>
+                                    • Transformer pattern detection<br>
+                                    • Perplexity scoring<br>
+                                    • Style consistency analysis<br>
+                                    • Statistical linguistic patterns
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <a href="/text-analysis.html" class="btn btn-primary service-action-external">
+                        <i class="fas fa-pen"></i> Analyze Text
+                    </a>
+                    <button class="btn btn-secondary service-comparison-btn" onclick="openComparison('text')">
+                        <i class="fas fa-balance-scale"></i> Compare Texts
+                    </button>
                 </div>
 
-                <div class="service-card">
-                    <div class="service-card-inner">
-                        <div class="service-card-front">
-                            <div class="service-icon">
-                                <i class="fas fa-volume-up"></i>
+                <div class="service-wrapper">
+                    <div class="service-card">
+                        <div class="service-card-inner">
+                            <div class="service-card-front">
+                                <div class="service-icon">
+                                    <i class="fas fa-volume-up"></i>
+                                </div>
+                                <h3 class="service-title">Voice Analysis</h3>
+                                <p class="service-description">
+                                    Advanced audio analysis for deepfake detection and voice authenticity verification.
+                                </p>
+                                <ul class="service-features">
+                                    <li>Deepfake detection</li>
+                                    <li>Voice authentication</li>
+                                    <li>Audio processing</li>
+                                    <li>Spectral analysis</li>
+                                    <li>Real-time processing</li>
+                                </ul>
                             </div>
-                            <h3 class="service-title">Voice Analysis</h3>
-                            <p class="service-description">
-                                Advanced audio analysis for deepfake detection and voice authenticity verification.
-                            </p>
-                            <ul class="service-features">
-                                <li>Deepfake detection</li>
-                                <li>Voice authentication</li>
-                                <li>Audio processing</li>
-                                <li>Spectral analysis</li>
-                                <li>Real-time processing</li>
-                            </ul>
-                            <a href="/voice-analysis.html" class="btn btn-primary service-action">
-                                <i class="fas fa-microphone"></i> Analyze Voice
-                            </a>
-                        </div>
-                        <div class="service-card-back">
-                            <div class="back-card-emoji">🎤</div>
-                            <h3>Audio Deepfake Detection</h3>
-                            <p>Sophisticated audio analysis to identify voice cloning and synthetic speech</p>
-                            <div class="back-card-details">
-                                <strong>Technologies:</strong><br>
-                                • Mel-spectrogram analysis<br>
-                                • Formant frequency analysis<br>
-                                • Pitch variation patterns<br>
-                                • Neural synthesis detection
+                            <div class="service-card-back">
+                                <div class="back-card-emoji">🎤</div>
+                                <h3>Audio Deepfake Detection</h3>
+                                <p>Sophisticated audio analysis to identify voice cloning and synthetic speech</p>
+                                <div class="back-card-details">
+                                    <strong>Technologies:</strong><br>
+                                    • Mel-spectrogram analysis<br>
+                                    • Formant frequency analysis<br>
+                                    • Pitch variation patterns<br>
+                                    • Neural synthesis detection
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <a href="/voice-analysis.html" class="btn btn-primary service-action-external">
+                        <i class="fas fa-microphone"></i> Analyze Voice
+                    </a>
+                    <button class="btn btn-secondary service-comparison-btn" onclick="openComparison('voice')">
+                        <i class="fas fa-balance-scale"></i> Compare Audio
+                    </button>
                 </div>
 
-                <div class="service-card">
-                    <div class="service-card-inner">
-                        <div class="service-card-front">
-                            <div class="service-icon">
-                                <i class="fas fa-video"></i>
+                <div class="service-wrapper">
+                    <div class="service-card">
+                        <div class="service-card-inner">
+                            <div class="service-card-front">
+                                <div class="service-icon">
+                                    <i class="fas fa-video"></i>
+                                </div>
+                                <h3 class="service-title">Video Analysis</h3>
+                                <p class="service-description">
+                                    Comprehensive video analysis for deepfakes, manipulated content, and AI-generated videos.
+                                </p>
+                                <ul class="service-features">
+                                    <li>Frame-by-frame analysis</li>
+                                    <li>Temporal consistency</li>
+                                    <li>Facial recognition</li>
+                                    <li>Motion analysis</li>
+                                    <li>Audio-visual sync</li>
+                                </ul>
                             </div>
-                            <h3 class="service-title">Video Analysis</h3>
-                            <p class="service-description">
-                                Comprehensive video analysis for deepfakes, manipulated content, and AI-generated videos.
-                            </p>
-                            <ul class="service-features">
-                                <li>Frame-by-frame analysis</li>
-                                <li>Temporal consistency</li>
-                                <li>Facial recognition</li>
-                                <li>Motion analysis</li>
-                                <li>Audio-visual sync</li>
-                            </ul>
-                            <a href="#" class="btn btn-primary service-action" onclick="analyzeVideo()">
-                                <i class="fas fa-film"></i> Analyze Video
-                            </a>
-                        </div>
-                        <div class="service-card-back">
-                            <div class="back-card-emoji">🎬</div>
-                            <h3>Video Deepfake Detection</h3>
-                            <p>Advanced temporal analysis for detecting manipulated and AI-generated videos</p>
-                            <div class="back-card-details">
-                                <strong>Analysis Methods:</strong><br>
-                                • Frame consistency checking<br>
-                                • Facial landmark tracking<br>
-                                • Temporal inconsistencies<br>
-                                • Compression artifacts
+                            <div class="service-card-back">
+                                <div class="back-card-emoji">🎬</div>
+                                <h3>Video Deepfake Detection</h3>
+                                <p>Advanced temporal analysis for detecting manipulated and AI-generated videos</p>
+                                <div class="back-card-details">
+                                    <strong>Analysis Methods:</strong><br>
+                                    • Frame consistency checking<br>
+                                    • Facial landmark tracking<br>
+                                    • Temporal inconsistencies<br>
+                                    • Compression artifacts
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <a href="#" class="btn btn-primary service-action-external" onclick="analyzeVideo()">
+                        <i class="fas fa-film"></i> Analyze Video
+                    </a>
+                    <button class="btn btn-secondary service-comparison-btn" onclick="openComparison('video')">
+                        <i class="fas fa-balance-scale"></i> Compare Videos
+                    </button>
                 </div>
 
-                <div class="service-card">
-                    <div class="service-card-inner">
-                        <div class="service-card-front">
-                            <div class="service-icon">
-                                <i class="fas fa-file-pdf"></i>
+                <div class="service-wrapper">
+                    <div class="service-card">
+                        <div class="service-card-inner">
+                            <div class="service-card-front">
+                                <div class="service-icon">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                <h3 class="service-title">Document Analysis</h3>
+                                <p class="service-description">
+                                    Analyze PDF and Word documents for AI-generated content, summarization, and authenticity.
+                                </p>
+                                <ul class="service-features">
+                                    <li>PDF/Word support</li>
+                                    <li>Content extraction</li>
+                                    <li>AI detection</li>
+                                    <li>Summarization</li>
+                                    <li>Source verification</li>
+                                </ul>
                             </div>
-                            <h3 class="service-title">Document Analysis</h3>
-                            <p class="service-description">
-                                Analyze PDF and Word documents for AI-generated content, summarization, and authenticity.
-                            </p>
-                            <ul class="service-features">
-                                <li>PDF/Word support</li>
-                                <li>Content extraction</li>
-                                <li>AI detection</li>
-                                <li>Summarization</li>
-                                <li>Source verification</li>
-                            </ul>
-                            <a href="/document-analysis.html" class="btn btn-primary service-action" onclick="analyzeDocument()">
-                                <i class="fas fa-file-upload"></i> Analyze Document
-                            </a>
-                        </div>
-                        <div class="service-card-back">
-                            <div class="back-card-emoji">📄</div>
-                            <h3>Document AI Analysis</h3>
-                            <p>Comprehensive document analysis for detecting AI-generated content in PDFs and Word files</p>
-                            <div class="back-card-details">
-                                <strong>Features:</strong><br>
-                                • Multi-format support<br>
-                                • Content extraction<br>
-                                • Style analysis<br>
-                                • Authenticity verification
+                            <div class="service-card-back">
+                                <div class="back-card-emoji">📄</div>
+                                <h3>Document AI Analysis</h3>
+                                <p>Comprehensive document analysis for detecting AI-generated content in PDFs and Word files</p>
+                                <div class="back-card-details">
+                                    <strong>Features:</strong><br>
+                                    • Multi-format support<br>
+                                    • Content extraction<br>
+                                    • Style analysis<br>
+                                    • Authenticity verification
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <a href="/document-analysis.html" class="btn btn-primary service-action-external" onclick="analyzeDocument()">
+                        <i class="fas fa-file-upload"></i> Analyze Document
+                    </a>
+                    <button class="btn btn-secondary service-comparison-btn" onclick="openComparison('document')">
+                        <i class="fas fa-balance-scale"></i> Compare Documents
+                    </button>
                 </div>
 
-                <div class="service-card">
-                    <div class="service-card-inner">
-                        <div class="service-card-front">
-                            <div class="service-icon">
-                                <i class="fas fa-globe"></i>
+                <div class="service-wrapper">
+                    <div class="service-card">
+                        <div class="service-card-inner">
+                            <div class="service-card-front">
+                                <div class="service-icon">
+                                    <i class="fas fa-globe"></i>
+                                </div>
+                                <h3 class="service-title">Web Analysis</h3>
+                                <p class="service-description">
+                                    Analyze websites and online content for credibility, AI-generated content, and fact-checking.
+                                </p>
+                                <ul class="service-features">
+                                    <li>Website scanning</li>
+                                    <li>Content verification</li>
+                                    <li>Fact-checking</li>
+                                    <li>Source analysis</li>
+                                    <li>Real-time updates</li>
+                                </ul>
                             </div>
-                            <h3 class="service-title">Web Analysis</h3>
-                            <p class="service-description">
-                                Analyze websites and online content for credibility, AI-generated content, and fact-checking.
-                            </p>
-                            <ul class="service-features">
-                                <li>Website scanning</li>
-                                <li>Content verification</li>
-                                <li>Fact-checking</li>
-                                <li>Source analysis</li>
-                                <li>Real-time updates</li>
-                            </ul>
-                            <a href="/website-analysis.html" class="btn btn-primary service-action" onclick="analyzeWebsite()">
-                                <i class="fas fa-search"></i> Analyze Website
-                            </a>
-                        </div>
-                        <div class="service-card-back">
-                            <div class="back-card-emoji">🌐</div>
-                            <h3>Website Credibility Analysis</h3>
-                            <p>Real-time website analysis for content authenticity and source verification</p>
-                            <div class="back-card-details">
-                                <strong>Capabilities:</strong><br>
-                                • Source verification<br>
-                                • Content authenticity<br>
-                                • Fact-checking integration<br>
-                                • Credibility scoring
+                            <div class="service-card-back">
+                                <div class="back-card-emoji">🌐</div>
+                                <h3>Website Credibility Analysis</h3>
+                                <p>Real-time website analysis for content authenticity and source verification</p>
+                                <div class="back-card-details">
+                                    <strong>Capabilities:</strong><br>
+                                    • Source verification<br>
+                                    • Content authenticity<br>
+                                    • Fact-checking integration<br>
+                                    • Credibility scoring
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <a href="/website-analysis.html" class="btn btn-primary service-action-external" onclick="analyzeWebsite()">
+                        <i class="fas fa-search"></i> Analyze Website
+                    </a>
+                    <button class="btn btn-secondary service-comparison-btn" onclick="openComparison('website')">
+                        <i class="fas fa-balance-scale"></i> Compare Websites
+                    </button>
                 </div>
             </div>
         </section>
@@ -1154,8 +2140,8 @@
 
         <!-- Statistics Section -->
         <section class="stats-section">
-            <h2 class="section-title" style="color: white;">Platform Statistics</h2>
-            <p class="section-subtitle" style="color: rgba(255,255,255,0.8);">
+            <h2 class="section-title stats-title">Platform Statistics</h2>
+            <p class="section-subtitle stats-subtitle">
                 Real-time performance metrics and analysis data
             </p>
             
@@ -1178,15 +2164,464 @@
                 </div>
             </div>
         </section>
+
+        <!-- About Section -->
+        <section class="about-section" id="about">
+            <div class="container">
+                <h2 class="section-title">About Filterize AI</h2>
+                <p class="section-subtitle">
+                    Advanced AI detection platform powered by cutting-edge machine learning algorithms
+                </p>
+                
+                <div class="about-content">
+                    <div class="about-description">
+                        <h3>Our Mission</h3>
+                        <p>Filterize AI is dedicated to protecting digital authenticity in an era of rapidly advancing artificial intelligence. Our platform combines multiple detection methods including deep learning, statistical analysis, and metadata inspection to provide accurate identification of AI-generated content across various media formats.</p>
+                        
+                        <h3>Technology Stack</h3>
+                        <ul class="tech-list">
+                            <li><i class="fas fa-brain"></i> TensorFlow & Deep Learning Models</li>
+                            <li><i class="fas fa-chart-line"></i> Advanced Statistical Analysis</li>
+                            <li><i class="fas fa-eye"></i> Computer Vision & Pattern Recognition</li>
+                            <li><i class="fas fa-wave-square"></i> Audio Signal Processing</li>
+                            <li><i class="fas fa-file-alt"></i> Natural Language Processing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="team-section">
+                        <h3>Our Team</h3>
+                        <div class="team-grid">
+                            <div class="team-member">
+                                <div class="member-avatar">
+                                    <i class="fas fa-user-crown"></i>
+                                </div>
+                                <div class="member-info">
+                                    <h4>Suryansh Jain</h4>
+                                    <p class="member-role">Backend Developer & Full-Stack Lead</p>
+                                    <p class="member-description">Leading backend development, AI architecture, database management, and overall platform infrastructure.</p>
+                                    <a href="https://www.linkedin.com/in/suryansh-jain-860942365" target="_blank" rel="noopener" class="linkedin-link">
+                                        <i class="fab fa-linkedin"></i> Connect on LinkedIn
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="team-member">
+                                <div class="member-avatar">
+                                    <i class="fas fa-code"></i>
+                                </div>
+                                <div class="member-info">
+                                    <h4>Deepesh Kumar</h4>
+                                    <p class="member-role">Frontend Developer & UX Designer</p>
+                                    <p class="member-description">Creating intuitive user interfaces and seamless user experiences for the platform.</p>
+                                    <a href="https://www.linkedin.com/in/deepesh-kumar-3ba290385" target="_blank" rel="noopener" class="linkedin-link">
+                                        <i class="fab fa-linkedin"></i> Connect on LinkedIn
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="team-member">
+                                <div class="member-avatar">
+                                    <i class="fas fa-palette"></i>
+                                </div>
+                                <div class="member-info">
+                                    <h4>Pratiksha Chouksey</h4>
+                                    <p class="member-role">Development Helper & Support</p>
+                                    <p class="member-description">Assisting with platform development, testing, and providing technical support.</p>
+                                    <a href="https://www.linkedin.com/in/pratiksha-chouksey-704534391" target="_blank" rel="noopener" class="linkedin-link">
+                                        <i class="fab fa-linkedin"></i> Connect on LinkedIn
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="team-member">
+                                <div class="member-avatar">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <div class="member-info">
+                                    <h4>Radhika Yadav</h4>
+                                    <p class="member-role">Research Helper & Data Support</p>
+                                    <p class="member-description">Assisting with data collection, research tasks, and analysis support for the platform.</p>
+                                    <a href="https://www.linkedin.com/in/radhika-yadav-39a24a398" target="_blank" rel="noopener" class="linkedin-link">
+                                        <i class="fab fa-linkedin"></i> Connect on LinkedIn
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact-section" id="contact">
+            <div class="container">
+                <h2 class="section-title">Get in Touch</h2>
+                <p class="section-subtitle">
+                    Have questions or need support? We're here to help!
+                </p>
+                
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <div class="contact-grid">
+                            <div class="contact-card">
+                                <div class="contact-icon">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div class="contact-details">
+                                    <h4>Suryansh Jain</h4>
+                                    <p class="contact-role">Backend Developer & Lead</p>
+                                    <div class="contact-methods">
+                                        <a href="tel:+919479981343" class="contact-link">
+                                            <i class="fas fa-phone"></i>
+                                            <span>+91-9479981343</span>
+                                        </a>
+                                        <a href="mailto:scienceenviorment@gmail.com" class="contact-link">
+                                            <i class="fas fa-envelope"></i>
+                                            <span>scienceenviorment@gmail.com</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-card">
+                                <div class="contact-icon">
+                                    <i class="fas fa-laptop-code"></i>
+                                </div>
+                                <div class="contact-details">
+                                    <h4>Deepesh Kumar</h4>
+                                    <p class="contact-role">Frontend Developer</p>
+                                    <div class="contact-methods">
+                                        <a href="tel:+919113497633" class="contact-link">
+                                            <i class="fas fa-phone"></i>
+                                            <span>+91-9113497633</span>
+                                        </a>
+                                        <a href="mailto:deepesh822128@gmail.com" class="contact-link">
+                                            <i class="fas fa-envelope"></i>
+                                            <span>deepesh822128@gmail.com</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="general-contact">
+                            <h3>General Information</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <i class="fas fa-clock"></i>
+                                    <div>
+                                        <strong>Response Time</strong>
+                                        <p>24-48 hours</p>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-globe"></i>
+                                    <div>
+                                        <strong>Website</strong>
+                                        <p>filterizeai.com</p>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <div>
+                                        <strong>Platform Status</strong>
+                                        <p>Operational 24/7</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-form-section">
+                        <h3>Send us a Message</h3>
+                        <form class="contact-form" id="contactForm">
+                            <div class="form-group">
+                                <input type="text" placeholder="Your Name" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="email" placeholder="Your Email" required>
+                            </div>
+                            <div class="form-group">
+                                <select required title="Select inquiry type">
+                                    <option value="">Select Subject</option>
+                                    <option value="support">Technical Support</option>
+                                    <option value="feature">Feature Request</option>
+                                    <option value="partnership">Partnership</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <textarea placeholder="Your Message" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-paper-plane"></i>
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2025 Filterize AI. Advanced Content Analysis Platform. All rights reserved.</p>
-        <p>Protecting digital authenticity with cutting-edge AI detection technology.</p>
-    </footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Filterize AI</h4>
+                <p>Advanced Content Analysis Platform protecting digital authenticity with cutting-edge AI detection technology.</p>
+                <div class="social-links">
+                    <a href="https://www.linkedin.com/in/suryansh-jain-860942365" target="_blank" rel="noopener" title="LinkedIn Profile">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="mailto:scienceenviorment@gmail.com" title="Send Email">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="/enhanced_image_analysis.html">Image Analysis</a></li>
+                    <li><a href="/text-analysis.html">Text Analysis</a></li>
+                    <li><a href="/voice-analysis.html">Voice Analysis</a></li>
+                    <li><a href="/document-analysis.html">Document Analysis</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Filterize AI. All rights reserved.</p>
+        </div>
+        </footer>
 
-    <!-- JavaScript -->
+        <!-- Comparison Modal -->
+        <div id="comparisonModal" class="comparison-modal">
+            <div class="comparison-modal-content">
+                <div class="comparison-modal-header">
+                    <h3>AI vs Real Comparison Tool</h3>
+                    <span class="comparison-close">&times;</span>
+                </div>
+                
+                <div class="comparison-type-selector">
+                    <h4>Select Comparison Type:</h4>
+                    <div class="comparison-buttons">
+                        <button class="comparison-type-btn active" data-type="image">
+                            <i class="fas fa-image"></i> Image Comparison
+                        </button>
+                        <button class="comparison-type-btn" data-type="text">
+                            <i class="fas fa-file-alt"></i> Text Comparison
+                        </button>
+                        <button class="comparison-type-btn" data-type="voice">
+                            <i class="fas fa-microphone"></i> Voice Comparison
+                        </button>
+                        <button class="comparison-type-btn" data-type="video">
+                            <i class="fas fa-video"></i> Video Comparison
+                        </button>
+                        <button class="comparison-type-btn" data-type="document">
+                            <i class="fas fa-file-pdf"></i> Document Comparison
+                        </button>
+                    </div>
+                </div>
+
+                <div id="imageComparison" class="comparison-section active">
+                    <div class="comparison-grid">
+                        <div class="comparison-item">
+                            <h4>Sample A</h4>
+                            <div class="drop-zone" id="dropZoneA">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Drop image A here or click to browse</p>
+                                <input type="file" id="fileInputA" accept="image/*" class="hidden-file-input">
+                            </div>
+                            <div id="previewA" class="image-preview"></div>
+                            <div id="resultA" class="comparison-result"></div>
+                        </div>
+                        
+                        <div class="comparison-vs">
+                            <div class="vs-circle">VS</div>
+                        </div>
+                        
+                        <div class="comparison-item">
+                            <h4>Sample B</h4>
+                            <div class="drop-zone" id="dropZoneB">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Drop image B here or click to browse</p>
+                                <input type="file" id="fileInputB" accept="image/*" class="hidden-file-input">
+                            </div>
+                            <div id="previewB" class="image-preview"></div>
+                            <div id="resultB" class="comparison-result"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="compareImages" class="compare-btn" disabled>
+                        <i class="fas fa-balance-scale"></i> Compare Images
+                    </button>
+                </div>
+
+                <div id="textComparison" class="comparison-section">
+                    <div class="comparison-grid">
+                        <div class="comparison-item">
+                            <h4>Text Sample A</h4>
+                            <textarea id="textA" placeholder="Enter or paste text A here..." rows="8"></textarea>
+                            <div id="textResultA" class="comparison-result"></div>
+                        </div>
+                        
+                        <div class="comparison-vs">
+                            <div class="vs-circle">VS</div>
+                        </div>
+                        
+                        <div class="comparison-item">
+                            <h4>Text Sample B</h4>
+                            <textarea id="textB" placeholder="Enter or paste text B here..." rows="8"></textarea>
+                            <div id="textResultB" class="comparison-result"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="compareTexts" class="compare-btn" disabled>
+                        <i class="fas fa-balance-scale"></i> Compare Texts
+                    </button>
+                </div>
+
+                <div id="voiceComparison" class="comparison-section">
+                    <div class="comparison-grid">
+                        <div class="comparison-item">
+                            <h4>Audio Sample A</h4>
+                            <div class="audio-upload-zone" id="audioZoneA">
+                                <i class="fas fa-microphone"></i>
+                                <p>Upload audio A or record (max 1 min)</p>
+                                <input type="file" id="audioInputA" accept="audio/*" class="hidden-file-input">
+                                <button class="record-btn" id="recordA">Record Audio A</button>
+                            </div>
+                            <div id="audioPreviewA" class="audio-preview"></div>
+                            <div id="voiceResultA" class="comparison-result"></div>
+                            <div id="transcriptionA" class="transcription-result"></div>
+                        </div>
+                        
+                        <div class="comparison-vs">
+                            <div class="vs-circle">VS</div>
+                        </div>
+                        
+                        <div class="comparison-item">
+                            <h4>Audio Sample B</h4>
+                            <div class="audio-upload-zone" id="audioZoneB">
+                                <i class="fas fa-microphone"></i>
+                                <p>Upload audio B or record (max 1 min)</p>
+                                <input type="file" id="audioInputB" accept="audio/*" class="hidden-file-input">
+                                <button class="record-btn" id="recordB">Record Audio B</button>
+                            </div>
+                            <div id="audioPreviewB" class="audio-preview"></div>
+                            <div id="voiceResultB" class="comparison-result"></div>
+                            <div id="transcriptionB" class="transcription-result"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="compareVoices" class="compare-btn" disabled>
+                        <i class="fas fa-balance-scale"></i> Compare Audio
+                    </button>
+                </div>
+
+                <div id="videoComparison" class="comparison-section">
+                    <div class="comparison-grid">
+                        <div class="comparison-item">
+                            <h4>Video Sample A</h4>
+                            <div class="video-upload-zone" id="videoZoneA">
+                                <i class="fas fa-video"></i>
+                                <p>Upload video A (max 2 min)</p>
+                                <input type="file" id="videoInputA" accept="video/*" class="hidden-file-input">
+                            </div>
+                            <div id="videoPreviewA" class="video-preview"></div>
+                            <div id="videoResultA" class="comparison-result"></div>
+                            <div id="videoTranscriptionA" class="transcription-result"></div>
+                        </div>
+                        
+                        <div class="comparison-vs">
+                            <div class="vs-circle">VS</div>
+                        </div>
+                        
+                        <div class="comparison-item">
+                            <h4>Video Sample B</h4>
+                            <div class="video-upload-zone" id="videoZoneB">
+                                <i class="fas fa-video"></i>
+                                <p>Upload video B (max 2 min)</p>
+                                <input type="file" id="videoInputB" accept="video/*" class="hidden-file-input">
+                            </div>
+                            <div id="videoPreviewB" class="video-preview"></div>
+                            <div id="videoResultB" class="comparison-result"></div>
+                            <div id="videoTranscriptionB" class="transcription-result"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="compareVideos" class="compare-btn" disabled>
+                        <i class="fas fa-balance-scale"></i> Compare Videos
+                    </button>
+                </div>
+
+                <div id="documentComparison" class="comparison-section">
+                    <div class="comparison-grid">
+                        <div class="comparison-item">
+                            <h4>Document A</h4>
+                            <div class="document-upload-zone" id="docZoneA">
+                                <i class="fas fa-file-upload"></i>
+                                <p>Upload PDF/Word document A</p>
+                                <input type="file" id="docInputA" accept=".pdf,.doc,.docx" class="hidden-file-input">
+                            </div>
+                            <div id="docPreviewA" class="document-preview"></div>
+                            <div id="docResultA" class="comparison-result"></div>
+                        </div>
+                        
+                        <div class="comparison-vs">
+                            <div class="vs-circle">VS</div>
+                        </div>
+                        
+                        <div class="comparison-item">
+                            <h4>Document B</h4>
+                            <div class="document-upload-zone" id="docZoneB">
+                                <i class="fas fa-file-upload"></i>
+                                <p>Upload PDF/Word document B</p>
+                                <input type="file" id="docInputB" accept=".pdf,.doc,.docx" class="hidden-file-input">
+                            </div>
+                            <div id="docPreviewB" class="document-preview"></div>
+                            <div id="docResultB" class="comparison-result"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="compareDocuments" class="compare-btn" disabled>
+                        <i class="fas fa-balance-scale"></i> Compare Documents
+                    </button>
+                </div>
+
+                <div id="comparisonResults" class="comparison-final-results">
+                    <h4>Comparison Analysis</h4>
+                    <div class="winner-announcement">
+                        <div id="winnerResult" class="winner-card"></div>
+                    </div>
+                    <div class="detailed-comparison">
+                        <div class="comparison-metrics">
+                            <div class="metric">
+                                <span class="metric-label">AI Probability Difference:</span>
+                                <span id="probabilityDiff" class="metric-value"></span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Confidence Level:</span>
+                                <span id="confidenceLevel" class="metric-value"></span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Recommendation:</span>
+                                <span id="finalRecommendation" class="metric-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>    <!-- JavaScript -->
     <script>
         // User Authentication
         function showLogin() {
@@ -1395,7 +2830,577 @@
             cards.forEach((card, index) => {
                 card.style.animationDelay = `${index * 0.1}s`;
             });
+
+            // Initialize comparison modal
+            initializeComparisonModal();
         });
+
+        // Comparison Modal Functions
+        function openComparison(type) {
+            const modal = document.getElementById('comparisonModal');
+            modal.style.display = 'block';
+            
+            // Set active comparison type
+            setComparisonType(type);
+        }
+
+        function closeComparison() {
+            const modal = document.getElementById('comparisonModal');
+            modal.style.display = 'none';
+            resetComparisonModal();
+        }
+
+        function setComparisonType(type) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.comparison-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Hide all sections
+            document.querySelectorAll('.comparison-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected type
+            const typeBtn = document.querySelector(`[data-type="${type}"]`);
+            const typeSection = document.getElementById(`${type}Comparison`);
+            
+            if (typeBtn) typeBtn.classList.add('active');
+            if (typeSection) typeSection.classList.add('active');
+        }
+
+        function initializeComparisonModal() {
+            // Close modal event
+            document.querySelector('.comparison-close').addEventListener('click', closeComparison);
+            
+            // Click outside to close
+            document.getElementById('comparisonModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeComparison();
+                }
+            });
+
+            // Type selection buttons
+            document.querySelectorAll('.comparison-type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    setComparisonType(type);
+                });
+            });
+
+            // Initialize file upload handlers
+            initializeFileUploads();
+            
+            // Initialize comparison buttons
+            initializeComparisonButtons();
+        }
+
+        function initializeFileUploads() {
+            // Image uploads
+            setupFileUpload('dropZoneA', 'fileInputA', 'previewA', 'image');
+            setupFileUpload('dropZoneB', 'fileInputB', 'previewB', 'image');
+            
+            // Audio uploads
+            setupFileUpload('audioZoneA', 'audioInputA', 'audioPreviewA', 'audio');
+            setupFileUpload('audioZoneB', 'audioInputB', 'audioPreviewB', 'audio');
+            
+            // Video uploads
+            setupFileUpload('videoZoneA', 'videoInputA', 'videoPreviewA', 'video');
+            setupFileUpload('videoZoneB', 'videoInputB', 'videoPreviewB', 'video');
+            
+            // Document uploads
+            setupFileUpload('docZoneA', 'docInputA', 'docPreviewA', 'document');
+            setupFileUpload('docZoneB', 'docInputB', 'docPreviewB', 'document');
+        }
+
+        function setupFileUpload(zoneId, inputId, previewId, type) {
+            const zone = document.getElementById(zoneId);
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            
+            if (!zone || !input || !preview) return;
+
+            zone.addEventListener('click', () => input.click());
+            
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+            
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('dragover');
+            });
+            
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0], preview, type);
+                }
+            });
+            
+            input.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0], preview, type);
+                }
+            });
+        }
+
+        function handleFileUpload(file, preview, type) {
+            // Check file duration limits
+            if (type === 'audio' || type === 'video') {
+                validateMediaDuration(file, type, preview);
+                return;
+            }
+            
+            if (type === 'image') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            } else if (type === 'document') {
+                preview.innerHTML = `
+                    <div style="text-align: center;">
+                        <i class="fas fa-file-pdf" style="font-size: 2rem; color: var(--primary-color);"></i>
+                        <p>${file.name}</p>
+                        <small>${(file.size / 1024).toFixed(1)} KB</small>
+                    </div>
+                `;
+            }
+            
+            updateCompareButtonState();
+        }
+
+        function validateMediaDuration(file, type, preview) {
+            const url = URL.createObjectURL(file);
+            const element = type === 'audio' ? new Audio() : document.createElement('video');
+            
+            element.onloadedmetadata = function() {
+                const duration = this.duration;
+                const maxDuration = type === 'audio' ? 60 : 120; // 1 min for audio, 2 min for video
+                
+                if (duration > maxDuration) {
+                    const maxTime = type === 'audio' ? '1 minute' : '2 minutes';
+                    alert(`File duration (${Math.round(duration)}s) exceeds the maximum allowed ${maxTime}. Please use a shorter file.`);
+                    preview.innerHTML = `
+                        <div style="color: #dc2626; text-align: center;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>File too long (${Math.round(duration)}s)</p>
+                            <small>Maximum: ${maxTime}</small>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // File is valid, show preview
+                if (type === 'audio') {
+                    preview.innerHTML = `
+                        <div style="text-align: center;">
+                            <i class="fas fa-music" style="font-size: 2rem; color: var(--primary-color);"></i>
+                            <p>${file.name}</p>
+                            <small>Duration: ${Math.round(duration)}s</small>
+                            <audio controls style="width: 100%; margin-top: 0.5rem;">
+                                <source src="${url}" type="${file.type}">
+                            </audio>
+                        </div>
+                    `;
+                } else if (type === 'video') {
+                    preview.innerHTML = `
+                        <div style="text-align: center;">
+                            <video controls style="max-width: 100%; max-height: 200px; border-radius: var(--border-radius);">
+                                <source src="${url}" type="${file.type}">
+                            </video>
+                            <p>${file.name}</p>
+                            <small>Duration: ${Math.round(duration)}s</small>
+                        </div>
+                    `;
+                }
+                
+                // Start transcription for audio/video
+                startTranscription(file, type, preview);
+                updateCompareButtonState();
+            };
+            
+            element.src = url;
+        }
+
+        async function startTranscription(file, type, preview) {
+            const transcriptionId = preview.id.replace('Preview', 'Transcription') || 
+                                 preview.id.replace('audioPreview', 'transcription') ||
+                                 preview.id.replace('videoPreview', 'videoTranscription');
+            const transcriptionDiv = document.getElementById(transcriptionId);
+            
+            if (!transcriptionDiv) return;
+            
+            // Show transcription section
+            transcriptionDiv.classList.add('show');
+            transcriptionDiv.innerHTML = `
+                <div class="transcription-header">
+                    <h5><i class="fas fa-comments"></i> Speech Transcription</h5>
+                    <button class="translate-btn" onclick="translateToEnglish('${transcriptionId}')">
+                        <i class="fas fa-language"></i> Translate to English
+                    </button>
+                </div>
+                <div class="transcription-text">
+                    <i class="fas fa-spinner fa-spin"></i> Analyzing speech...
+                </div>
+                <div class="transcription-stats">
+                    <div class="transcription-stat">
+                        <div class="stat-value">--</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="transcription-stat">
+                        <div class="stat-value">--</div>
+                        <div class="stat-label">Language</div>
+                    </div>
+                    <div class="transcription-stat">
+                        <div class="stat-value">--</div>
+                        <div class="stat-label">Confidence</div>
+                    </div>
+                </div>
+            `;
+            
+            try {
+                // Simulate transcription API call
+                const transcription = await performTranscription(file, type);
+                displayTranscription(transcriptionId, transcription);
+            } catch (error) {
+                console.error('Transcription error:', error);
+                transcriptionDiv.querySelector('.transcription-text').innerHTML = `
+                    <div style="color: #dc2626;">
+                        <i class="fas fa-exclamation-triangle"></i> Transcription failed
+                    </div>
+                `;
+            }
+        }
+
+        async function performTranscription(file, type) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Simulate transcription results
+            const sampleTexts = [
+                "Hello, this is a sample audio recording for testing the AI detection system.",
+                "The quick brown fox jumps over the lazy dog. This is an example of human speech.",
+                "Artificial intelligence has advanced significantly in recent years, transforming various industries.",
+                "Welcome to our platform. We hope you find our AI detection tools useful and accurate.",
+                "This video demonstrates the capabilities of our speech recognition technology."
+            ];
+            
+            const languages = ['English', 'Spanish', 'French', 'German', 'Italian'];
+            const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+            const randomLanguage = languages[Math.floor(Math.random() * languages.length)];
+            
+            return {
+                text: randomText,
+                language: randomLanguage,
+                confidence: 0.85 + Math.random() * 0.14, // 85-99%
+                wordCount: randomText.split(' ').length,
+                isEnglish: randomLanguage === 'English'
+            };
+        }
+
+        function displayTranscription(transcriptionId, result) {
+            const transcriptionDiv = document.getElementById(transcriptionId);
+            const confidence = Math.round(result.confidence * 100);
+            
+            transcriptionDiv.innerHTML = `
+                <div class="transcription-header">
+                    <h5><i class="fas fa-comments"></i> Speech Transcription</h5>
+                    <button class="translate-btn" onclick="translateToEnglish('${transcriptionId}', '${result.text}', '${result.language}')">
+                        <i class="fas fa-language"></i> ${result.isEnglish ? 'Already English' : 'Translate to English'}
+                    </button>
+                </div>
+                <div class="transcription-text" id="${transcriptionId}_text">
+                    ${result.text}
+                </div>
+                <div class="transcription-stats">
+                    <div class="transcription-stat">
+                        <div class="stat-value">${result.wordCount}</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="transcription-stat">
+                        <div class="stat-value">${result.language}</div>
+                        <div class="stat-label">Language</div>
+                    </div>
+                    <div class="transcription-stat">
+                        <div class="stat-value">${confidence}%</div>
+                        <div class="stat-label">Confidence</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function translateToEnglish(transcriptionId, originalText, originalLanguage) {
+            if (originalLanguage === 'English') {
+                alert('Text is already in English!');
+                return;
+            }
+            
+            const textDiv = document.getElementById(`${transcriptionId}_text`);
+            const button = document.querySelector(`[onclick*="${transcriptionId}"]`);
+            
+            // Show loading
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Translating...';
+            button.disabled = true;
+            
+            try {
+                // Simulate translation API call
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Simulate English translation
+                const translations = {
+                    'Spanish': 'Hello, this is a sample audio recording for testing the AI detection system.',
+                    'French': 'Hello, this is a sample audio recording for testing the AI detection system.',
+                    'German': 'Hello, this is a sample audio recording for testing the AI detection system.',
+                    'Italian': 'Hello, this is a sample audio recording for testing the AI detection system.'
+                };
+                
+                const translatedText = translations[originalLanguage] || originalText;
+                
+                textDiv.innerHTML = `
+                    <div style="margin-bottom: 1rem;">
+                        <strong>Original (${originalLanguage}):</strong><br>
+                        <em style="color: #64748b;">${originalText}</em>
+                    </div>
+                    <div>
+                        <strong>English Translation:</strong><br>
+                        ${translatedText}
+                    </div>
+                `;
+                
+                button.innerHTML = '<i class="fas fa-check"></i> Translated';
+                button.style.background = '#059669';
+                
+            } catch (error) {
+                console.error('Translation error:', error);
+                button.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Translation Failed';
+                button.style.background = '#dc2626';
+            }
+        }
+
+        function initializeComparisonButtons() {
+            // Image comparison
+            document.getElementById('compareImages').addEventListener('click', () => {
+                performComparison('image');
+            });
+            
+            // Text comparison
+            document.getElementById('compareTexts').addEventListener('click', () => {
+                performComparison('text');
+            });
+            
+            // Voice comparison
+            document.getElementById('compareVoices').addEventListener('click', () => {
+                performComparison('voice');
+            });
+            
+            // Video comparison
+            document.getElementById('compareVideos').addEventListener('click', () => {
+                performComparison('video');
+            });
+            
+            // Document comparison
+            document.getElementById('compareDocuments').addEventListener('click', () => {
+                performComparison('document');
+            });
+            
+            // Text input monitoring
+            document.getElementById('textA').addEventListener('input', updateCompareButtonState);
+            document.getElementById('textB').addEventListener('input', updateCompareButtonState);
+        }
+
+        function updateCompareButtonState() {
+            const activeSection = document.querySelector('.comparison-section.active');
+            if (!activeSection) return;
+            
+            const sectionId = activeSection.id;
+            let canCompare = false;
+            
+            if (sectionId === 'imageComparison') {
+                const previewA = document.getElementById('previewA').innerHTML;
+                const previewB = document.getElementById('previewB').innerHTML;
+                canCompare = previewA.includes('img') && previewB.includes('img');
+                document.getElementById('compareImages').disabled = !canCompare;
+            } else if (sectionId === 'textComparison') {
+                const textA = document.getElementById('textA').value.trim();
+                const textB = document.getElementById('textB').value.trim();
+                canCompare = textA.length > 10 && textB.length > 10;
+                document.getElementById('compareTexts').disabled = !canCompare;
+            } else if (sectionId === 'voiceComparison') {
+                const previewA = document.getElementById('audioPreviewA').innerHTML;
+                const previewB = document.getElementById('audioPreviewB').innerHTML;
+                canCompare = previewA.includes('audio') && previewB.includes('audio');
+                document.getElementById('compareVoices').disabled = !canCompare;
+            } else if (sectionId === 'videoComparison') {
+                const previewA = document.getElementById('videoPreviewA').innerHTML;
+                const previewB = document.getElementById('videoPreviewB').innerHTML;
+                canCompare = previewA.includes('video') && previewB.includes('video');
+                document.getElementById('compareVideos').disabled = !canCompare;
+            } else if (sectionId === 'documentComparison') {
+                const previewA = document.getElementById('docPreviewA').innerHTML;
+                const previewB = document.getElementById('docPreviewB').innerHTML;
+                canCompare = previewA.includes('file-pdf') && previewB.includes('file-pdf');
+                document.getElementById('compareDocuments').disabled = !canCompare;
+            }
+        }
+
+        async function performComparison(type) {
+            const resultsSection = document.getElementById('comparisonResults');
+            resultsSection.classList.add('show');
+            
+            // Show loading
+            document.getElementById('winnerResult').innerHTML = `
+                <i class="fas fa-spinner fa-spin"></i> Analyzing and comparing ${type}s...
+            `;
+            
+            try {
+                let analysisA, analysisB;
+                
+                if (type === 'text') {
+                    const textA = document.getElementById('textA').value;
+                    const textB = document.getElementById('textB').value;
+                    
+                    analysisA = await analyzeContent(textA, 'text');
+                    analysisB = await analyzeContent(textB, 'text');
+                } else {
+                    // For files, simulate analysis
+                    analysisA = await simulateAnalysis(type);
+                    analysisB = await simulateAnalysis(type);
+                }
+                
+                displayComparisonResults(analysisA, analysisB, type);
+                
+            } catch (error) {
+                console.error('Comparison error:', error);
+                document.getElementById('winnerResult').innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> Error during comparison analysis
+                `;
+            }
+        }
+
+        async function analyzeContent(content, type) {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    type: type,
+                    content: content
+                })
+            });
+            
+            if (!response.ok) throw new Error('Analysis failed');
+            return await response.json();
+        }
+
+        async function simulateAnalysis(type) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Generate realistic analysis results
+            const aiProbability = 0.2 + Math.random() * 0.6; // 20-80%
+            
+            return {
+                ai_probability: aiProbability,
+                confidence: 0.7 + Math.random() * 0.3,
+                explanation: `${type} analysis completed with detailed pattern recognition`,
+                detection_methods: [`${type}_pattern_analysis`, 'metadata_inspection', 'statistical_analysis']
+            };
+        }
+
+        function displayComparisonResults(resultA, resultB, type) {
+            const probA = Math.round(resultA.ai_probability * 100);
+            const probB = Math.round(resultB.ai_probability * 100);
+            const diff = Math.abs(probA - probB);
+            
+            let winner, loser, winnerProb, loserProb;
+            if (probA < probB) {
+                winner = 'A';
+                loser = 'B';
+                winnerProb = probA;
+                loserProb = probB;
+            } else {
+                winner = 'B';
+                loser = 'A';
+                winnerProb = probB;
+                loserProb = probA;
+            }
+            
+            // Update results
+            document.getElementById('winnerResult').innerHTML = `
+                <i class="fas fa-trophy"></i>
+                Sample ${winner} appears more HUMAN (${winnerProb}% AI probability)<br>
+                Sample ${loser} appears more AI-GENERATED (${loserProb}% AI probability)
+            `;
+            
+            document.getElementById('probabilityDiff').textContent = `${diff}%`;
+            
+            const confidence = diff > 30 ? 'High' : diff > 15 ? 'Medium' : 'Low';
+            document.getElementById('confidenceLevel').textContent = confidence;
+            
+            let recommendation;
+            if (diff > 30) {
+                recommendation = `Clear difference detected. Sample ${winner} is likely human-created.`;
+            } else if (diff > 15) {
+                recommendation = `Moderate difference. Sample ${winner} shows fewer AI patterns.`;
+            } else {
+                recommendation = `Similar AI probability. Both samples require manual review.`;
+            }
+            document.getElementById('finalRecommendation').textContent = recommendation;
+            
+            // Update individual results
+            document.getElementById(`${type === 'text' ? 'text' : ''}result${winner === 'A' ? 'A' : 'B'}`).innerHTML = `
+                <div style="color: #059669; font-weight: bold;">
+                    <i class="fas fa-check-circle"></i> More likely HUMAN (${winnerProb}% AI)
+                </div>
+            `;
+            
+            document.getElementById(`${type === 'text' ? 'text' : ''}result${loser === 'A' ? 'A' : 'B'}`).innerHTML = `
+                <div style="color: #dc2626; font-weight: bold;">
+                    <i class="fas fa-robot"></i> More likely AI-GENERATED (${loserProb}% AI)
+                </div>
+            `;
+        }
+
+        function resetComparisonModal() {
+            // Clear all previews
+            document.querySelectorAll('.image-preview, .audio-preview, .document-preview, .video-preview').forEach(preview => {
+                preview.innerHTML = '';
+            });
+            
+            // Clear transcription results
+            document.querySelectorAll('.transcription-result').forEach(transcription => {
+                transcription.classList.remove('show');
+                transcription.innerHTML = '';
+            });
+            
+            // Clear text areas
+            document.getElementById('textA').value = '';
+            document.getElementById('textB').value = '';
+            
+            // Clear results
+            document.querySelectorAll('.comparison-result').forEach(result => {
+                result.innerHTML = '';
+            });
+            
+            // Hide final results
+            document.getElementById('comparisonResults').classList.remove('show');
+            
+            // Reset file inputs
+            document.querySelectorAll('input[type="file"]').forEach(input => {
+                input.value = '';
+            });
+            
+            // Disable compare buttons
+            document.querySelectorAll('.compare-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
     </script>
 </body>
 </html>

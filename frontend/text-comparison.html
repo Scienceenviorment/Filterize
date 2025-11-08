@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Comparison - Filterize AI Detection Platform</title>
+    <link rel="stylesheet" href="service-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="service-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-shield-alt"></i>
+                <span>Filterize</span>
+            </div>
+            <button class="home-btn" onclick="goHome()">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="service-container">
+        <!-- Header Section -->
+        <div class="service-header">
+            <div class="service-icon">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <h1>Text Comparison Analysis</h1>
+            <p>Compare two text samples using advanced AI detection and OpenAI analysis</p>
+        </div>
+
+        <!-- Comparison Setup Section -->
+        <div class="comparison-setup">
+            <h2><i class="fas fa-file-text"></i> Text Input Methods</h2>
+            
+            <div class="comparison-grid">
+                <!-- Text Sample A -->
+                <div class="comparison-side">
+                    <h3>Text Sample A</h3>
+                    
+                    <div class="input-methods">
+                        <div class="method-tabs">
+                            <button class="method-tab active" onclick="switchInputMethod('A', 'text')">
+                                <i class="fas fa-edit"></i> Type Text
+                            </button>
+                            <button class="method-tab" onclick="switchInputMethod('A', 'file')">
+                                <i class="fas fa-upload"></i> Upload File
+                            </button>
+                            <button class="method-tab" onclick="switchInputMethod('A', 'url')">
+                                <i class="fas fa-link"></i> From URL
+                            </button>
+                        </div>
+                        
+                        <!-- Text Input -->
+                        <div class="input-panel active" id="textInputA">
+                            <textarea class="text-input" id="textAreaA" placeholder="Paste or type your first text sample here..."></textarea>
+                            <div class="input-stats">
+                                <span id="textStatsA">0 characters, 0 words</span>
+                            </div>
+                        </div>
+                        
+                        <!-- File Upload -->
+                        <div class="input-panel" id="fileInputA">
+                            <div class="file-upload-area" onclick="document.getElementById('fileUploadA').click()">
+                                <i class="fas fa-file-upload"></i>
+                                <p>Click to upload document</p>
+                                <span class="supported-formats">TXT, DOC, DOCX, PDF</span>
+                            </div>
+                            <input type="file" id="fileUploadA" accept=".txt,.doc,.docx,.pdf" onchange="handleFileUpload('A', this)">
+                        </div>
+                        
+                        <!-- URL Input -->
+                        <div class="input-panel" id="urlInputA">
+                            <div class="url-input-group">
+                                <input type="url" id="urlFieldA" placeholder="Enter URL to fetch text content...">
+                                <button class="btn secondary" onclick="fetchFromUrl('A')">
+                                    <i class="fas fa-download"></i> Fetch
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-preview" id="textPreviewA">
+                        <div class="preview-placeholder">
+                            <i class="fas fa-file-text"></i>
+                            <span>Text A preview will appear here</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Center -->
+                <div class="comparison-center">
+                    <div class="comparison-status" id="comparisonStatus">
+                        <div class="similarity-circle" id="similarityCircle">
+                            <span class="similarity-percentage">--</span>
+                        </div>
+                        <div class="similarity-label">Text Similarity</div>
+                        <button class="btn primary" id="compareBtn" onclick="compareTexts()" disabled>
+                            <i class="fas fa-search"></i> Compare Texts
+                        </button>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <button class="btn secondary small" onclick="swapTexts()">
+                            <i class="fas fa-exchange-alt"></i> Swap
+                        </button>
+                        <button class="btn secondary small" onclick="clearTexts()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Text Sample B -->
+                <div class="comparison-side">
+                    <h3>Text Sample B</h3>
+                    
+                    <div class="input-methods">
+                        <div class="method-tabs">
+                            <button class="method-tab active" onclick="switchInputMethod('B', 'text')">
+                                <i class="fas fa-edit"></i> Type Text
+                            </button>
+                            <button class="method-tab" onclick="switchInputMethod('B', 'file')">
+                                <i class="fas fa-upload"></i> Upload File
+                            </button>
+                            <button class="method-tab" onclick="switchInputMethod('B', 'url')">
+                                <i class="fas fa-link"></i> From URL
+                            </button>
+                        </div>
+                        
+                        <!-- Text Input -->
+                        <div class="input-panel active" id="textInputB">
+                            <textarea class="text-input" id="textAreaB" placeholder="Paste or type your second text sample here..."></textarea>
+                            <div class="input-stats">
+                                <span id="textStatsB">0 characters, 0 words</span>
+                            </div>
+                        </div>
+                        
+                        <!-- File Upload -->
+                        <div class="input-panel" id="fileInputB">
+                            <div class="file-upload-area" onclick="document.getElementById('fileUploadB').click()">
+                                <i class="fas fa-file-upload"></i>
+                                <p>Click to upload document</p>
+                                <span class="supported-formats">TXT, DOC, DOCX, PDF</span>
+                            </div>
+                            <input type="file" id="fileUploadB" accept=".txt,.doc,.docx,.pdf" onchange="handleFileUpload('B', this)">
+                        </div>
+                        
+                        <!-- URL Input -->
+                        <div class="input-panel" id="urlInputB">
+                            <div class="url-input-group">
+                                <input type="url" id="urlFieldB" placeholder="Enter URL to fetch text content...">
+                                <button class="btn secondary" onclick="fetchFromUrl('B')">
+                                    <i class="fas fa-download"></i> Fetch
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-preview" id="textPreviewB">
+                        <div class="preview-placeholder">
+                            <i class="fas fa-file-text"></i>
+                            <span>Text B preview will appear here</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Results Section -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Enhanced Comparison Results</h2>
+            
+            <!-- Overview Cards -->
+            <div class="results-overview">
+                <div class="result-card">
+                    <div class="card-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Content Similarity</h3>
+                        <div class="percentage-display" id="contentSimilarity">--</div>
+                        <p class="result-description" id="similarityDescription">Analysis pending...</p>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="card-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>AI Detection Match</h3>
+                        <div class="percentage-display" id="aiDetectionMatch">--</div>
+                        <p class="result-description" id="aiMatchDescription">Analysis pending...</p>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="card-icon">
+                        <i class="fas fa-copy"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Plagiarism Score</h3>
+                        <div class="percentage-display" id="plagiarismScore">--</div>
+                        <p class="result-description" id="plagiarismDescription">Analysis pending...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Analysis -->
+            <div class="detailed-comparison">
+                <div class="comparison-tabs">
+                    <button class="tab-btn active" onclick="showComparisonTab('analysis')">
+                        <i class="fas fa-chart-bar"></i> Analysis
+                    </button>
+                    <button class="tab-btn" onclick="showComparisonTab('style')">
+                        <i class="fas fa-palette"></i> Writing Style
+                    </button>
+                    <button class="tab-btn" onclick="showComparisonTab('openai')">
+                        <i class="fas fa-brain"></i> OpenAI Insights
+                    </button>
+                    <button class="tab-btn" onclick="showComparisonTab('plagiarism')">
+                        <i class="fas fa-search"></i> Plagiarism Check
+                    </button>
+                </div>
+
+                <!-- Analysis Tab -->
+                <div class="tab-content active" id="analysisTab">
+                    <h3><i class="fas fa-chart-bar"></i> Content Analysis</h3>
+                    <div class="analysis-metrics">
+                        <div class="metric-row">
+                            <div class="metric-label">Semantic Similarity:</div>
+                            <div class="metric-bar">
+                                <div class="bar-fill" id="semanticSimilarity"></div>
+                            </div>
+                            <div class="metric-value" id="semanticValue">--</div>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-label">Structure Match:</div>
+                            <div class="metric-bar">
+                                <div class="bar-fill" id="structureMatch"></div>
+                            </div>
+                            <div class="metric-value" id="structureValue">--</div>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-label">Vocabulary Overlap:</div>
+                            <div class="metric-bar">
+                                <div class="bar-fill" id="vocabularyOverlap"></div>
+                            </div>
+                            <div class="metric-value" id="vocabularyValue">--</div>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-label">Topic Coherence:</div>
+                            <div class="metric-bar">
+                                <div class="bar-fill" id="topicCoherence"></div>
+                            </div>
+                            <div class="metric-value" id="topicValue">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Style Tab -->
+                <div class="tab-content" id="styleTab">
+                    <h3><i class="fas fa-palette"></i> Writing Style Comparison</h3>
+                    <div class="style-grid">
+                        <div class="style-section">
+                            <h4>Text A Analysis</h4>
+                            <div class="style-metrics" id="styleMetricsA">
+                                <!-- Will be populated with style data -->
+                            </div>
+                        </div>
+                        <div class="style-section">
+                            <h4>Text B Analysis</h4>
+                            <div class="style-metrics" id="styleMetricsB">
+                                <!-- Will be populated with style data -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OpenAI Tab -->
+                <div class="tab-content" id="openaiTab">
+                    <h3><i class="fas fa-brain"></i> OpenAI Analysis Insights</h3>
+                    <div class="openai-insights" id="openaiInsights">
+                        <div class="insight-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Generating AI insights...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plagiarism Tab -->
+                <div class="tab-content" id="plagiarismTab">
+                    <h3><i class="fas fa-search"></i> Plagiarism Detection</h3>
+                    <div class="plagiarism-results" id="plagiarismResults">
+                        <div class="plagiarism-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Checking against internet sources...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="export-section">
+                <h3><i class="fas fa-download"></i> Export Results</h3>
+                <div class="export-buttons">
+                    <button class="btn secondary" onclick="exportResults('pdf')">
+                        <i class="fas fa-file-pdf"></i> Export PDF Report
+                    </button>
+                    <button class="btn secondary" onclick="exportResults('json')">
+                        <i class="fas fa-file-code"></i> Export JSON Data
+                    </button>
+                    <button class="btn secondary" onclick="exportResults('csv')">
+                        <i class="fas fa-file-csv"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Comparing texts with OpenAI...</div>
+    </div>
+
+    <script src="text-comparison.js"></script>
+</body>
+</html>

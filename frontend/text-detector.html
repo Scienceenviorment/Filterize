@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text AI Detector - Filterize</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/frontend/professional-styles.css">
+    <link rel="stylesheet" href="/frontend/service-styles.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="service-nav">
+        <div class="nav-container">
+            <button class="home-btn" onclick="goHome()">
+                <i class="fas fa-home"></i> Back to Home
+            </button>
+            <div class="service-title">
+                <i class="fas fa-file-text"></i>
+                Text AI Detector
+            </div>
+            <div class="service-actions">
+                <button class="btn btn-outline" onclick="openTextComparison()">
+                    <i class="fas fa-balance-scale"></i> Compare Texts
+                </button>
+                <button class="btn btn-outline" onclick="openBulkAnalysis()">
+                    <i class="fas fa-layer-group"></i> Bulk Analysis
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="service-container">
+        <!-- Input Section -->
+        <div class="upload-section">
+            <h2 class="section-title">Analyze Text for AI Detection</h2>
+            <p class="section-subtitle">Paste text, upload a document, or drag and drop files for comprehensive AI analysis</p>
+            
+            <div class="text-input-options">
+                <!-- Text Input -->
+                <div class="input-card main-input">
+                    <div class="input-header">
+                        <i class="fas fa-edit"></i>
+                        <h3>Direct Text Input</h3>
+                        <div class="text-stats">
+                            <span class="char-count">0 characters</span>
+                            <span class="word-count">0 words</span>
+                        </div>
+                    </div>
+                    <div class="text-input-area">
+                        <textarea 
+                            id="textInput" 
+                            placeholder="Paste your text here for AI detection analysis...&#10;&#10;You can analyze any text content including:&#10;• Articles and blog posts&#10;• Academic papers&#10;• Creative writing&#10;• Social media posts&#10;• Marketing content&#10;• And much more!"
+                            rows="12"
+                            oninput="updateTextStats()"
+                        ></textarea>
+                        <div class="input-actions">
+                            <button class="btn btn-primary" onclick="analyzeText()">
+                                <i class="fas fa-search"></i> Analyze Text
+                            </button>
+                            <button class="btn btn-outline" onclick="clearText()">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                            <button class="btn btn-outline" onclick="pasteFromClipboard()">
+                                <i class="fas fa-clipboard"></i> Paste
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Upload Options -->
+                <div class="upload-options-grid">
+                    <!-- Document Upload -->
+                    <div class="upload-card">
+                        <div class="upload-header">
+                            <i class="fas fa-file-upload"></i>
+                            <h3>Upload Document</h3>
+                        </div>
+                        <div class="upload-area" id="docUploadArea" onclick="document.getElementById('docInput').click()">
+                            <i class="fas fa-file-alt"></i>
+                            <p>Click to upload document</p>
+                            <span class="upload-hint">Supports: TXT, DOC, DOCX, PDF</span>
+                        </div>
+                        <input type="file" id="docInput" accept=".txt,.doc,.docx,.pdf" style="display: none;" onchange="handleDocUpload(event)">
+                    </div>
+
+                    <!-- URL Input -->
+                    <div class="upload-card">
+                        <div class="upload-header">
+                            <i class="fas fa-link"></i>
+                            <h3>Analyze from URL</h3>
+                        </div>
+                        <div class="url-input-area">
+                            <input type="url" id="urlInput" placeholder="https://example.com/article" />
+                            <button class="btn btn-primary" onclick="analyzeURL()">
+                                <i class="fas fa-download"></i> Fetch & Analyze
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Analysis Tools -->
+        <div class="quick-tools-section">
+            <h3>Quick Analysis Tools</h3>
+            <div class="quick-tools-grid">
+                <button class="quick-tool" onclick="runGrammarCheck()">
+                    <i class="fas fa-spell-check"></i>
+                    <span>Grammar Check</span>
+                </button>
+                <button class="quick-tool" onclick="runPlagiarismCheck()">
+                    <i class="fas fa-search-plus"></i>
+                    <span>Plagiarism Check</span>
+                </button>
+                <button class="quick-tool" onclick="runStyleAnalysis()">
+                    <i class="fas fa-palette"></i>
+                    <span>Writing Style</span>
+                </button>
+                <button class="quick-tool" onclick="runSentimentAnalysis()">
+                    <i class="fas fa-heart"></i>
+                    <span>Sentiment</span>
+                </button>
+                <button class="quick-tool" onclick="runReadabilityCheck()">
+                    <i class="fas fa-eye"></i>
+                    <span>Readability</span>
+                </button>
+                <button class="quick-tool" onclick="runKeywordExtraction()">
+                    <i class="fas fa-tags"></i>
+                    <span>Keywords</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading Section -->
+        <div class="loading-section" id="loadingSection" style="display: none;">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <div class="loading-steps">
+                    <div class="step active" id="step1">
+                        <i class="fas fa-file-text"></i>
+                        <span>Processing Text</span>
+                    </div>
+                    <div class="step" id="step2">
+                        <i class="fas fa-brain"></i>
+                        <span>AI Analysis</span>
+                    </div>
+                    <div class="step" id="step3">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Generating Report</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2 class="section-title">Text Analysis Results</h2>
+            
+            <!-- AI Detection Results -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>AI Detection Analysis</h3>
+                    <div class="confidence-badge" id="confidenceBadge">
+                        <span class="confidence-value" id="confidenceValue">0%</span>
+                        <span class="confidence-label">Confidence</span>
+                    </div>
+                </div>
+                <div class="detection-results">
+                    <div class="percentage-display">
+                        <div class="percentage-item human">
+                            <div class="percentage-circle" id="humanPercentage">
+                                <span class="percentage-value" id="humanValue">0%</span>
+                                <span class="percentage-label">Human Written</span>
+                            </div>
+                        </div>
+                        <div class="percentage-item ai">
+                            <div class="percentage-circle" id="aiPercentage">
+                                <span class="percentage-value" id="aiValue">0%</span>
+                                <span class="percentage-label">AI Generated</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detection-verdict" id="detectionVerdict">
+                        <div class="verdict-text"></div>
+                        <div class="verdict-explanation" id="verdictExplanation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Analysis -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-microscope"></i>
+                    <h3>Detailed Analysis</h3>
+                </div>
+                <div class="analysis-grid">
+                    <div class="analysis-item">
+                        <h4>Writing Patterns</h4>
+                        <div class="pattern-indicators" id="writingPatterns">
+                            <div class="indicator">
+                                <span class="label">Vocabulary Complexity</span>
+                                <div class="progress-bar">
+                                    <div class="progress" id="vocabComplexity"></div>
+                                </div>
+                                <span class="value" id="vocabValue">0%</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="label">Sentence Variation</span>
+                                <div class="progress-bar">
+                                    <div class="progress" id="sentenceVariation"></div>
+                                </div>
+                                <span class="value" id="sentenceValue">0%</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="label">Natural Flow</span>
+                                <div class="progress-bar">
+                                    <div class="progress" id="naturalFlow"></div>
+                                </div>
+                                <span class="value" id="flowValue">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analysis-item">
+                        <h4>Content Characteristics</h4>
+                        <div class="characteristics-list" id="contentCharacteristics">
+                            <div class="characteristic">
+                                <i class="fas fa-book"></i>
+                                <span class="char-label">Reading Level:</span>
+                                <span class="char-value" id="readingLevel">College</span>
+                            </div>
+                            <div class="characteristic">
+                                <i class="fas fa-heart"></i>
+                                <span class="char-label">Sentiment:</span>
+                                <span class="char-value" id="sentimentValue">Neutral</span>
+                            </div>
+                            <div class="characteristic">
+                                <i class="fas fa-clock"></i>
+                                <span class="char-label">Est. Read Time:</span>
+                                <span class="char-value" id="readTime">2 min</span>
+                            </div>
+                            <div class="characteristic">
+                                <i class="fas fa-language"></i>
+                                <span class="char-label">Language:</span>
+                                <span class="char-value" id="languageDetected">English</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Statistics -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-calculator"></i>
+                    <h3>Text Statistics</h3>
+                </div>
+                <div class="stats-grid" id="textStats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalWords">0</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalChars">0</div>
+                        <div class="stat-label">Characters</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalSentences">0</div>
+                        <div class="stat-label">Sentences</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalParagraphs">0</div>
+                        <div class="stat-label">Paragraphs</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="avgSentenceLength">0</div>
+                        <div class="stat-label">Avg Sentence Length</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="uniqueWords">0</div>
+                        <div class="stat-label">Unique Words</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Provider Analysis -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-network-wired"></i>
+                    <h3>Multi-AI Provider Analysis</h3>
+                </div>
+                <div class="providers-analysis" id="providersAnalysis">
+                    <div class="provider-item">
+                        <div class="provider-name">OpenAI GPT Detection</div>
+                        <div class="provider-score">73% AI</div>
+                        <div class="provider-confidence">High</div>
+                    </div>
+                    <div class="provider-item">
+                        <div class="provider-name">Google AI Detection</div>
+                        <div class="provider-score">68% AI</div>
+                        <div class="provider-confidence">Medium</div>
+                    </div>
+                    <div class="provider-item">
+                        <div class="provider-name">Anthropic Analysis</div>
+                        <div class="provider-score">71% AI</div>
+                        <div class="provider-confidence">High</div>
+                    </div>
+                    <div class="consensus-result">
+                        <strong>Consensus: 71% likely AI-generated</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="result-actions">
+                <button class="btn btn-primary" onclick="downloadReport()">
+                    <i class="fas fa-download"></i> Download Report
+                </button>
+                <button class="btn btn-outline" onclick="shareResults()">
+                    <i class="fas fa-share"></i> Share Results
+                </button>
+                <button class="btn btn-outline" onclick="analyzeAnother()">
+                    <i class="fas fa-plus"></i> Analyze Another
+                </button>
+                <button class="btn btn-outline" onclick="exportHighlights()">
+                    <i class="fas fa-highlighter"></i> Export Highlights
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Text Comparison Modal -->
+    <div class="comparison-modal" id="textComparisonModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-balance-scale"></i> Text Comparison</h2>
+                <button class="modal-close" onclick="closeTextComparison()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="comparison-grid">
+                    <!-- Text 1 -->
+                    <div class="comparison-item">
+                        <h3>Text Sample 1</h3>
+                        <div class="text-comparison-input">
+                            <textarea 
+                                id="compareText1" 
+                                placeholder="Paste first text for comparison..."
+                                rows="8"
+                            ></textarea>
+                            <div class="comparison-stats">
+                                <span id="compare1Words">0 words</span>
+                                <span id="compare1Chars">0 chars</span>
+                            </div>
+                        </div>
+                        <div class="comparison-results" id="text1Results"></div>
+                    </div>
+
+                    <!-- Text 2 -->
+                    <div class="comparison-item">
+                        <h3>Text Sample 2</h3>
+                        <div class="text-comparison-input">
+                            <textarea 
+                                id="compareText2" 
+                                placeholder="Paste second text for comparison..."
+                                rows="8"
+                            ></textarea>
+                            <div class="comparison-stats">
+                                <span id="compare2Words">0 words</span>
+                                <span id="compare2Chars">0 chars</span>
+                            </div>
+                        </div>
+                        <div class="comparison-results" id="text2Results"></div>
+                    </div>
+                </div>
+
+                <!-- Comparison Results -->
+                <div class="comparison-results-section" id="comparisonResults" style="display: none;">
+                    <h3>Comparison Analysis</h3>
+                    
+                    <div class="comparison-summary">
+                        <div class="similarity-metrics">
+                            <div class="metric">
+                                <div class="metric-circle">
+                                    <span class="metric-value" id="textSimilarity">0%</span>
+                                </div>
+                                <span class="metric-label">Text Similarity</span>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-circle">
+                                    <span class="metric-value" id="styleSimilarity">0%</span>
+                                </div>
+                                <span class="metric-label">Style Similarity</span>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-circle">
+                                    <span class="metric-value" id="structureSimilarity">0%</span>
+                                </div>
+                                <span class="metric-label">Structure Similarity</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detailed-comparison">
+                        <div class="comparison-section">
+                            <h4>Key Differences</h4>
+                            <div class="differences-list" id="keyDifferences">
+                                <div class="difference-item">
+                                    <strong>Writing Style:</strong> Text 1 uses more formal language, while Text 2 is more conversational.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="comparison-section">
+                            <h4>Similarities Found</h4>
+                            <div class="similarities-list" id="keySimilarities">
+                                <div class="similarity-item">
+                                    <strong>Topic Focus:</strong> Both texts discuss similar main themes and concepts.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="comparison-section">
+                            <h4>AI Detection Comparison</h4>
+                            <div class="ai-comparison" id="aiDetectionComparison">
+                                <div class="ai-comp-item">
+                                    <span class="text-label">Text 1:</span>
+                                    <span class="ai-score" id="text1AIScore">65% AI</span>
+                                </div>
+                                <div class="ai-comp-item">
+                                    <span class="text-label">Text 2:</span>
+                                    <span class="ai-score" id="text2AIScore">42% AI</span>
+                                </div>
+                                <div class="ai-verdict" id="comparisonVerdict">
+                                    Text 1 is more likely to be AI-generated than Text 2.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-actions">
+                    <button class="btn btn-primary" onclick="compareTexts()" id="compareBtn">
+                        <i class="fas fa-chart-bar"></i> Compare Texts
+                    </button>
+                    <button class="btn btn-outline" onclick="downloadComparisonReport()">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-overlay" onclick="closeTextComparison()"></div>
+    </div>
+
+    <!-- Bulk Analysis Modal -->
+    <div class="comparison-modal" id="bulkAnalysisModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-layer-group"></i> Bulk Text Analysis</h2>
+                <button class="modal-close" onclick="closeBulkAnalysis()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="bulk-upload-area">
+                    <h3>Upload Multiple Files</h3>
+                    <div class="bulk-drop-zone" id="bulkDropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drop multiple text files here or click to browse</p>
+                        <span class="upload-hint">Supports: TXT, DOC, DOCX, PDF (up to 10 files)</span>
+                    </div>
+                    <input type="file" id="bulkFileInput" multiple accept=".txt,.doc,.docx,.pdf" style="display: none;">
+                </div>
+
+                <div class="bulk-results" id="bulkResults" style="display: none;">
+                    <h3>Bulk Analysis Results</h3>
+                    <div class="bulk-summary">
+                        <div class="summary-stat">
+                            <span class="stat-number" id="totalFiles">0</span>
+                            <span class="stat-label">Files Processed</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="stat-number" id="avgAIScore">0%</span>
+                            <span class="stat-label">Avg AI Score</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="stat-number" id="highRiskFiles">0</span>
+                            <span class="stat-label">High Risk Files</span>
+                        </div>
+                    </div>
+                    <div class="files-list" id="bulkFilesList"></div>
+                </div>
+
+                <div class="bulk-actions">
+                    <button class="btn btn-primary" onclick="startBulkAnalysis()" id="bulkAnalyzeBtn" disabled>
+                        <i class="fas fa-play"></i> Start Analysis
+                    </button>
+                    <button class="btn btn-outline" onclick="downloadBulkReport()">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-overlay" onclick="closeBulkAnalysis()"></div>
+    </div>
+
+    <script src="/frontend/text-detector.js"></script>
+</body>
+</html>

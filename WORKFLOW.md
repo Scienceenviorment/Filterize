@@ -9,6 +9,7 @@ Filterize/
 │   ├── ai_detection.py        # Core AI detection algorithms
 │   ├── media_detection.py     # Multi-media analysis (images, videos, URLs)
 │   ├── ai_providers.py        # External AI provider integrations
+
 │   ├── local_model.py         # Local ML model training & inference
 │   └── check_root.py          # Security utilities
 │
